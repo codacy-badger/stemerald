@@ -12,3 +12,6 @@ RUN pip install . && mkdir -p $LOG_DIR
 CMD ["stemerald", "worker", "cleanup"]
 
 VOLUME ["/var/log/"]
+
+COPY entrypoint.sh /docker-entrypoint.sh
+ENTRYPOINT [ "/docker-entrypoint.sh" ]

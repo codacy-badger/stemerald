@@ -1,3 +1,3 @@
 #!/bin/sh
 
-stemerald worker start
+stemerald worker start -c /etc/stemerald/config.yml
