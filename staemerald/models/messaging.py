@@ -5,7 +5,7 @@ from restfulpy.orm import Field
 from restfulpy.taskqueue import Task
 from sqlalchemy import Integer, ForeignKey, Unicode, JSON
 
-from staemerald.sms import create_sms_provider
+from stemerald.sms import create_sms_provider
 
 logger = get_logger('MESSAGING')
 

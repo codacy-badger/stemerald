@@ -6,10 +6,10 @@ from restfulpy.application import Application as BaseApplication
 from restfulpy.orm import DBSession
 from sqlalchemy_media import StoreManager, FileSystemStore
 
-from staemerald import basedata, mockups
-from staemerald.mockups import mockup
-from staemerald.authentication import Authenticator
-from staemerald.controllers.root import Root
+from stemerald import basedata, mockups
+from stemerald.mockups import mockup
+from stemerald.authentication import Authenticator
+from stemerald.controllers.root import Root
 
 __version__ = '0.7.6'
 
@@ -19,8 +19,8 @@ class Application(BaseApplication):
     builtin_configuration = """
     
     db:
-      url: postgresql://postgres:postgres@localhost/staemerald_dev
-      test_url: postgresql://postgres:postgres@localhost/staemerald_test
+      url: postgresql://postgres:postgres@localhost/stemerald_dev
+      test_url: postgresql://postgres:postgres@localhost/stemerald_test
       administrative_url: postgresql://postgres:postgres@localhost/postgres
     
     redis:
@@ -34,9 +34,9 @@ class Application(BaseApplication):
       base_url: http://localhost:8081/media
       
     messaging:
-      default_sender: Stacrypt
+      default_sender: Stemerald
       template_dirs:
-        - %(root_path)s/staemerald/templates
+        - %(root_path)s/stemerald/templates
         
     reset_password:
       secret: email-verification-secret
@@ -49,7 +49,7 @@ class Application(BaseApplication):
       url: https://stacrypt.io/email_verification
       
     shaparak:
-      provider: staemerald.shaparak.PayIrProvider
+      provider: stemerald.shaparak.PayIrProvider
       
       pay_ir:
         api_key: 2bf8727eb3772b28ce4a0707bf4ee456
@@ -58,7 +58,7 @@ class Application(BaseApplication):
         result_redirect_url: https://stacrypt.io/payment_redirect
 
     sms:
-      provider: staemerald.sms.KavenegarSmsProvider
+      provider: stemerald.sms.KavenegarSmsProvider
 
       kavenegar:
         verification_code_url: https://api.kavenegar.com/v1/3277760553034736E260553055303470553034736E2356413D3D/verify/lookup.json
@@ -97,7 +97,7 @@ class Application(BaseApplication):
 
     def __init__(self):
         super().__init__(
-            'staemerald',
+            'stemerald',
             root=Root(),
             root_path=join(dirname(__file__), '..'),
             version=__version__,
@@ -145,4 +145,4 @@ class Application(BaseApplication):
         super().initialize_models(session=session)
 
 
-staemerald = Application()
+stemerald = Application()

@@ -10,7 +10,7 @@
                 <table class="header" align="center" bgcolor="#FFEFVV" width="1000px" style="height: 90px">
                     <tr>
                         <td align="center">
-                            <h2>Stacrypt</h2>
+                            <h2>Stemerald</h2>
                         </td>
                     </tr>
                 </table>

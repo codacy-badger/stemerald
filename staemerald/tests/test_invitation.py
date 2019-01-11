@@ -1,5 +1,5 @@
-from staemerald.models import Admin, Invitation
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models import Admin, Invitation
+from stemerald.tests.helpers import WebTestCase, As
 from restfulpy.testing import FormParameter
 
 

@@ -1,7 +1,7 @@
 from restfulpy.testing import FormParameter
 
-from staemerald.models import Market, Cryptocurrency, Fiat, Client
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models import Market, Cryptocurrency, Fiat, Client
+from stemerald.tests.helpers import WebTestCase, As
 
 
 class MarketEditTestCase(WebTestCase):

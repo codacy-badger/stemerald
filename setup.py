@@ -3,7 +3,7 @@ from os.path import join, dirname
 from setuptools import setup, find_packages
 
 # reading package version (without reloading it)
-with open(join(dirname(__file__), 'staemerald', '__init__.py')) as v_file:
+with open(join(dirname(__file__), 'stemerald', '__init__.py')) as v_file:
     package_version = re.compile(r".*__version__ = '(.*?)'", re.S).match(v_file.read()).group(1)
 
 dependencies = [
@@ -28,19 +28,19 @@ dependencies = [
 ]
 
 setup(
-    name="staemerald",
+    name="stemerald",
     version=package_version,
     author="Prefect",
     author_email="mahdi_1373@yahoo.com",
     install_requires=dependencies,
     packages=find_packages(),
-    test_suite="staemerald.tests",
+    test_suite="stemerald.tests",
     entry_points={
         'console_scripts': [
-            'staemerald = staemerald:staemerald.cli_main',
+            'stemerald = stemerald:stemerald.cli_main',
         ]
     },
-    message_extractors={'staemerald': [
+    message_extractors={'stemerald': [
         ('**.py', 'python', None),
     ]},
 )

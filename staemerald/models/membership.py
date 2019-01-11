@@ -15,7 +15,7 @@ from sqlalchemy.orm import synonym
 from sqlalchemy.sql.sqltypes import Integer, Unicode, Enum, DateTime, JSON
 from sqlalchemy_media import Image, WandAnalyzer, ImageValidator, ImageProcessor
 
-from staemerald.models import Currency, Fund
+from stemerald.models import Currency, Fund
 
 
 class Member(ModifiedMixin, ActivationMixin, OrderingMixin, FilteringMixin, DeclarativeBase):

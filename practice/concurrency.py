@@ -1,12 +1,12 @@
 from sqlalchemy.orm import scoped_session
 
-import staemerald
-from staemerald.models import Client, Cryptocurrency
-from staemerald.models.fund import Fund
+import stemerald
+from stemerald.models import Client, Cryptocurrency
+from stemerald.models.fund import Fund
 from restfulpy.db import DatabaseManager
 from restfulpy.orm import DBSession, session_factory, setup_schema, create_engine
 
-app = staemerald.staemerald
+app = stemerald.stemerald
 app.configure()
 # app.initialize_models()
 

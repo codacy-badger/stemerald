@@ -2,8 +2,8 @@ from nanohttp import settings
 
 from restfulpy.testing.documentation import FormParameter
 
-from staemerald.tests.helpers import WebTestCase, As
-from staemerald.models import ClientEvidence, Fund, Fiat, Cryptocurrency, Invitation
+from stemerald.tests.helpers import WebTestCase, As
+from stemerald.models import ClientEvidence, Fund, Fiat, Cryptocurrency, Invitation
 
 
 class ClientRegisterTestCase(WebTestCase):

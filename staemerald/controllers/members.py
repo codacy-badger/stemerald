@@ -17,10 +17,10 @@ from sqlalchemy_media import store_manager
 from sqlalchemy_media.exceptions import DimensionValidationError, AspectRatioValidationError, AnalyzeError, \
     ContentTypeValidationError
 
-from staemerald.authentication import VerificationEmailPrincipal, ResetPasswordPrincipal
-from staemerald.models import Client, Admin, Member, ClientEvidence, VerificationEmail, VerificationSms, \
+from stemerald.authentication import VerificationEmailPrincipal, ResetPasswordPrincipal
+from stemerald.models import Client, Admin, Member, ClientEvidence, VerificationEmail, VerificationSms, \
     ResetPasswordEmail, SecurityLog, Fund, Invitation
-from staemerald.oath import Oath
+from stemerald.oath import Oath
 
 logger = get_logger('CLIENT')
 

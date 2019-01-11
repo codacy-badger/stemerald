@@ -7,7 +7,7 @@ from sqlalchemy_media import store_manager
 from sqlalchemy_media.exceptions import AspectRatioValidationError, DimensionValidationError, \
     ContentTypeValidationError, AnalyzeError
 
-from staemerald.models import TicketMessage, Ticket, TicketDepartment
+from stemerald.models import TicketMessage, Ticket, TicketDepartment
 
 
 class TickedDepartmentController(ModelRestController):

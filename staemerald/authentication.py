@@ -6,7 +6,7 @@ from restfulpy.orm import DBSession
 from restfulpy.principal import JwtPrincipal
 from sqlalchemy_media import store_manager
 
-from staemerald.models import Member
+from stemerald.models import Member
 
 logger = get_logger('auth')
 

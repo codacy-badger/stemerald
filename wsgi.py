@@ -4,10 +4,10 @@ import itertools
 from nanohttp import context
 from restfulpy.logging_ import get_logger
 
-from staemerald import staemerald
+from stemerald import stemerald
 
-staemerald.configure(files=os.environ.get('EMERALD_CONFIG_FILE'))
-staemerald.initialize_models()
+stemerald.configure(files=os.environ.get('EMERALD_CONFIG_FILE'))
+stemerald.initialize_models()
 
 
 def cross_origin_helper_app(environ, start_response):
@@ -15,7 +15,7 @@ def cross_origin_helper_app(environ, start_response):
         headers.append(('Access-Control-Allow-Origin', os.environ.get('EMERALD_TRUSTED_HOSTS', '*')))
         start_response(status, headers)
 
-    return staemerald(environ, better_start_response)
+    return stemerald(environ, better_start_response)
 
 
 class LoggingMiddleware:
@@ -37,4 +37,4 @@ class LoggingMiddleware:
 
 
 # app = LoggingMiddleware(cross_origin_wildcard_helper_app)
-app = LoggingMiddleware(staemerald)
+app = LoggingMiddleware(stemerald)

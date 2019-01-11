@@ -1,7 +1,7 @@
 from restfulpy.testing import FormParameter
 
-from staemerald.models import Client, Cryptocurrency, Fund
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models import Client, Cryptocurrency, Fund
+from stemerald.tests.helpers import WebTestCase, As
 
 current_balance = 3001
 

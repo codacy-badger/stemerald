@@ -13,10 +13,10 @@ media_storage:
   base_url: http://localhost:8081/media
 
 messaging:
-  default_sender: Stacrypt
+  default_sender: Stemerald
   default_messenger: restfulpy.messaging.SmtpProvider
   template_dirs:
-    - %(root_path)s/staemerald/templates
+    - %(root_path)s/stemerald/templates
 
 reset_password:
   secret: email-verification-secret
@@ -29,7 +29,7 @@ email_verification:
   url: https://stacrypt.io/email_verification
 
 shaparak:
-  provider: staemerald.shaparak.PayIrProvider
+  provider: stemerald.shaparak.PayIrProvider
 
   pay_ir:
     api_key: 2bf8727eb3772b28ce4a0707bf4ee456
@@ -38,7 +38,7 @@ shaparak:
     result_redirect_url: https://stacrypt.io/payment_redirect
 
 sms:
-  provider: staemerald.sms.KavenegarSmsProvider
+  provider: stemerald.sms.KavenegarSmsProvider
 
   kavenegar:
     verification_code_url: https://api.kavenegar.com/v1/3277760553034736E260553055303470553034736E2356413D3D/verify/lookup.json
@@ -61,7 +61,7 @@ trader:
   gap: 3 # Seconds
 
 btc:
-  operator: staemerald.operators.BtcOperator
+  operator: stemerald.operators.BtcOperator
   testnet: true
 
 watcher:

@@ -10,8 +10,8 @@ from restfulpy.controllers import ModelRestController
 from restfulpy.logging_ import get_logger
 from restfulpy.validation import validate_form, prevent_form
 
-from staemerald.models import *
-from staemerald.shaparak import create_shaparak_provider, ShaparakError
+from stemerald.models import *
+from stemerald.shaparak import create_shaparak_provider, ShaparakError
 
 logger = get_logger('CLIENT')
 

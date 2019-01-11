@@ -1,5 +1,5 @@
-from staemerald.models import Country, State, City
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models import Country, State, City
+from stemerald.tests.helpers import WebTestCase, As
 
 
 class TerritoryTestCase(WebTestCase):

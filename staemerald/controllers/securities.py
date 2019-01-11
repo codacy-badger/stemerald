@@ -4,7 +4,7 @@ from restfulpy.authorization import authorize
 from restfulpy.controllers import ModelRestController
 from restfulpy.validation import prevent_form, validate_form
 
-from staemerald.models import SecurityLog, IpWhitelist
+from stemerald.models import SecurityLog, IpWhitelist
 
 
 class LogController(ModelRestController):

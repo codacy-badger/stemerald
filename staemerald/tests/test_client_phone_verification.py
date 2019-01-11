@@ -1,9 +1,9 @@
 from restfulpy.testing.documentation import FormParameter
 from freezegun import freeze_time
 
-from staemerald.models import Client, VerificationSms
-from staemerald.sms import create_sms_provider
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models import Client, VerificationSms
+from stemerald.sms import create_sms_provider
+from stemerald.tests.helpers import WebTestCase, As
 
 
 class ClientPhoneVerificationTestCase(WebTestCase):

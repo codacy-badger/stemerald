@@ -1,6 +1,6 @@
-from staemerald.models import Client, Admin, Cryptocurrency, Deposit, Withdraw, ShaparakIn, Fiat, \
+from stemerald.models import Client, Admin, Cryptocurrency, Deposit, Withdraw, ShaparakIn, Fiat, \
     ShetabAddress, ShebaAddress, ShaparakOut
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.tests.helpers import WebTestCase, As
 
 
 class TransactionGetTestCase(WebTestCase):

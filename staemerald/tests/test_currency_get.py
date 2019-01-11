@@ -1,5 +1,5 @@
-from staemerald.models.currencies import Cryptocurrency, Fiat
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models.currencies import Cryptocurrency, Fiat
+from stemerald.tests.helpers import WebTestCase, As
 
 
 class CurrencyGetTestCase(WebTestCase):

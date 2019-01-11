@@ -1,6 +1,6 @@
-from staemerald.models import Client, Market, Fund
-from staemerald.models.currencies import Cryptocurrency, Fiat
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models import Client, Market, Fund
+from stemerald.models.currencies import Cryptocurrency, Fiat
+from stemerald.tests.helpers import WebTestCase, As
 
 
 class ClientFundGetTestCase(WebTestCase):

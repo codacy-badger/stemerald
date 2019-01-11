@@ -2,8 +2,8 @@ from freezegun import freeze_time
 from restfulpy.testing.documentation import FormParameter
 from restfulpy.testing.helpers import UnsafePrincipal
 
-from staemerald.models import Client, VerificationEmail
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models import Client, VerificationEmail
+from stemerald.tests.helpers import WebTestCase, As
 
 
 class ClientEmailVerificationTestCase(WebTestCase):

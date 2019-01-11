@@ -2,10 +2,10 @@ from os.path import join
 from restfulpy.orm import DBSession
 from sqlalchemy_media import store_manager
 
-from staemerald.models import *
+from stemerald.models import *
 
 # noinspection PyArgumentList
-from staemerald.tests import STUFF_DIR
+from stemerald.tests import STUFF_DIR
 
 
 # noinspection PyArgumentList

@@ -1,5 +1,5 @@
-from staemerald.models import Market, Cryptocurrency, Fiat
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models import Market, Cryptocurrency, Fiat
+from stemerald.tests.helpers import WebTestCase, As
 
 
 class MarketGetTestCase(WebTestCase):

@@ -73,9 +73,9 @@ class Oath:
         return binascii.hexlify(bytes(result)).decode()
 
     # FIXME: Fix this piece of shit
-    def get_google_auth_uri(self, account_name, issuer='Stacrypt'):
+    def get_google_auth_uri(self, account_name, issuer='Stemerald'):
         encoded_seed = b32encode(binascii.unhexlify(self.seed)).decode().replace('=', '')
         # FIXME: Get algo and ... from ocra suite
-        return f'otpauth://totp/Stacrypt:{account_name}' \
+        return f'otpauth://totp/Stemerald:{account_name}' \
                f'?secret={encoded_seed}' \
                f'&issuer={issuer}'

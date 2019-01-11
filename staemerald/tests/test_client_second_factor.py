@@ -1,7 +1,7 @@
 from restfulpy.testing.documentation import FormParameter
 
-from staemerald.models import Client
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models import Client
+from stemerald.tests.helpers import WebTestCase, As
 from freezegun import freeze_time
 
 

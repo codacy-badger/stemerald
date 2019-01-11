@@ -1,8 +1,8 @@
 from restfulpy.testing import FormParameter
 from restfulpy.testing.helpers import UnsafePrincipal
 
-from staemerald.models import Client, ResetPasswordEmail
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models import Client, ResetPasswordEmail
+from stemerald.tests.helpers import WebTestCase, As
 
 
 class ClientActivationTestCase(WebTestCase):

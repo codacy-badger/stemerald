@@ -3,7 +3,7 @@ from nanohttp.controllers import RestController
 from restfulpy.controllers import ModelRestController
 from restfulpy.validation import validate_form, prevent_form
 
-from staemerald.models import City, State, Country
+from stemerald.models import City, State, Country
 
 
 class CityController(ModelRestController):

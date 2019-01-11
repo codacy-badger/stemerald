@@ -1,5 +1,5 @@
-from staemerald.models import Client, Admin
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models import Client, Admin
+from stemerald.tests.helpers import WebTestCase, As
 
 
 class ClientActivationTestCase(WebTestCase):

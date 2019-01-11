@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 rm -rf wiki
-git clone git@github.com:mahdi13/monostacrypt/staemerald.wiki.git wiki
+git clone git@github.com:mahdi13/stemerald.wiki.git wiki
 GIT="git -C wiki"
 $GIT pull origin master
 $GIT rm apiv*.md --ignore-unmatch

@@ -1,8 +1,8 @@
 from nanohttp import settings
 
-from staemerald.models import Client, ShetabAddress, Fiat, Fund
-from staemerald.shaparak import ShaparakProvider, ShaparakError
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models import Client, ShetabAddress, Fiat, Fund
+from stemerald.shaparak import ShaparakProvider, ShaparakError
+from stemerald.tests.helpers import WebTestCase, As
 from restfulpy.testing import FormParameter
 
 deposit_min = 200
@@ -36,7 +36,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         settings.merge("""
         
         shaparak:
-          provider: staemerald.tests.test_transaction_shaparak_in.MockupShaparakProvider
+          provider: stemerald.tests.test_transaction_shaparak_in.MockupShaparakProvider
           
           pay_ir:
             post_redirect_url: http://stacrypt.io/apiv1/transactions/shaparak-ins/pay-irs

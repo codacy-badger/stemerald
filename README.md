@@ -1,4 +1,4 @@
-# Stacrypt
+# Stemerald
 Digital currency trading wrapper
 
 
@@ -18,11 +18,11 @@ Setting up development Environment on Linux
     $ echo "alias v.activate=\"source $(which virtualenvwrapper.sh)\"" >> ~/.bashrc
     $ source ~/.bashrc
     $ v.activate
-    $ mkvirtualenv --python=$(which python3.6) --no-site-packages staemerald
+    $ mkvirtualenv --python=$(which python3.6) --no-site-packages stemerald
 
 #### Activating virtual environment
     
-    $ workon staemerald
+    $ workon stemerald
 
 #### Upgrade pip, setuptools and wheel to the latest version
 
@@ -46,29 +46,29 @@ So, your changes will affect instantly on the installed version
     $ cd restfulpy
     $ pip install -e .
 
-#### staemerald
+#### stemerald
     
     $ cd /path/to/workspace
-    $ git clone git@github.com:Carrene/staemerald.git
-    $ cd staemerald
+    $ git clone git@github.com:Carrene/stemerald.git
+    $ cd stemerald
     $ pip install -e .
     
-#### Enabling the bash auto completion for staemerald
+#### Enabling the bash auto completion for stemerald
 
-    $ echo "eval \"\$(register-python-argcomplete staemerald)\"" >> $VIRTUAL_ENV/bin/postactivate    
-    $ deactivate && workon staemerald
+    $ echo "eval \"\$(register-python-argcomplete stemerald)\"" >> $VIRTUAL_ENV/bin/postactivate    
+    $ deactivate && workon stemerald
     
 ### Setup Database
 
 #### Configuration
 
-Create a file named `~/.config/staemerald.yml`
+Create a file named `~/.config/stemerald.yml`
 
 ```yaml
 
 db:
-  uri: postgresql://postgres:postgres@localhost/staemerald_dev
-  test_uri: postgresql://postgres:postgres@localhost/staemerald_test
+  uri: postgresql://postgres:postgres@localhost/stemerald_dev
+  test_uri: postgresql://postgres:postgres@localhost/stemerald_test
   administrative_uri: postgresql://postgres:postgres@localhost/postgres
    
    
@@ -76,35 +76,35 @@ db:
 
 #### Remove old abd create a new database **TAKE CARE ABOUT USING THAT**
 
-    $ staemerald admin create-db --drop --basedata --mockup
+    $ stemerald admin create-db --drop --basedata --mockup
 
 #### Drop old database: **TAKE CARE ABOUT USING THAT**
 
-    $ staemerald [-c path/to/config.yml] admin drop-db
+    $ stemerald [-c path/to/config.yml] admin drop-db
 
 #### Create database
 
-    $ staemerald [-c path/to/config.yml] admin create-db
+    $ stemerald [-c path/to/config.yml] admin create-db
 
 Or, you can add `--drop` to drop the previously created database: **TAKE CARE ABOUT USING THAT**
 
-    $ staemerald [-c path/to/config.yml] admin create-db --drop
+    $ stemerald [-c path/to/config.yml] admin create-db --drop
     
 #### Create database object
 
-    $ staemerald [-c path/to/config.yml] admin setup-db
+    $ stemerald [-c path/to/config.yml] admin setup-db
 
 #### Database migration
 
-    $ staemerald migrate upgrade head
+    $ stemerald migrate upgrade head
 
 #### Insert Base data
 
-    $ staemerald [-c path/to/config.yml] admin base-data
+    $ stemerald [-c path/to/config.yml] admin base-data
     
 #### Insert Mockup data
 
-    $ staemerald [-c path/to/config.yml] dev mockup-data
+    $ stemerald [-c path/to/config.yml] dev mockup-data
     
 ### Unittests
 
@@ -115,7 +115,7 @@ Or, you can add `--drop` to drop the previously created database: **TAKE CARE AB
 - Using python builtin http server
 
 ```bash
-$ staemerald [-c path/to/config.yml] serve
+$ stemerald [-c path/to/config.yml] serve
 ```    
 
 - Gunicorn
@@ -142,19 +142,19 @@ Setting up development Environment on Windows (Tested for Windows 10)
 
 - Add WORKON_HOME variable as an Environment Variable and set the value %USERPROFILE%\Envs by default.
 
-- Run the following command to make a Virtual Environment for "staemerald" :
+- Run the following command to make a Virtual Environment for "stemerald" :
 
 ```
-    > mkvirtualenv staemerald
+    > mkvirtualenv stemerald
 ```
 
 #### Activating virtual environment
 
-    > workon staemerald
+    > workon stemerald
 
 #### Upgrade pip, setuptools and wheel to the latest version
 
-    (staemerald) > pip install -U pip setuptools wheel
+    (stemerald) > pip install -U pip setuptools wheel
 
 ### Installing Project in Virtual Environment(edit mode)
 
@@ -162,77 +162,77 @@ So, your changes will affect instantly on the installed version
 
 #### restfulpy
 
-    (staemerald) > cd path/to/staemerald/..
-    (staemerald) > git clone git@github.com:pylover/restfulpy.git
-    (staemerald) > cd restfulpy
-    (staemerald) > pip install -e .
+    (stemerald) > cd path/to/stemerald/..
+    (stemerald) > git clone git@github.com:pylover/restfulpy.git
+    (stemerald) > cd restfulpy
+    (stemerald) > pip install -e .
 
-    (staemerald) > cd path/to/staemerald/..
-    (staemerald) > git clone git@github.com:pylover/nanohttp.git
-    (staemerald) > cd nanohttp
-    (staemerald) > pip install -e .
+    (stemerald) > cd path/to/stemerald/..
+    (stemerald) > git clone git@github.com:pylover/nanohttp.git
+    (stemerald) > cd nanohttp
+    (stemerald) > pip install -e .
 
-    (staemerald) > cd /path/to/staemerald
-    (staemerald) > pip install -e .
+    (stemerald) > cd /path/to/stemerald
+    (stemerald) > pip install -e .
 
 ### Setup PostgreSQL
 You can find the windows installer on https://www.postgresql.org/download/windows/
 
 ### Setup Database
 
-- Create the staemerald.yml file in %USERPROFILE%\AppData\Local
+- Create the stemerald.yml file in %USERPROFILE%\AppData\Local
 - Add the following lines to this file
 ```
     db:
-      uri: postgresql://postgres:postgres@localhost/staemerald_dev
+      uri: postgresql://postgres:postgres@localhost/stemerald_dev
       administrative_uri: postgresql://postgres:postgres@localhost/postgres
-      test_uri: postgresql://postgres:postgres@localhost/staemerald_test
+      test_uri: postgresql://postgres:postgres@localhost/stemerald_test
       echo: true
 ```
 
 #### create database **TAKE CARE ABOUT USING THAT**
 
-    (staemerald) /path/to/staemerald > staemerald admin create-db --drop --basedata
+    (stemerald) /path/to/stemerald > stemerald admin create-db --drop --basedata
 
 #### Drop old database: **TAKE CARE ABOUT USING THAT**
 
-    (staemerald) /path/to/staemerald > staemerald -c path/to/staemerald.yml admin drop-db
+    (stemerald) /path/to/stemerald > stemerald -c path/to/stemerald.yml admin drop-db
 
 #### Create database
 
-    (staemerald) /path/to/staemerald > -c path/to/staemerald.yml admin create-db
+    (stemerald) /path/to/stemerald > -c path/to/stemerald.yml admin create-db
 
 Or, you can add `--drop` to drop the previously created database: **TAKE CARE ABOUT USING THAT**
 
-    (staemerald) /path/to/staemerald > staemerald -c path/to/staemerald.yml admin create-db --drop
+    (stemerald) /path/to/stemerald > stemerald -c path/to/stemerald.yml admin create-db --drop
 
 #### Create database object
 
-    (staemerald) /path/to/staemerald > staemerald -c path/to/staemerald.yml admin setup-db
+    (stemerald) /path/to/stemerald > stemerald -c path/to/stemerald.yml admin setup-db
 
 #### Database migration
 
-    (staemerald) /path/to/staemerald > staemerald migrate upgrade head
+    (stemerald) /path/to/stemerald > stemerald migrate upgrade head
 
 #### Insert Base data
 
-    (staemerald) /path/to/staemerald > staemerald -c path/to/staemerald.yml admin base-data
+    (stemerald) /path/to/stemerald > stemerald -c path/to/stemerald.yml admin base-data
 
 #### Insert Mockup data
 
-    (staemerald) /path/to/staemerald > staemerald -c path/to/staemerald.yml dev mockup-data
+    (stemerald) /path/to/stemerald > stemerald -c path/to/stemerald.yml dev mockup-data
 
 ### Unittests
 This command will generate the Mark-Down documents which are needed for Front-end developers :
 
-    (staemerald) /path/to/staemerald > nosetests
+    (stemerald) /path/to/stemerald > nosetests
 
 ### Serving
 
 - Using nanohttp server
 
 ```
-    (staemerald) /path/to/staemerald > staemerald serve
+    (stemerald) /path/to/stemerald > stemerald serve
 ```
 
 

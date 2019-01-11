@@ -3,12 +3,12 @@ from nanohttp import settings
 from restfulpy.messaging import Messenger
 from restfulpy.testing import ModelRestCrudTestCase
 
-from staemerald import staemerald
-from staemerald.sms import SmsProvider
+from stemerald import stemerald
+from stemerald.sms import SmsProvider
 
 
 class WebTestCase(ModelRestCrudTestCase):
-    application = staemerald
+    application = stemerald
 
     @classmethod
     def configure_app(cls):
@@ -20,7 +20,7 @@ class WebTestCase(ModelRestCrudTestCase):
               level: warning
               
         sms:
-          provider: staemerald.tests.helpers.MockupSmsProvider
+          provider: stemerald.tests.helpers.MockupSmsProvider
         
         """)
 

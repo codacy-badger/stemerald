@@ -3,9 +3,9 @@ from os.path import join, exists
 from nanohttp import settings
 from restfulpy.testing import FormParameter
 
-from staemerald.models import Client, Admin, TicketMessage, TicketDepartment
-from staemerald.tests import STUFF_DIR
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.models import Client, Admin, TicketMessage, TicketDepartment
+from stemerald.tests import STUFF_DIR
+from stemerald.tests.helpers import WebTestCase, As
 
 
 class ClientActivationTestCase(WebTestCase):

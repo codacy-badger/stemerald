@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Stacrypt requirement installation script
+# Stemerald requirement installation script
 # Version: 0.1.0
 # Please configure apt sources, locales, networking and etc first.
 

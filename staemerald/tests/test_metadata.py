@@ -1,5 +1,5 @@
 # Does it have any security issue? (about `Anonymouse access` & `field`)
-from staemerald.tests.helpers import WebTestCase, As
+from stemerald.tests.helpers import WebTestCase, As
 
 
 class MetadataTestCase(WebTestCase):

@@ -2,17 +2,17 @@ from restfulpy.authorization import authorize
 from restfulpy.orm import commit
 from restfulpy.validation import validate_form
 
-from staemerald.controllers.territories import TerritoryController
-from staemerald.controllers.transactions import TransactionController, ShetabAddressController, ShebaAddressController
+from stemerald.controllers.territories import TerritoryController
+from stemerald.controllers.transactions import TransactionController, ShetabAddressController, ShebaAddressController
 from nanohttp import Controller, json, HttpNotFound
 from restfulpy.controllers import RootController, ModelRestController
 
-import staemerald
-from staemerald.models import Currency
-from staemerald.controllers.securities import SecurityController
-from staemerald.controllers.members import ClientController, AdminController, SessionController
-from staemerald.controllers.tickets import TicketController
-from staemerald.controllers.trading import TradeController, OrderController, MarketController
+import stemerald
+from stemerald.models import Currency
+from stemerald.controllers.securities import SecurityController
+from stemerald.controllers.members import ClientController, AdminController, SessionController
+from stemerald.controllers.tickets import TicketController
+from stemerald.controllers.trading import TradeController, OrderController, MarketController
 
 
 # noinspection PyUnresolvedReferences
@@ -66,7 +66,7 @@ class ApiV1(Controller):
     @json
     def version(self):
         return {
-            'version': staemerald.__version__
+            'version': stemerald.__version__
         }
 
 

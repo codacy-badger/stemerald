@@ -1,6 +1,6 @@
 from restfulpy.orm import DBSession
 
-from staemerald.models import *
+from stemerald.models import *
 
 
 # noinspection PyArgumentList

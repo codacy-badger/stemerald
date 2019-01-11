@@ -8,7 +8,7 @@ from restfulpy.controllers import ModelRestController
 from restfulpy.orm import commit
 from restfulpy.validation import validate_form, prevent_form
 
-from staemerald.models.trading import Market
+from stemerald.models.trading import Market
 
 BidId = Union[int, str]
 TradeId = Union[int, str]

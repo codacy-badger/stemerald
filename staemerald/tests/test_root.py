@@ -1,6 +1,6 @@
 import unittest
 
-from staemerald.tests.helpers import As, WebTestCase
+from stemerald.tests.helpers import As, WebTestCase
 
 
 class RootTestCase(WebTestCase):

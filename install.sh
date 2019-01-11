@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Stacrypt installation script
+# Stemerald installation script
 # Version: 0.1.0
 # Run the `./install-requirements.sh` at least one time before running this script.
 
