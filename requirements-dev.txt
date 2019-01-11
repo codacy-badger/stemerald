@@ -1,0 +1,6 @@
+webtest
+nose
+coverage
+coveralls
+codecov
+freezegun

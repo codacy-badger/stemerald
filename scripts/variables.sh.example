@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# User
+SERVICE_USER="dev"
+SERVICE_USER_HOME=$(eval echo "~${SERVICE_USER}")
+
+# Naming
+APP_NAME="staemerald"
+APP_TITLE="Stacrypt"
+
+# Database
+DB_USERNAME="dev"
+DB_NAME="staemerald_db"
+DB_PASSWORD="somepassword"
+
+REDIS_DB=0
+
+# System
+TEMP_DIRECTORY="/run/${APP_NAME}"
+
+# Virtualenv
+VIRTUALENV_NAME="${APP_NAME}"
+export VIRTUALENVWRAPPER_PYTHON=$(which python3.6)
+VIRTUAL_ENV="${SERVICE_USER_HOME}/.virtualenvs/${VIRTUALENV_NAME}"
+
+# Stacrypt
+CONFIG_FILE="/etc/${APP_NAME}/${APP_NAME}.yml"
+TRUSTED_HOSTS="localhost:8080"
+
+EMERALD="${VIRTUAL_ENV}/bin/staemerald -c ${CONFIG_FILE}"
+
+WSGI_APP="wsgi:app"
+SERVICE_WORKERS=4
+SERVICE_NGINX_LISTEN=8081
+
+LOG_DIR="/var/log/${APP_NAME}"
+
+# Systemd
+SYSTEMD_BINDS=""
