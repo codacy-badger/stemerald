@@ -1,0 +1,101 @@
+db:
+  url: postgresql://${DB_USERNAME}:${DB_PASSWORD}@localhost/${DB_NAME}
+  echo: false
+
+redis:
+  host: localhost
+  port: 6379
+  password:
+  db: ${REDIS_DB}
+
+media_storage:
+  file_system_dir: %(root_path)s/data/media-storage
+  base_url: http://localhost:8081/media
+
+messaging:
+  default_sender: Stemerald
+  default_messenger: restfulpy.messaging.SmtpProvider
+  template_dirs:
+    - %(root_path)s/stemerald/templates
+
+reset_password:
+  secret: email-verification-secret
+  max_age: 3600  # seconds
+  url: https://stacrypt.io/reset_password
+
+email_verification:
+  secret: email-verification-secret
+  max_age: 3600  # seconds
+  url: https://stacrypt.io/email_verification
+
+shaparak:
+  provider: stemerald.shaparak.PayIrProvider
+
+  pay_ir:
+    api_key: 2bf8727eb3772b28ce4a0707bf4ee456
+    gateway_url: https://pay.ir/payment/gateway/{transactionId}
+    post_redirect_url: https://stacrypt.io/apiv1/transactions/shaparak-ins/pay-irs
+    result_redirect_url: https://stacrypt.io/payment_redirect
+
+sms:
+  provider: stemerald.sms.KavenegarSmsProvider
+
+  kavenegar:
+    verification_code_url: https://api.kavenegar.com/v1/3277760553034736E260553055303470553034736E2356413D3D/verify/lookup.json
+
+oath:
+  window: 3
+  ocra_suite: OCRA-1:HOTP-SHA256-6:QA40-T1M
+  time_interval: 60 # Seconds
+
+mobile_phone_verification:
+  template: mobile
+  seed: B35F868F5F868F59A3D9F98B68F56AAA215F868F59A39F98B215F868F59A39F9
+
+fixed_phone_verification:
+  template: fixed
+  seed: 68F59A3D9F98B68FF98B68F56AAA2A28B68F56AAA268F59A3D9F98B68F56AAA2
+
+trader:
+  price_threshold_permille: 50
+  gap: 3 # Seconds
+
+btc:
+  operator: stemerald.operators.BtcOperator
+  testnet: true
+
+watcher:
+  gap: 30
+  retry_limit: 5
+  sleep_between_retries: 1
+
+membership:
+  invitation_code_required: false
+  second_factor_seed: A3D9F98B8FF98B68F56AAA2A28B68F56AAA268F593D9F98B68FF98B68F56AAA2
+
+logging:
+
+  loggers:
+    default:
+      handlers:
+        - main
+        - error
+      level: debug
+      formatter: default
+
+  handlers:
+
+    default:
+      level: notset
+      type: file
+      max_bytes: 52428800
+
+    console:
+      type: console
+
+    main:
+      filename: ${LOG_DIR}/main.log
+
+    error:
+      level: error
+      filename: ${LOG_DIR}/error.log

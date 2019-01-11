@@ -6,7 +6,7 @@ from restfulpy.logging_ import get_logger
 
 from stemerald import stemerald
 
-stemerald.configure(files=os.environ.get('STSTEMERALD_CONFIG_FILE'))
+stemerald.configure(files=os.environ.get('STEMERALD_CONFIG_FILE'))
 stemerald.initialize_models()
 
 
