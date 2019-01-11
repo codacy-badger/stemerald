@@ -7,5 +7,5 @@ echo "
 source variables.sh;
 source \$(which virtualenvwrapper.sh);
 workon ${VIRTUALENV_NAME};
-${EMERALD} admin base-data
+${STEMERALD} admin base-data
 " | sudo -EHsu ${SERVICE_USER}

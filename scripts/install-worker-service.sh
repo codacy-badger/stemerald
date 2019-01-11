@@ -14,13 +14,13 @@ After=network.target
 BindsTo=${SYSTEMD_BINDS}
 
 [Service]
-Environment="EMERALD_CONFIG_FILE=${CONFIG_FILE}"
+Environment="STEMERALD_CONFIG_FILE=${CONFIG_FILE}"
 PIDFile=${TEMP_DIRECTORY}/${SERVICE_NAME}.pid
 User=${SERVICE_USER}
 Group=${SERVICE_USER}
 WorkingDirectory=$(readlink -f .)
-ExecStartPre=${EMERALD} worker cleanup
-ExecStart=${EMERALD} worker start
+ExecStartPre=${STEMERALD} worker cleanup
+ExecStart=${STEMERALD} worker start
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 PrivateTmp=true

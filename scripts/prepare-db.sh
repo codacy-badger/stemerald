@@ -12,5 +12,5 @@ echo "
 source variables.sh;
 source \$(which virtualenvwrapper.sh);
 workon ${VIRTUALENV_NAME};
-${EMERALD} admin setup-db
+${STEMERALD} admin setup-db
 " | sudo -EHsu ${SERVICE_USER}

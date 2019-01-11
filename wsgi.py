@@ -6,13 +6,13 @@ from restfulpy.logging_ import get_logger
 
 from stemerald import stemerald
 
-stemerald.configure(files=os.environ.get('EMERALD_CONFIG_FILE'))
+stemerald.configure(files=os.environ.get('STSTEMERALD_CONFIG_FILE'))
 stemerald.initialize_models()
 
 
 def cross_origin_helper_app(environ, start_response):
     def better_start_response(status, headers):
-        headers.append(('Access-Control-Allow-Origin', os.environ.get('EMERALD_TRUSTED_HOSTS', '*')))
+        headers.append(('Access-Control-Allow-Origin', os.environ.get('STEMERALD_TRUSTED_HOSTS', '*')))
         start_response(status, headers)
 
     return stemerald(environ, better_start_response)

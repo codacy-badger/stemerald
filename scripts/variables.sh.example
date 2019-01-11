@@ -27,7 +27,7 @@ VIRTUAL_ENV="${SERVICE_USER_HOME}/.virtualenvs/${VIRTUALENV_NAME}"
 CONFIG_FILE="/etc/${APP_NAME}/${APP_NAME}.yml"
 TRUSTED_HOSTS="localhost:8080"
 
-EMERALD="${VIRTUAL_ENV}/bin/stemerald -c ${CONFIG_FILE}"
+STEMERALD="${VIRTUAL_ENV}/bin/stemerald -c ${CONFIG_FILE}"
 
 WSGI_APP="wsgi:app"
 SERVICE_WORKERS=4
