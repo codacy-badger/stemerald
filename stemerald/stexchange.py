@@ -157,7 +157,10 @@ class StexchangeClient:
         :param source: String, source，up to 30 bytes
 
         :return: order detail:
-            [1, "BTCCNY", 1, "10", "8000", "0.002", "0.001"]
+
+        Example:
+            params: [1, "BTCCNY", 1, "10", "8000", "0.002", "0.001"]
+
 
         :raise BalanceNotEnough: balance not enough
 
@@ -180,7 +183,10 @@ class StexchangeClient:
         :param source: String, source，up to 30 bytes
 
         :return: order detail:
-            [1, "BTCCNY", 1, "10","0.002"]
+
+        Example:
+            params: '[1, "BTCCNY", 1, "10","0.002"]'
+
 
         :raise BalanceNotEnough: balance not enough
 
@@ -206,8 +212,180 @@ class StexchangeClient:
 
         """
         return self._execute(
-            "market.put_limit",
+            "order.cancel",
             [user_id, market, order_id]
+        )
+
+    def order_deals(self, order_id, offset, limit):
+        """
+        Order details:
+        method: order.deals
+
+        :param order_id： order ID, Integer
+        :param offset
+        :param limit
+
+        :return:
+            "result": {
+            "offset":
+            "limit":
+            "records": [
+                {
+                    "id": Executed ID
+                    "time": timestamp
+                    "user": user ID
+                    "role": role，1：Maker, 2: Taker
+                    "amount": count
+                    "price": price
+                    "deal": order amount
+                    "fee": fee
+                    "deal_order_id": Counterpart transaction ID
+                }
+            ...
+            ]
+
+        """
+        return self._execute(
+            "order.deals",
+            [order_id, offset, limit]
+        )
+
+    def order_book(self, market, side, offset, limit):
+        """
+        Order list:
+        method: order.book
+
+        :param market:
+        :param side: side，1：sell，2：buy
+        :param offset
+        :param limit
+
+        :return:
+
+        """
+        return self._execute(
+            "order.book",
+            [market, side, offset, limit]
+        )
+
+    def order_depth(self, market, limit, interval):
+        """
+        Order depth:
+        method: order.depth
+
+        :param market：market name
+        :param limit: count limit，Integer
+        :param interval: interval，String, e.g. "1" for 1 unit interval, "0" for no interval
+
+        :return:
+            "result": {
+                "asks": [
+                    [
+                        "8000.00",
+                        "9.6250"
+                    ]
+                ],
+                "bids": [
+                    [
+                        "7000.00",
+                        "0.1000"
+                    ]
+                ]
+            }
+
+        """
+        return self._execute(
+            "order.depth",
+            [market, limit, interval]
+        )
+
+    def order_pending(self, user_id, market, offset, limit):
+        """
+        Inquire unexecuted orders:
+        method: order.pending
+
+        :param user_id: user ID，Integer
+        :param market: market name，String
+        :param offset: offset，Integer
+        :param limit: limit，Integer
+
+        :return:
+            "params": [1, "BTCCNY", 0, 100]"
+            "result": {
+                "offset": 0,
+                "limit": 100,
+                "total": 1,
+                "records": [
+                    {
+                        "id": 2,
+                        "ctime": 1492616173.355293,
+                        "mtime": 1492697636.238869,
+                        "market": "BTCCNY",
+                        "user": 2,
+                        "type": 1, // 1: limit order，2：market order
+                        "side": 2, // 1：sell，2：buy
+                        "amount": "1.0000".
+                        "price": "7000.00",
+                        "taker_fee": "0.0020",
+                        "maker_fee": "0.0010",
+                        "source": "web",
+                        "deal_money": "6300.0000000000",
+                        "deal_stock": "0.9000000000",
+                        "deal_fee": "0.0009000000"
+                    }
+                ]
+            }
+
+        """
+        return self._execute(
+            "order.pending",
+            [user_id, market, offset, limit]
+        )
+
+    def order_pending_detail(self, market, order_id):
+        """
+        Unexecuted order details:
+        method: order.pending_detail
+
+        :param market: market name，String
+        :param order_id: order ID，Integer
+
+        """
+        return self._execute(
+            "order.pending_detail",
+            [market, order_id]
+        )
+
+    def order_finished(self, user_id, market, start_time, end_time, offset, limit, side):
+        """
+        Inquire executed orders:
+        method: order.finished
+
+        :param user_id: user ID，Integer
+        :param market: market name，String
+        :param start_time: start time，0 for unlimited，Integer
+        :param end_time: end time，0 for unlimited, Integer
+        :param offset: offset，Integer
+        :param limit: limit，Integer
+        :param side: side，0 for no limit，1 for sell，2 for buy
+
+        """
+        return self._execute(
+            "order.finished",
+            [user_id, market, start_time, end_time, offset, limit, side]
+        )
+
+    def order_finished_detail(self, order_id):
+        """
+        Executed order details:
+        method: order.finished_detail
+
+        :param order_id: order ID，Integer
+
+        """
+        return self._execute(
+            "order.finished_detail",
+            [order_id]
         )
 
     """
