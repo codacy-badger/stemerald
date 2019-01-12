@@ -26,6 +26,118 @@ class StexchangeClient:
         return requests.post(self, data=self.payload(method, params), headers=self.headers).json()
 
     """
+        Asset APIs:
+    """
+
+    def balance_query(self, user_id, *asset_name):
+        """
+        Asset inquiry:
+        method: balance.query
+
+        params: unfixed parameters, first parameter is user ID, followed by list of asset names.
+        Return to user's overall asset if the list is blank.
+
+        :param user_id: user ID，Integer
+        :param asset_name: list
+
+        :return: {"asset": {"available": "amount", "freeze": "amount"}}
+
+        Example:
+            "params": [1, "BTC"]
+            "result": {"BTC": {"available": "1.10000000","freeze": "9.90000000"}}
+
+        """
+        return self._execute(
+            "balance.query",
+            [user_id, *asset_name]
+        )
+
+    def balance_update(self, user_id, asset, business, business_id, change, detail):
+        """
+        Asset change:
+        method: balance.update
+
+        :param user_id: user ID，Integer
+        :param asset: asset name，String
+        :param business: business type，String
+        :param business_id: business ID，Integer, but it will only succeed once with multiple operations of the same user_id, asset, business or business_id
+        :param change: balance change，String, negative numbers for deduction
+        :param detail: Json object，attached information
+
+        :return: "success"
+
+        Example:
+            "params": [1, "BTC", "deposit", 100, "1.2345"]
+            "result": "success"
+
+
+        :raise RepeatUpdateException: repeat update
+        :raise BalanceNotEnough: balance not enough
+
+        """
+        return self._execute(
+            "balance.update",
+            [user_id, asset, business, business_id, change, detail]
+        )
+
+    def balance_history(self, user_id, asset, business, start_time, end_time, offset, limit):
+        """
+        Asset history:
+        method: balance.history
+
+        :param user_id: user ID, Integer
+        :param asset: asset name，which can be null
+        :param business: business，which can be null，use ',' to separate types
+        :param start_time: start time，0 for unlimited，Integer
+        :param end_time: end time，0 for unlimited, Integer
+        :param offset: offset position，Integer
+        :param limit: count limit，Integer
+
+        :return: {
+                "offset":
+                "limit":
+                "records": [
+                    {
+                        "time": timestamp,
+                        "asset": asset,
+                        "business": business,
+                        "change": change,
+                        "balance"：balance,
+                        "detail": detail
+                    }
+                    ...
+                ]
+            }
+
+        """
+        return self._execute(
+            "balance.history",
+            [user_id, asset, business, start_time, end_time, offset, limit]
+        )
+
+    def asset_list(self):
+        """
+        Asset list:
+        method: asset.list
+
+        """
+        return self._execute(
+            "asset.list",
+            []
+        )
+
+    def asset_summary(self):
+        """
+        Asset summary:
+        method: asset.summary
+
+        """
+        return self._execute(
+            "asset.summary",
+            []
+        )
+
+    """
         Trade APIs:
     """
 
@@ -267,6 +379,26 @@ class StexchangeException(Exception):
         logger.error(f"Stexchange RPC Error: {title}")
 
 
+class InvalidArgumentException(StexchangeException):
+    pass
+
+
+class InternalErrorException(StexchangeException):
+    pass
+
+
+class ServiceNotAvailableException(StexchangeException):
+    pass
+
+
+class MethodNotFoundException(StexchangeException):
+    pass
+
+
+class ServiceTimoutException(StexchangeException):
+    pass
+
+
 class OrderNotFoundException(StexchangeException):
     pass
 
@@ -275,5 +407,9 @@ class UserNotMatchException(StexchangeException):
     pass
 
 
-class BalanceNotEnough(StexchangeException):
+class RepeatUpdateException(StexchangeException):
+    pass
+
+
+class BalanceNotEnoughException(StexchangeException):
     pass
