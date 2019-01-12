@@ -8,7 +8,6 @@ logger = get_logger('STEXCHANGE_RPC_CLIENT')
 
 
 class StexchangeClient:
-
     def __init__(self, server_url=None, headers=None):
         self.server_url = server_url or settings.stexchange.rpc_url
         self.headers = {'content-type': 'application/json'}
@@ -19,11 +18,30 @@ class StexchangeClient:
         self.request_id += 1
         return self.request_id
 
-    def payload(self, method, params):
-        return json.dumps({"method": method, "params": params, "id": self._next_request_id()})
+    def _execute(self, method, params, error_mapper=None):
+        payload = json.dumps({"method": method, "params": params, "id": self._next_request_id()})
 
-    def _execute(self, method, params):
-        return requests.post(self, data=self.payload(method, params), headers=self.headers).json()
+        logger.debug(f"Requesting {method} with id:{params['id']} with parameters: {'.'.join(params)}")
+
+        try:
+            response = requests.post(self, data=payload, headers=self.headers).json()
+        except Exception as e:
+            raise StexchangeUnknownException(f"Request error: {str(e)}")
+
+        if response["error"] is not None and len(response["error"] > 0):
+            error_mapper = error_mapper or {}
+            error_mapper.update(STEXCHANEG_GENERAL_ERROR_CODE_MAP)
+            raise (
+                error_mapper[response["code"]](response["id"]) if (response["code"] in error_mapper)
+                else StexchangeUnknownException(f"id: {response['id']} Unknown error code: {response['code']}")
+            )
+
+        elif response["result"] is not None and len(response["result"] > 0):
+            logger.debug(f"Request {response['id']} respond")
+            return response["result"]
+
+        else:
+            return StexchangeUnknownException("Neither error and result fields available")
 
     """
         Asset APIs:
@@ -77,7 +95,8 @@ class StexchangeClient:
         """
         return self._execute(
             "balance.update",
-            [user_id, asset, business, business_id, change, detail]
+            [user_id, asset, business, business_id, change, detail],
+            {10: RepeatUpdateException.__class__, 11: BalanceNotEnoughException}
         )
 
     def balance_history(self, user_id, asset, business, start_time, end_time, offset, limit):
@@ -167,7 +186,8 @@ class StexchangeClient:
         """
         return self._execute(
             "order.put_limit",
-            [user_id, market, side, amount, price, taker_fee_rate, maker_fee_rate, source]
+            [user_id, market, side, amount, price, taker_fee_rate, maker_fee_rate, source],
+            {10: BalanceNotEnoughException}
         )
 
     def order_put_market(self, user_id, market, side, amount, taker_fee_rate, source):
@@ -193,7 +213,8 @@ class StexchangeClient:
         """
         return self._execute(
             "market.put_limit",
-            [user_id, market, side, amount, taker_fee_rate, source]
+            [user_id, market, side, amount, taker_fee_rate, source],
+            {10: BalanceNotEnoughException}
         )
 
     def order_cancel(self, user_id, market, order_id):
@@ -213,7 +234,8 @@ class StexchangeClient:
         """
         return self._execute(
             "order.cancel",
-            [user_id, market, order_id]
+            [user_id, market, order_id],
+            {10: OrderNotFoundException.__class__, 11: UserNotMatchException}
         )
 
     def order_deals(self, order_id, offset, limit):
@@ -572,41 +594,67 @@ class StexchangeClient:
 
 
 class StexchangeException(Exception):
-    def __init__(self, title):
-        logger.error(f"Stexchange RPC Error: {title}")
+    def __init__(self, message):
+        """
+        :param message: error message
+        """
+        logger.error(f"Stexchange RPC Error: {message}")
+
+
+class StexchangeUnknownException(Exception):
+    def __init__(self, message=""):
+        super(f"unknown exception: {message}")
 
 
 class InvalidArgumentException(StexchangeException):
-    pass
+    def __init__(self, _id):
+        super(f"id: ${_id} invalid argument")
 
 
 class InternalErrorException(StexchangeException):
-    pass
+    def __init__(self, _id):
+        super(f"id: ${_id} internal error")
 
 
-class ServiceNotAvailableException(StexchangeException):
-    pass
+class ServiceUnavailableException(StexchangeException):
+    def __init__(self, _id):
+        super(f"id: ${_id} service unavailable")
 
 
 class MethodNotFoundException(StexchangeException):
-    pass
+    def __init__(self, _id):
+        super(f"id: ${_id} method not found")
 
 
 class ServiceTimoutException(StexchangeException):
-    pass
+    def __init__(self, _id):
+        super(5, "service timeout")
 
 
 class OrderNotFoundException(StexchangeException):
-    pass
+    def __init__(self, _id):
+        super(f"id: ${_id} order not found")
 
 
 class UserNotMatchException(StexchangeException):
-    pass
+    def __init__(self, _id):
+        super(f"id: ${_id} user not match")
 
 
 class RepeatUpdateException(StexchangeException):
-    pass
+    def __init__(self, _id):
+        super(f"id: ${_id} repeat update")
 
 
 class BalanceNotEnoughException(StexchangeException):
-    pass
+    def __init__(self, _id):
+        super(f"id: ${_id} balance not enough")
+
+
+STEXCHANEG_GENERAL_ERROR_CODE_MAP = {
+    1: InvalidArgumentException.__class__,
+    2: InternalErrorException.__class__,
+    3: ServiceUnavailableException.__class__,
+    4: MethodNotFoundException.__class__,
+    5: ServiceTimoutException.__class__,
+}
