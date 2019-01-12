@@ -2,7 +2,7 @@ from nanohttp import json, context
 from nanohttp.controllers import RestController
 from restfulpy.authorization import authorize
 from restfulpy.controllers import ModelRestController
-from restfulpy.validation import prevent_form, validate_form
+from restfulpy.validation import validate_form
 
 from stemerald.models import SecurityLog, IpWhitelist
 

@@ -21,6 +21,7 @@ dependencies = [
     'pycrypto',
     'qrcode',
     'Pillow',
+    'json-rpc',
 
     # deployment
     'alembic',
