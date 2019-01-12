@@ -20,4 +20,3 @@ class CurrencyGetTestCase(WebTestCase):
         self.assertIn('code', response[0])
         self.assertIn('name', response[0])
         self.assertIn('type', response[0])
-        self.assertIn('divideByTen', response[0])

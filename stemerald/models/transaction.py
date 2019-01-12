@@ -32,9 +32,7 @@ class Deposit(Transaction):
 
     id = Field(Integer(), ForeignKey(Transaction.id), primary_key=True)
 
-    utxo_id = Field(Integer(), ForeignKey('utxo.id'), unique=True, protected=True)
-
-    utxo = relationship('Utxo', lazy='select', uselist=False, protected=True)
+    transactionHash = Field(Unicode(260), nullable=True)
 
 
 class Withdraw(Transaction):
@@ -45,13 +43,10 @@ class Withdraw(Transaction):
 
     id = Field(Integer(), ForeignKey(Transaction.id), primary_key=True)
 
-    address = Field(Unicode())
-
-    cryptotx_id = Field(Integer(), ForeignKey('cryptotx.id'), nullable=True)
+    destination_address = Field(Unicode(130))
+    transaction_hash = Field(Unicode(260), nullable=True)
 
     error = Field(Unicode(), nullable=True)
-
-    cryptotx = relationship('Cryptotx')
 
 
 class ShaparakIn(Transaction):

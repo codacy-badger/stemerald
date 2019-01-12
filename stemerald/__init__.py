@@ -11,7 +11,7 @@ from stemerald.mockups import mockup
 from stemerald.authentication import Authenticator
 from stemerald.controllers.root import Root
 
-__version__ = '0.7.6'
+__version__ = '1.0.1'
 
 
 class Application(BaseApplication):

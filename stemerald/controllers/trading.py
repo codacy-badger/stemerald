@@ -1,6 +1,6 @@
 from typing import Union
 
-from nanohttp import json
+from nanohttp import json, RestController
 from nanohttp.exceptions import HttpNotFound
 
 from restfulpy.authorization import authorize
@@ -69,14 +69,12 @@ class MarketController(ModelRestController):
         pass
 
 
-class OrderController(ModelRestController):
-    __model__ = None
+class OrderController(RestController):
 
     @json
     @authorize('admin', 'semitrusted_client', 'trusted_client')
     # TODO: This validate_form is toooooo important -> 'blacklist': ['clientId'] !!!
     @validate_form(whitelist=['id', 'clientId', 'status', 'marketId'], client={'blacklist': ['clientId']})
-    @__model__.expose
     def get(self):
         # TODO
         pass
@@ -84,7 +82,6 @@ class OrderController(ModelRestController):
     @json
     @authorize('admin', 'semitrusted_client', 'trusted_client')
     @prevent_form
-    @commit
     def cancel(self, order_id: int):
         # TODO
         pass
@@ -92,7 +89,6 @@ class OrderController(ModelRestController):
     @json
     @authorize('semitrusted_client', 'trusted_client')
     @validate_form(exact=['price'], types={'price': int})
-    @commit
     def edit(self, order_id: int):
         # TODO
         pass
@@ -100,7 +96,6 @@ class OrderController(ModelRestController):
     @json
     @authorize('semitrusted_client', 'trusted_client')
     @validate_form(exact=['marketId', 'type', 'price', 'amount'], types={'price': int, 'amount': int, 'marketId': int})
-    @commit
     def create(self):
         # TODO
         pass
@@ -112,8 +107,7 @@ class OrderController(ModelRestController):
         pass
 
 
-class TradeController(ModelRestController):
-    __model__ = None
+class TradeController(RestController):
 
     @json
     @authorize('admin', 'client')
@@ -122,7 +116,6 @@ class TradeController(ModelRestController):
         admin={'whitelist': ['id', 'clientId', 'marketId', 'isDone', 'type', 'price', 'amount', 'createdAt']},
         pattern={'sort': r'^(-)?(id|clientId|marketId|doneAt|isDone|type|price|amount)$'}
     )
-    @__model__.expose
     def get(self, trade_id: int = None):
         # TODO
         pass
