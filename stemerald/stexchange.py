@@ -396,19 +396,25 @@ class StexchangeClient:
         """
         Market price:
         method: market.last
+
         :param market
+
         :return: "price"
         """
-        params = [market]
-        return requests.post(self, data=self.payload("market.last", params), headers=self.headers).json()
+        return self._execute(
+            "market.last",
+            [market]
+        )
 
     def market_deals(self, market, limit, last_id):
         """
         Executed history:
         method: market.deals
+
         :param market
         :param limit: count，no more than 10000
         :param last_id: count，no more than 10000
+
         :return: "result": [
                     {
                         "id": 5,
@@ -426,17 +432,21 @@ class StexchangeClient:
                     }
                 ]
         """
-        params = [market, limit, last_id]
-        return requests.post(self, data=self.payload("market.deals", params), headers=self.headers).json()
+        return self._execute(
+            "market.deals",
+            [market, limit, last_id]
+        )
 
     def market_user_deals(self, user_id, market, offset, limit):
         """
-        Executed history:
+        User Executed history:
         method: market.user_deals
+
         :param user_id: user ID，Integer
         :param market: market name，String
         :param offset: offset，Integer
         :param limit: limit，Integer
+        
         :return: "result": [
                         "offset":
                         "limit":
@@ -457,9 +467,10 @@ class StexchangeClient:
                         ]
                     ]
         """
-        params = [user_id, market, offset, limit]
-        return requests.post(self,
-                             data=self.payload("market.user_deals", params), headers=self.headers).json()
+        return self._execute(
+            "market.user_deals",
+            [user_id, market, offset, limit]
+        )
 
     def market_kline(self, market, start, end, interval):
         """
@@ -484,8 +495,10 @@ class StexchangeClient:
                         ]
                     ]
         """
-        params = [market, start, end, interval]
-        return requests.post(self, data=self.payload("market.kline", params), headers=self.headers).json()
+        return self._execute(
+            "market.kline",
+            [market, start, end, interval]
+        )
 
     def market_status(self, market, period):
         """
@@ -505,9 +518,10 @@ class StexchangeClient:
                         "volume": "0"
                     }
         """
-        params = [market, period]
-        return requests.post(self,
-                             data=self.payload("market.status_today", params), headers=self.headers).json()
+        return self._execute(
+            "market.status",
+            [market, period]
+        )
 
     def market_status_today(self, market):
         """
@@ -525,9 +539,10 @@ class StexchangeClient:
                     "volume": 24H volume
                 }
         """
-        params = [market]
-        return requests.post(self,
-                             data=self.payload("market.status_today", params), headers=self.headers).json()
+        return self._execute(
+            "market.status_today",
+            [market]
+        )
 
     def market_list(self):
         """
@@ -536,8 +551,10 @@ class StexchangeClient:
 
         :return:
         """
-        params = []
-        return requests.post(self, data=self.payload("market.list", params), headers=self.headers).json()
+        return self._execute(
+            "market.list",
+            []
+        )
 
     def market_summary(self, market):
         """
@@ -548,8 +565,10 @@ class StexchangeClient:
 
         :return:
         """
-        params = [market]
-        return requests.post(self, data=self.payload("market.summary", params), headers=self.headers).json()
+        return self._execute(
+            "market.summary",
+            [market]
+        )
 
 
 class StexchangeException(Exception):
