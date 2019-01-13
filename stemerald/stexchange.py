@@ -1,17 +1,15 @@
 import json
 import time
-from functools import partial
-from logging import Logger
-from operator import is_not
-from ujson import decode
 
 import requests
 from nanohttp import settings
 
-# from restfulpy.logging_ import get_logger
+from restfulpy.logging_ import get_logger
 
-# logger = get_logger('STEXCHANGE_RPC_CLIENT')
-logger = Logger("a")
+logger = get_logger('STEXCHANGE_RPC_CLIENT')
+
+# from logging import Logger
+# logger = Logger('STEXCHANGE_RPC_CLIENT')
 
 
 class StexchangeClient:
@@ -762,18 +760,17 @@ if __name__ == '__main__':
     print(sx.market_summary("TESTNET3RINKEBY"))
 
     order = sx.order_put_limit(1, "TESTNET3RINKEBY", 2, "100", "2", "0.1", "0.1", "abc")
-    oid = order["id"]
 
     print(order)
     print(sx.order_put_market(1, "TESTNET3RINKEBY", 1, "3", "0.1", "cbd"))
     print(sx.order_book("TESTNET3RINKEBY", 1, 0, 10))
     print(sx.order_pending(1, "TESTNET3RINKEBY", 0, 10))
-    print(sx.order_pending_detail("TESTNET3RINKEBY", oid))
+    print(sx.order_pending_detail("TESTNET3RINKEBY", order["id"]))
     print(sx.order_finished(1, "TESTNET3RINKEBY", 0, 0, 0, 20, 1))
     print(sx.order_finished_detail(57))
-    print(sx.order_deals(oid, 0, 10))
+    print(sx.order_deals(order["id"], 0, 10))
     print(sx.order_depth("TESTNET3RINKEBY", 100, "1"))
-    print(sx.order_cancel(1, "TESTNET3RINKEBY", oid))
+    print(sx.order_cancel(1, "TESTNET3RINKEBY", order["id"]))
 
     """
     Sample results:
@@ -784,6 +781,7 @@ if __name__ == '__main__':
     * {'offset': 0, 'limit': 10, 'records': [{'time': 1547419212.987738, 'asset': 'TESTNET3', 'balance': '9137.8', 'change': '100', 'business': 'null', 'detail': {'id': 1547419212}}, {'time': 1547419172.410369, 'asset': 'TESTNET3', 'balance': '9038.4', 'change': '100', 'business': 'null', 'detail': {'id': 1547419172}}, {'time': 1547419117.182499, 'asset': 'TESTNET3', 'balance': '8939', 'change': '100', 'business': 'null', 'detail': {'id': 1547419117}}, {'time': 1547419093.216783, 'asset': 'TESTNET3', 'balance': '8839.6', 'change': '100', 'business': 'null', 'detail': {'id': 1547419093}}, {'time': 1547419090.127026, 'asset': 'TESTNET3', 'balance': '8740.2', 'change': '100', 'business': 'null', 'detail': {'id': 1547419090}}, {'time': 1547419079.001812, 'asset': 'TESTNET3', 'balance': '8640.8', 'change': '100', 'business': 'null', 'detail': {'id': 1547419078}}, {'time': 1547419050.210154, 'asset': 'TESTNET3', 'balance': '8541', 'change': '100', 'business': 'null', 'detail': {'id': 1547419050}}, {'time': 1547419045.657284, 'asset': 'TESTNET3', 'balance': '8441.2', 'change': '100', 'business': 'null', 'detail': {'id': 1547419045}}, {'time': 1547419044.539546, 'asset': 'TESTNET3', 'balance': '8341.4', 'change': '100', 'business': 'null', 'detail': {'id': 1547419044}}, {'time': 1547419042.979995, 'asset': 'TESTNET3', 'balance': '8241.6', 'change': '100', 'business': 'null', 'detail': {'id': 1547419042}}]}
     * [{'freeze_count': 0, 'name': 'RINKEBY', 'total_balance': '1996.3', 'available_count': 1, 'freeze_balance': '0', 'available_balance': '1996.3'}, {'freeze_count': 0, 'name': 'TESTNET3', 'total_balance': '9137.8', 'available_count': 1, 'freeze_balance': '0', 'available_balance': '9137.8'}]
     * [{'name': 'RINKEBY', 'prec': 8}, {'name': 'TESTNET3', 'prec': 8}]
+
     * [{'name': 'TESTNET3RINKEBY', 'stock': 'RINKEBY', 'stock_prec': 8, 'money': 'TESTNET3', 'fee_prec': 4, 'min_amount': '0.00001', 'money_prec': 8}]
     * [{'id': 27, 'time': 1547419172.446089, 'price': '2', 'amount': '3', 'type': 'sell'}, {'id': 26, 'time': 1547419117.217958, 'price': '2', 'amount': '3', 'type': 'sell'}, {'id': 25, 'time': 1547419093.255915, 'price': '2', 'amount': '3', 'type': 'sell'}, {'id': 24, 'time': 1547419090.164703, 'price': '2', 'amount': '3', 'type': 'sell'}, {'id': 23, 'time': 1547419079.117212, 'price': '2', 'amount': '3', 'type': 'sell'}, {'id': 22, 'time': 1547419050.312692, 'price': '2', 'amount': '1', 'type': 'sell'}, {'id': 21, 'time': 1547419045.695404, 'price': '2', 'amount': '1', 'type': 'sell'}, {'id': 20, 'time': 1547419044.574597, 'price': '2', 'amount': '1', 'type': 'sell'}, {'id': 19, 'time': 1547419043.018591, 'price': '2', 'amount': '1', 'type': 'sell'}, {'id': 18, 'time': 1547419014.44956, 'price': '88', 'amount': '1', 'type': 'sell'}]
     * {'offset': 0, 'limit': 10, 'records': [{'time': 1547419172.446089, 'id': 27, 'side': 2, 'price': '2', 'user': 1, 'fee': '0.3', 'role': 1, 'amount': '3', 'deal': '6', 'deal_order_id': 61}, {'time': 1547419172.446089, 'id': 27, 'side': 1, 'price': '2', 'user': 1, 'fee': '0.6', 'role': 2, 'amount': '3', 'deal': '6', 'deal_order_id': 60}, {'time': 1547419117.217958, 'id': 26, 'side': 2, 'price': '2', 'user': 1, 'fee': '0.3', 'role': 1, 'amount': '3', 'deal': '6', 'deal_order_id': 59}, {'time': 1547419117.217958, 'id': 26, 'side': 1, 'price': '2', 'user': 1, 'fee': '0.6', 'role': 2, 'amount': '3', 'deal': '6', 'deal_order_id': 58}, {'time': 1547419093.255915, 'id': 25, 'side': 2, 'price': '2', 'user': 1, 'fee': '0.3', 'role': 1, 'amount': '3', 'deal': '6', 'deal_order_id': 57}, {'time': 1547419093.255915, 'id': 25, 'side': 1, 'price': '2', 'user': 1, 'fee': '0.6', 'role': 2, 'amount': '3', 'deal': '6', 'deal_order_id': 56}, {'time': 1547419090.164703, 'id': 24, 'side': 2, 'price': '2', 'user': 1, 'fee': '0.3', 'role': 1, 'amount': '3', 'deal': '6', 'deal_order_id': 55}, {'time': 1547419090.164703, 'id': 24, 'side': 1, 'price': '2', 'user': 1, 'fee': '0.6', 'role': 2, 'amount': '3', 'deal': '6', 'deal_order_id': 54}, {'time': 1547419079.117212, 'id': 23, 'side': 2, 'price': '2', 'user': 1, 'fee': '0.3', 'role': 1, 'amount': '3', 'deal': '6', 'deal_order_id': 53}, {'time': 1547419079.117212, 'id': 23, 'side': 1, 'price': '2', 'user': 1, 'fee': '0.6', 'role': 2, 'amount': '3', 'deal': '6', 'deal_order_id': 52}]}
@@ -792,6 +790,7 @@ if __name__ == '__main__':
     * {'low': '2', 'period': 86400, 'deal': '1622', 'high': '88', 'last': '2', 'open': '88', 'close': '2', 'volume': '37'}
     * {'open': '88', 'deal': '1622', 'high': '88', 'last': '2', 'low': '2', 'volume': '37'}
     * [{'name': 'TESTNET3RINKEBY', 'bid_amount': '0', 'bid_count': 0, 'ask_count': 0, 'ask_amount': '0'}]
+
     * {'price': '2', 'id': 62, 'side': 2, 'market': 'TESTNET3RINKEBY', 'taker_fee': '0.1', 'type': 1, 'deal_fee': '0', 'deal_stock': '0', 'maker_fee': '0.1', 'source': 'abc', 'user': 1, 'left': '100', 'ctime': 1547419213.026914, 'mtime': 1547419213.026914, 'amount': '100', 'deal_money': '0'}
     * {'price': '0', 'id': 63, 'side': 1, 'market': 'TESTNET3RINKEBY', 'taker_fee': '0.1', 'type': 2, 'deal_fee': '0.6', 'deal_stock': '3', 'maker_fee': '0', 'source': 'cbd', 'user': 1, 'left': '0e-8', 'ctime': 1547419213.029479, 'mtime': 1547419213.029483, 'amount': '3', 'deal_money': '6'}
     * {'offset': 0, 'orders': [], 'limit': 10, 'total': 0}
