@@ -1,5 +1,9 @@
 import json
+import time
+from functools import partial
 from logging import Logger
+from operator import is_not
+from ujson import decode
 
 import requests
 from nanohttp import settings
@@ -23,24 +27,26 @@ class StexchangeClient:
 
     def _execute(self, method, params, error_mapper=None):
         _id = self._next_request_id()
+        params = list(map(lambda x: x if x is not None else "null", params))
         payload = json.dumps({"method": method, "params": params, "id": _id})
 
-        logger.debug(f"Requesting {method} with id:{_id} with parameters: {'.'.join(params)}")
+        logger.debug(f"Requesting {method} with id:{_id} with parameters: {'.'.join(str(params))}")
 
         try:
             response = requests.post(self.server_url, data=payload, headers=self.headers).json()
         except Exception as e:
             raise StexchangeUnknownException(f"Request error: {str(e)}")
 
-        if response["error"] is not None and len(response["error"] > 0):
+        if response["error"] is not None and len(response["error"]) > 0:
             error_mapper = error_mapper or {}
             error_mapper.update(STEXCHANEG_GENERAL_ERROR_CODE_MAP)
+            error = response["error"]
             raise (
-                error_mapper[response["code"]](response["id"]) if (response["code"] in error_mapper)
-                else StexchangeUnknownException(f"id: {response['id']} Unknown error code: {response['code']}")
+                error_mapper[error["code"]](response["id"]) if (error["code"] in error_mapper)
+                else StexchangeUnknownException(f"id: {response['id']} Unknown error code: {error['code']}")
             )
 
-        elif response["result"] is not None and len(response["result"]) > 0:
+        elif response["result"] is not None:
             logger.debug(f"Request {response['id']} respond")
             return response["result"]
 
@@ -100,10 +106,10 @@ class StexchangeClient:
         return self._execute(
             "balance.update",
             [user_id, asset, business, business_id, change, detail],
-            {10: RepeatUpdateException.__class__, 11: BalanceNotEnoughException}
+            {10: RepeatUpdateException, 11: BalanceNotEnoughException}
         )
 
-    def balance_history(self, user_id, asset, business, start_time, end_time, offset, limit):
+    def balance_history(self, user_id, asset=None, business=None, start_time=0, end_time=0, offset=0, limit=0):
         """
         Asset history:
         method: balance.history
@@ -239,7 +245,7 @@ class StexchangeClient:
         return self._execute(
             "order.cancel",
             [user_id, market, order_id],
-            {10: OrderNotFoundException.__class__, 11: UserNotMatchException}
+            {10: OrderNotFoundException, 11: UserNotMatchException}
         )
 
     def order_deals(self, order_id, offset, limit):
@@ -597,7 +603,7 @@ class StexchangeClient:
         )
 
 
-class StexchangeException(Exception):
+class StexchangeException(BaseException):
     def __init__(self, message):
         """
         :param message: error message
@@ -612,57 +618,156 @@ class StexchangeUnknownException(StexchangeException):
 
 class InvalidArgumentException(StexchangeException):
     def __init__(self, _id):
-        super(f"id: ${_id} invalid argument")
+        super(InvalidArgumentException, self).__init__(f"id: ${_id} invalid argument")
 
 
 class InternalErrorException(StexchangeException):
     def __init__(self, _id):
-        super(f"id: ${_id} internal error")
+        super(InternalErrorException, self).__init__(f"id: ${_id} internal error")
 
 
 class ServiceUnavailableException(StexchangeException):
     def __init__(self, _id):
-        super(f"id: ${_id} service unavailable")
+        super(ServiceUnavailableException, self).__init__(f"id: ${_id} service unavailable")
 
 
 class MethodNotFoundException(StexchangeException):
     def __init__(self, _id):
-        super(f"id: ${_id} method not found")
+        super(MethodNotFoundException, self).__init__(f"id: ${_id} method not found")
 
 
 class ServiceTimoutException(StexchangeException):
     def __init__(self, _id):
-        super(5, "service timeout")
+        super(ServiceTimoutException, self).__init__(f"id: ${_id} service timeout")
 
 
 class OrderNotFoundException(StexchangeException):
     def __init__(self, _id):
-        super(f"id: ${_id} order not found")
+        super(OrderNotFoundException, self).__init__(f"id: ${_id} order not found")
 
 
 class UserNotMatchException(StexchangeException):
     def __init__(self, _id):
-        super(f"id: ${_id} user not match")
+        super(UserNotMatchException, self).__init__(f"id: ${_id} user not match")
 
 
 class RepeatUpdateException(StexchangeException):
     def __init__(self, _id):
-        super(f"id: ${_id} repeat update")
+        super(RepeatUpdateException, self).__init__(f"id: ${_id} repeat update")
 
 
 class BalanceNotEnoughException(StexchangeException):
     def __init__(self, _id):
-        super(f"id: ${_id} balance not enough")
+        super(BalanceNotEnoughException, self).__init__(f"id: ${_id} balance not enough")
+
+
+class MockStexchangeClient(StexchangeClient):
+
+    def balance_query(self, user_id, *asset_name):
+        return super().balance_query(user_id, *asset_name)
+
+    def balance_update(self, user_id, asset, business, business_id, change, detail):
+        return super().balance_update(user_id, asset, business, business_id, change, detail)
+
+    def balance_history(self, user_id, asset=None, business=None, start_time=0, end_time=0, offset=0, limit=0):
+        return super().balance_history(user_id, asset, business, start_time, end_time, offset, limit)
+
+    def asset_list(self):
+        return super().asset_list()
+
+    def asset_summary(self):
+        return super().asset_summary()
+
+    def order_put_limit(self, user_id, market, side, amount, price, taker_fee_rate, maker_fee_rate, source):
+        return super().order_put_limit(user_id, market, side, amount, price, taker_fee_rate, maker_fee_rate, source)
+
+    def order_put_market(self, user_id, market, side, amount, taker_fee_rate, source):
+        return super().order_put_market(user_id, market, side, amount, taker_fee_rate, source)
+
+    def order_cancel(self, user_id, market, order_id):
+        return super().order_cancel(user_id, market, order_id)
+
+    def order_deals(self, order_id, offset, limit):
+        return super().order_deals(order_id, offset, limit)
+
+    def order_book(self, market, side, offset, limit):
+        return super().order_book(market, side, offset, limit)
+
+    def order_depth(self, market, limit, interval):
+        return super().order_depth(market, limit, interval)
+
+    def order_pending(self, user_id, market, offset, limit):
+        return super().order_pending(user_id, market, offset, limit)
+
+    def order_pending_detail(self, market, order_id):
+        return super().order_pending_detail(market, order_id)
+
+    def order_finished(self, user_id, market, start_time, end_time, offset, limit, side):
+        return super().order_finished(user_id, market, start_time, end_time, offset, limit, side)
+
+    def order_finished_detail(self, order_id):
+        return super().order_finished_detail(order_id)
+
+    def market_last(self, market):
+        return super().market_last(market)
+
+    def market_deals(self, market, limit, last_id):
+        return super().market_deals(market, limit, last_id)
+
+    def market_user_deals(self, user_id, market, offset, limit):
+        return super().market_user_deals(user_id, market, offset, limit)
+
+    def market_kline(self, market, start, end, interval):
+        return super().market_kline(market, start, end, interval)
+
+    def market_status(self, market, period):
+        return super().market_status(market, period)
+
+    def market_status_today(self, market):
+        return super().market_status_today(market)
+
+    def market_list(self):
+        return super().market_list()
+
+    def market_summary(self, market):
+        return super().market_summary(market)
 
 
 STEXCHANEG_GENERAL_ERROR_CODE_MAP = {
-    1: InvalidArgumentException.__class__,
-    2: InternalErrorException.__class__,
-    3: ServiceUnavailableException.__class__,
-    4: MethodNotFoundException.__class__,
-    5: ServiceTimoutException.__class__,
+    1: InvalidArgumentException,
+    2: InternalErrorException,
+    3: ServiceUnavailableException,
+    4: MethodNotFoundException,
+    5: ServiceTimoutException,
 }
 
 if __name__ == '__main__':
     sx = StexchangeClient(server_url="http://localhost:8080")
+    print(sx.balance_update(1, "TESTNET3", None, int(time.time()), "100", {}))
+    print(sx.balance_query(1, "TESTNET3"))
+    print(sx.balance_history(1, "TESTNET3", None, 0, 0, 0, 10))
+
+    print(sx.asset_summary())
     print(sx.asset_list())
+
+    print(sx.market_list())
+    print(sx.market_deals("TESTNET3RINKEBY", 10, 3))
+    print(sx.market_user_deals(1, "TESTNET3RINKEBY", 0, 10))
+    print(sx.market_last("TESTNET3RINKEBY"))
+    print(sx.market_kline("TESTNET3RINKEBY", int(time.time()) - 1000, int(time.time()), 86400))
+    print(sx.market_status("TESTNET3RINKEBY", 86400))
+    print(sx.market_status_today("TESTNET3RINKEBY"))
+    print(sx.market_summary("TESTNET3RINKEBY"))
+
+    order = sx.order_put_limit(1, "TESTNET3RINKEBY", 2, "1", "88", "0.1", "0.1", "abc")
+    print(order)
+    oid = order["id"]
+    # print(sx.order_put_market(1, "TESTNET3RINKEBY", 1, "3", "0.1", "cbd"))
+    print(sx.order_book("TESTNET3RINKEBY", 1, 0, 10))
+    print(sx.order_pending(1, "TESTNET3RINKEBY", 0, 10))
+    print(sx.order_pending_detail("TESTNET3RINKEBY", oid))
+    print(sx.order_finished(1, "TESTNET3RINKEBY", 0, 0, 0, 20, 1))
+    # print(sx.order_finished_detail(order_id))
+    print(sx.order_deals(oid, 0, 10))
+    print(sx.order_depth("TESTNET3RINKEBY", 100, "1"))
+    print(sx.order_cancel(1, "TESTNET3RINKEBY", oid))
