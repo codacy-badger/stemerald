@@ -1,10 +1,13 @@
 import json
+from logging import Logger
 
 import requests
 from nanohttp import settings
-from restfulpy.logging_ import get_logger
 
-logger = get_logger('STEXCHANGE_RPC_CLIENT')
+# from restfulpy.logging_ import get_logger
+
+# logger = get_logger('STEXCHANGE_RPC_CLIENT')
+logger = Logger("a")
 
 
 class StexchangeClient:
@@ -19,12 +22,13 @@ class StexchangeClient:
         return self.request_id
 
     def _execute(self, method, params, error_mapper=None):
-        payload = json.dumps({"method": method, "params": params, "id": self._next_request_id()})
+        _id = self._next_request_id()
+        payload = json.dumps({"method": method, "params": params, "id": _id})
 
-        logger.debug(f"Requesting {method} with id:{params['id']} with parameters: {'.'.join(params)}")
+        logger.debug(f"Requesting {method} with id:{_id} with parameters: {'.'.join(params)}")
 
         try:
-            response = requests.post(self, data=payload, headers=self.headers).json()
+            response = requests.post(self.server_url, data=payload, headers=self.headers).json()
         except Exception as e:
             raise StexchangeUnknownException(f"Request error: {str(e)}")
 
@@ -36,7 +40,7 @@ class StexchangeClient:
                 else StexchangeUnknownException(f"id: {response['id']} Unknown error code: {response['code']}")
             )
 
-        elif response["result"] is not None and len(response["result"] > 0):
+        elif response["result"] is not None and len(response["result"]) > 0:
             logger.debug(f"Request {response['id']} respond")
             return response["result"]
 
@@ -468,7 +472,7 @@ class StexchangeClient:
         :param market: market name，String
         :param offset: offset，Integer
         :param limit: limit，Integer
-        
+
         :return: "result": [
                         "offset":
                         "limit":
@@ -601,9 +605,9 @@ class StexchangeException(Exception):
         logger.error(f"Stexchange RPC Error: {message}")
 
 
-class StexchangeUnknownException(Exception):
+class StexchangeUnknownException(StexchangeException):
     def __init__(self, message=""):
-        super(f"unknown exception: {message}")
+        super(StexchangeUnknownException, self).__init__(f"unknown exception: {message}")
 
 
 class InvalidArgumentException(StexchangeException):
@@ -658,3 +662,7 @@ STEXCHANEG_GENERAL_ERROR_CODE_MAP = {
     4: MethodNotFoundException.__class__,
     5: ServiceTimoutException.__class__,
 }
+
+if __name__ == '__main__':
+    sx = StexchangeClient(server_url="http://localhost:8080")
+    print(sx.asset_list())
