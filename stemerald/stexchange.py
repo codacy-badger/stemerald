@@ -222,7 +222,7 @@ class StexchangeClient:
 
         """
         return self._execute(
-            "market.put_limit",
+            "order.put_market",
             [user_id, market, side, amount, taker_fee_rate, source],
             {10: BalanceNotEnoughException}
         )
@@ -744,6 +744,7 @@ STEXCHANEG_GENERAL_ERROR_CODE_MAP = {
 if __name__ == '__main__':
     sx = StexchangeClient(server_url="http://localhost:8080")
     print(sx.balance_update(1, "TESTNET3", None, int(time.time()), "100", {}))
+    print(sx.balance_update(1, "RINKEBY", None, int(time.time()), "100", {}))
     print(sx.balance_query(1, "TESTNET3"))
     print(sx.balance_history(1, "TESTNET3", None, 0, 0, 0, 10))
 
@@ -759,15 +760,16 @@ if __name__ == '__main__':
     print(sx.market_status_today("TESTNET3RINKEBY"))
     print(sx.market_summary("TESTNET3RINKEBY"))
 
-    order = sx.order_put_limit(1, "TESTNET3RINKEBY", 2, "1", "88", "0.1", "0.1", "abc")
-    print(order)
+    order = sx.order_put_limit(1, "TESTNET3RINKEBY", 2, "100", "2", "0.1", "0.1", "abc")
     oid = order["id"]
-    # print(sx.order_put_market(1, "TESTNET3RINKEBY", 1, "3", "0.1", "cbd"))
+
+    print(order)
+    print(sx.order_put_market(1, "TESTNET3RINKEBY", 1, "3", "0.1", "cbd"))
     print(sx.order_book("TESTNET3RINKEBY", 1, 0, 10))
     print(sx.order_pending(1, "TESTNET3RINKEBY", 0, 10))
     print(sx.order_pending_detail("TESTNET3RINKEBY", oid))
     print(sx.order_finished(1, "TESTNET3RINKEBY", 0, 0, 0, 20, 1))
-    # print(sx.order_finished_detail(order_id))
+    print(sx.order_finished_detail(57))
     print(sx.order_deals(oid, 0, 10))
     print(sx.order_depth("TESTNET3RINKEBY", 100, "1"))
     print(sx.order_cancel(1, "TESTNET3RINKEBY", oid))
