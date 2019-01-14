@@ -12,7 +12,8 @@ from stemerald.models import Currency
 from stemerald.controllers.securities import SecurityController
 from stemerald.controllers.members import ClientController, AdminController, SessionController
 from stemerald.controllers.tickets import TicketController
-from stemerald.controllers.trading import TradeController, OrderController, MarketController
+from stemerald.controllers.trading import TradeController, OrderController
+from stemerald.controllers.market import MarketController
 
 
 # noinspection PyUnresolvedReferences

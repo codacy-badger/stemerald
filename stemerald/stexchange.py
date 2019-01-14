@@ -1,20 +1,23 @@
-import json
+import ujson
 import time
 
 import requests
-from nanohttp import settings
+from nanohttp import *
 
 from restfulpy.logging_ import get_logger
 
+from stemerald.helpers import DeferredObject
+
 logger = get_logger('STEXCHANGE_RPC_CLIENT')
+
 
 # from logging import Logger
 # logger = Logger('STEXCHANGE_RPC_CLIENT')
 
 
 class StexchangeClient:
-    def __init__(self, server_url=None, headers=None):
-        self.server_url = server_url or settings.stexchange.rpc_url
+    def __init__(self, server_url, headers=None):
+        self.server_url = server_url
         self.headers = {'content-type': 'application/json'}
         self.headers.update(headers or {})
         self.request_id = 0
@@ -26,7 +29,7 @@ class StexchangeClient:
     def _execute(self, method, params, error_mapper=None):
         _id = self._next_request_id()
         params = list(map(lambda x: x if x is not None else "null", params))
-        payload = json.dumps({"method": method, "params": params, "id": _id})
+        payload = ujson.dumps({"method": method, "params": params, "id": _id})
 
         logger.debug(f"Requesting {method} with id:{_id} with parameters: {'.'.join(str(params))}")
 
@@ -606,6 +609,7 @@ class StexchangeException(BaseException):
         """
         :param message: error message
         """
+        self.message = message
         logger.error(f"Stexchange RPC Error: {message}")
 
 
@@ -779,6 +783,7 @@ if __name__ == '__main__':
     * {'status': 'success'}
     * {'TESTNET3': {'available': '9137.8', 'freeze': '0'}}
     * {'offset': 0, 'limit': 10, 'records': [{'time': 1547419212.987738, 'asset': 'TESTNET3', 'balance': '9137.8', 'change': '100', 'business': 'null', 'detail': {'id': 1547419212}}, {'time': 1547419172.410369, 'asset': 'TESTNET3', 'balance': '9038.4', 'change': '100', 'business': 'null', 'detail': {'id': 1547419172}}, {'time': 1547419117.182499, 'asset': 'TESTNET3', 'balance': '8939', 'change': '100', 'business': 'null', 'detail': {'id': 1547419117}}, {'time': 1547419093.216783, 'asset': 'TESTNET3', 'balance': '8839.6', 'change': '100', 'business': 'null', 'detail': {'id': 1547419093}}, {'time': 1547419090.127026, 'asset': 'TESTNET3', 'balance': '8740.2', 'change': '100', 'business': 'null', 'detail': {'id': 1547419090}}, {'time': 1547419079.001812, 'asset': 'TESTNET3', 'balance': '8640.8', 'change': '100', 'business': 'null', 'detail': {'id': 1547419078}}, {'time': 1547419050.210154, 'asset': 'TESTNET3', 'balance': '8541', 'change': '100', 'business': 'null', 'detail': {'id': 1547419050}}, {'time': 1547419045.657284, 'asset': 'TESTNET3', 'balance': '8441.2', 'change': '100', 'business': 'null', 'detail': {'id': 1547419045}}, {'time': 1547419044.539546, 'asset': 'TESTNET3', 'balance': '8341.4', 'change': '100', 'business': 'null', 'detail': {'id': 1547419044}}, {'time': 1547419042.979995, 'asset': 'TESTNET3', 'balance': '8241.6', 'change': '100', 'business': 'null', 'detail': {'id': 1547419042}}]}
+    
     * [{'freeze_count': 0, 'name': 'RINKEBY', 'total_balance': '1996.3', 'available_count': 1, 'freeze_balance': '0', 'available_balance': '1996.3'}, {'freeze_count': 0, 'name': 'TESTNET3', 'total_balance': '9137.8', 'available_count': 1, 'freeze_balance': '0', 'available_balance': '9137.8'}]
     * [{'name': 'RINKEBY', 'prec': 8}, {'name': 'TESTNET3', 'prec': 8}]
 
@@ -802,3 +807,27 @@ if __name__ == '__main__':
     * {'asks': [], 'bids': [['2', '97']]}
     * {'price': '2', 'id': 62, 'side': 2, 'market': 'TESTNET3RINKEBY', 'taker_fee': '0.1', 'type': 1, 'deal_fee': '0.3', 'deal_stock': '3', 'maker_fee': '0.1', 'source': 'abc', 'user': 1, 'left': '97', 'ctime': 1547419213.026914, 'mtime': 1547419213.029483, 'amount': '100', 'deal_money': '6'}
     """
+
+stexchange_client: StexchangeClient = DeferredObject(StexchangeClient)
+
+
+def stexchange_http_exception_handler(e):
+    if e is ServiceUnavailableException or \
+            e is StexchangeUnknownException or \
+            e is InternalErrorException or \
+            e is MethodNotFoundException or \
+            e is ServiceTimoutException:
+        return HttpInternalServerError(e.message)
+
+    if e is InvalidArgumentException or \
+            e is OrderNotFoundException:
+        return HttpNotFound(e.message)
+
+    if e is UserNotMatchException:
+        return HttpConflict(e.message)
+
+    if e is BalanceNotEnoughException:
+        return HttpBadRequest(e.message)
+
+    if e is RepeatUpdateException:
+        return HttpBadRequest(e.message)

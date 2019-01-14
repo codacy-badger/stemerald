@@ -10,6 +10,7 @@ from stemerald import basedata, mockups
 from stemerald.mockups import mockup
 from stemerald.authentication import Authenticator
 from stemerald.controllers.root import Root
+from stemerald.stexchange import stexchange_client
 
 __version__ = '1.0.1'
 
@@ -93,6 +94,9 @@ class Application(BaseApplication):
       # remote_address_key: REMOTE_ADDR
       remote_address_key: HTTP_CF_CONNECTING_IP
 
+    stexchange: 
+      rpc_url: "http://localhost:8080"
+
     """
 
     def __init__(self):
@@ -119,7 +123,7 @@ class Application(BaseApplication):
                 'Access-Control-Allow-Methods',
                 'GET, POST, METADATA, ADD, REMOVE, CLAIM, REGISTER, ACTIVATE, DEACTIVATE, SCHEDULE, VERIFY, TERMINATE' \
                 ', SUBMIT, ACCEPT, REJECT, CHANGE, RESET, EDIT, CREATE, APPEND, CLOSE, PRESENT, SHOW, RENEW, CHECK' \
-                ', MAKE, SIGN, PUSH, ENABLE, DISABLE, PROVISION, CALCULATE, CANCEL')
+                ', MAKE, SIGN, PUSH, ENABLE, DISABLE, PROVISION, CALCULATE, CANCEL, LIST, SUMMARY')
             context.response_headers.add_header(
                 'Access-Control-Allow-Headers',
                 'Content-Type, Authorization, Content-Length, Connection, If-Match, If-None-Match'
@@ -131,6 +135,10 @@ class Application(BaseApplication):
             )
             context.response_headers.add_header('Access-Control-Allow-Credentials', 'true')
             # context.response_headers.add_header('Access-Control-Allow-Origin', 'http://localhost:3000')
+
+    def configure(self, files=None, context=None, **kwargs):
+        super().configure(files, context, **kwargs)
+        stexchange_client.initialize(server_url=settings.stexchange.rpc_url)
 
     def initialize_models(self, session=None):
         StoreManager.register(
