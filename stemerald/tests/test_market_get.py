@@ -1,6 +1,5 @@
 import ujson
 
-from restfulpy.testing import FormParameter
 
 from stemerald.stexchange import StexchangeClient, stexchange_client
 from stemerald.tests.helpers import WebTestCase, As
