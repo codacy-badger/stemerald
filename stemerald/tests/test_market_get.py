@@ -1,5 +1,7 @@
 import ujson
 
+from restfulpy.testing import FormParameter
+
 from stemerald.stexchange import StexchangeClient, stexchange_client
 from stemerald.tests.helpers import WebTestCase, As
 
@@ -25,6 +27,17 @@ class MarketGetTestCase(WebTestCase):
                     '[{"name": "TESTNET3RINKEBY", "bid_amount": "0", "bid_count": 0, "ask_count": 0, "ask_amount":"0"}]'
                 )
 
+            def market_status(self, market, period):
+                return ujson.loads(
+                    '{"low": "2", "period": 86400, "deal": "1622", "high": "88", "last": "2", "open": "88", "close": '
+                    '"2", "volume": "37"} '
+                )
+
+            def market_status_today(self, market):
+                return ujson.loads(
+                    '{"open": "88", "deal": "1622", "high": "88", "last": "2", "low": "2", "volume": "37"}'
+                )
+
         stexchange_client._set_instance(MockStexchangeClient())
 
     def test_market_list(self):
@@ -48,3 +61,31 @@ class MarketGetTestCase(WebTestCase):
         self.assertIn('bidCount', response[0])
         self.assertIn('askAmount', response[0])
         self.assertIn('askCount', response[0])
+
+    def test_market_status(self):
+        response, ___ = self.request(
+            As.anonymous, 'STATUS', f"{self.url}/TESTNET3RINKEBY",
+            query_string={'period': 86400}
+        )
+
+        self.assertIn('open', response)
+        self.assertIn('high', response)
+        self.assertIn('low', response)
+        self.assertIn('close', response)
+        self.assertIn('last', response)
+        self.assertIn('volume', response)
+        self.assertIn('deal', response)
+        self.assertIn('period', response)
+
+        response, ___ = self.request(
+            As.anonymous, 'STATUS', f"{self.url}/TESTNET3RINKEBY",
+            query_string={'period': 'today'}
+        )
+        self.assertIn('open', response)
+        self.assertIn('high', response)
+        self.assertIn('low', response)
+        self.assertIn('close', response)
+        self.assertIn('last', response)
+        self.assertIn('deal', response)
+        self.assertIsNone(response['period'])
+        self.assertIsNone(response['close'])
