@@ -12,7 +12,7 @@ from stemerald.authentication import Authenticator
 from stemerald.controllers.root import Root
 from stemerald.stexchange import stexchange_client
 
-__version__ = '1.0.1'
+__version__ = '2.0.1'
 
 
 class Application(BaseApplication):
@@ -138,7 +138,7 @@ class Application(BaseApplication):
 
     def configure(self, files=None, context=None, **kwargs):
         super().configure(files, context, **kwargs)
-        stexchange_client.initialize(server_url=settings.stexchange.rpc_url)
+        stexchange_client.initialize(server_url=settings.stexchange.rpc_url, force=True)
 
     def initialize_models(self, session=None):
         StoreManager.register(
