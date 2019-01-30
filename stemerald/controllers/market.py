@@ -9,7 +9,11 @@ class MarketController(RestController):
     @json
     @prevent_form
     def list(self):
-        response = stexchange_client.market_list()
+        try:
+            response = stexchange_client.market_list()
+        except StexchangeException as e:
+            raise stexchange_http_exception_handler(e)
+
         return [
             {
                 'name': market['name'],
