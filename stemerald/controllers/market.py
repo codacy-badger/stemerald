@@ -1,7 +1,7 @@
 from nanohttp import RestController, json, context
 from restfulpy.validation import prevent_form, validate_form
 
-from stemerald.stexchange import stexchange_client, StexchangeClient, stexchange_http_exception_handler
+from stemerald.stexchange import stexchange_client, StexchangeException, stexchange_http_exception_handler
 
 
 class MarketController(RestController):
@@ -27,7 +27,7 @@ class MarketController(RestController):
     def summary(self, market: str):
         try:
             response = stexchange_client.market_summary(market)
-        except StexchangeClient as e:
+        except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
         return [
@@ -45,7 +45,7 @@ class MarketController(RestController):
     def last(self, market: str):
         try:
             response = stexchange_client.market_summary(market)
-        except StexchangeClient as e:
+        except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
         return [
@@ -68,7 +68,7 @@ class MarketController(RestController):
                 status = stexchange_client.market_status_today(market)
             else:
                 status = stexchange_client.market_status(market, int(period))
-        except StexchangeClient as e:
+        except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
         return {

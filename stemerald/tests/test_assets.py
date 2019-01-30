@@ -5,7 +5,7 @@ from stemerald.stexchange import StexchangeClient, stexchange_client
 from stemerald.tests.helpers import WebTestCase, As
 
 
-class AssetGetTestCase(WebTestCase):
+class AssetTestCase(WebTestCase):
     url = '/apiv1/assets'
 
     # noinspection PyArgumentList

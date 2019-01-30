@@ -2,7 +2,7 @@ from nanohttp import RestController, context, json
 from restfulpy.authorization import authorize
 from restfulpy.validation import validate_form, prevent_form
 
-from stemerald.stexchange import stexchange_client, StexchangeClient, stexchange_http_exception_handler
+from stemerald.stexchange import stexchange_client, StexchangeException, stexchange_http_exception_handler
 
 
 class AssetsController(RestController):
@@ -15,7 +15,7 @@ class AssetsController(RestController):
                 'prec': x['prec'],
             } for x in stexchange_client.asset_list()]
 
-        except StexchangeClient as e:
+        except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
     @json
@@ -31,7 +31,7 @@ class AssetsController(RestController):
                 'freezeBalance': x['available_count'],
             } for x in stexchange_client.asset_summary()]
 
-        except StexchangeClient as e:
+        except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
 
@@ -40,18 +40,18 @@ class BalancesController(RestController):
     @json
     @authorize("client")
     @prevent_form
-    def summary(self):
+    def overview(self):
         asset_names = [x['name'] for x in stexchange_client.asset_list()]
         result = []
         try:
-            for key, value in stexchange_client.balance_query(context.identity.id, *asset_names):
+            for key, value in stexchange_client.balance_query(context.identity.id, *asset_names).items():
                 result.append({
                     'name': key,
                     'available': value['available'],
                     'freeze': value['freeze'],
                 })
 
-        except StexchangeClient as e:
+        except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
         return result
@@ -78,5 +78,5 @@ class BalancesController(RestController):
                 )['records']
             ]
 
-        except StexchangeClient as e:
+        except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
