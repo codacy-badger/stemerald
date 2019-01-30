@@ -28,6 +28,17 @@ class MarketController(RestController):
 
     @json
     @prevent_form
+    def last(self, market: str):
+        try:
+            return {
+                'market': market,
+                'price': stexchange_client.market_last(market),
+            }
+        except StexchangeException as e:
+            raise stexchange_http_exception_handler(e)
+
+    @json
+    @prevent_form
     def summary(self, market: str):
         try:
             response = stexchange_client.market_summary(market)
