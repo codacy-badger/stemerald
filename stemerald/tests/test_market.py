@@ -1,6 +1,5 @@
 import ujson
 
-
 from stemerald.stexchange import StexchangeClient, stexchange_client
 from stemerald.tests.helpers import WebTestCase, As
 
@@ -14,6 +13,9 @@ class MarketGetTestCase(WebTestCase):
         class MockStexchangeClient(StexchangeClient):
             def __init__(self, headers=None):
                 super().__init__("", headers)
+
+            def market_last(self, **kwargs):
+                return '2.00000000'
 
             def market_list(self):
                 return ujson.loads(
@@ -50,6 +52,12 @@ class MarketGetTestCase(WebTestCase):
         self.assertIn('feePrec', response[0])
         self.assertIn('minAmount', response[0])
         self.assertIn('moneyPrec', response[0])
+
+    def test_market_last(self):
+        response, ___ = self.request(As.anonymous, 'LAST', f"{self.url}/TESTNET3RINKEBY")
+
+        self.assertIn('name', response)
+        self.assertIn('price', response)
 
     def test_market_summary(self):
         response, ___ = self.request(As.anonymous, 'SUMMARY', f"{self.url}/TESTNET3RINKEBY")
