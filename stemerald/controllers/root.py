@@ -2,6 +2,7 @@ from restfulpy.authorization import authorize
 from restfulpy.orm import commit
 from restfulpy.validation import validate_form
 
+from stemerald.controllers.assets import AssetsController, BalancesController
 from stemerald.controllers.territories import TerritoryController
 from stemerald.controllers.transactions import TransactionController, ShetabAddressController, ShebaAddressController
 from nanohttp import Controller, json, HttpNotFound
@@ -54,6 +55,9 @@ class ApiV1(Controller):
 
     currencies = CurrencyController()
     markets = MarketController()
+
+    assets = AssetsController()
+    balances = BalancesController()
 
     orders = OrderController()
     trades = TradeController()
