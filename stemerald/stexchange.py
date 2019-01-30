@@ -812,22 +812,22 @@ stexchange_client: StexchangeClient = DeferredObject(StexchangeClient)
 
 
 def stexchange_http_exception_handler(e):
-    if e is ServiceUnavailableException or \
-            e is StexchangeUnknownException or \
-            e is InternalErrorException or \
-            e is MethodNotFoundException or \
-            e is ServiceTimoutException:
+    if isinstance(e, ServiceUnavailableException) or \
+            isinstance(e, StexchangeUnknownException) or \
+            isinstance(e, InternalErrorException) or \
+            isinstance(e, MethodNotFoundException) or \
+            isinstance(e, ServiceTimoutException) or \
+            isinstance(e, StexchangeUnknownException):
         return HttpInternalServerError(e.message)
 
-    if e is InvalidArgumentException or \
-            e is OrderNotFoundException:
+    if isinstance(e, InvalidArgumentException) or isinstance(e, OrderNotFoundException):
         return HttpNotFound(e.message)
 
-    if e is UserNotMatchException:
+    if isinstance(e, UserNotMatchException):
         return HttpConflict(e.message)
 
-    if e is BalanceNotEnoughException:
+    if isinstance(e, BalanceNotEnoughException):
         return HttpBadRequest(e.message)
 
-    if e is RepeatUpdateException:
+    if isinstance(e, RepeatUpdateException):
         return HttpBadRequest(e.message)

@@ -124,7 +124,7 @@ class Application(BaseApplication):
                 'GET, POST, METADATA, ADD, REMOVE, CLAIM, REGISTER, ACTIVATE, DEACTIVATE, SCHEDULE, VERIFY, TERMINATE'
                 ', SUBMIT, ACCEPT, REJECT, CHANGE, RESET, EDIT, CREATE, APPEND, CLOSE, PRESENT, SHOW, RENEW, CHECK'
                 ', MAKE, SIGN, PUSH, ENABLE, DISABLE, PROVISION, CALCULATE, CANCEL, LIST, SUMMARY, STATUS, LAST'
-                ', OVERVIEW')
+                ', OVERVIEW, PEEK')
             context.response_headers.add_header(
                 'Access-Control-Allow-Headers',
                 'Content-Type, Authorization, Content-Length, Connection, If-Match, If-None-Match'

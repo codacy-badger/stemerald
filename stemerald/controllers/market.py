@@ -7,6 +7,26 @@ from stemerald.stexchange import stexchange_client, StexchangeException, stexcha
 class MarketController(RestController):
 
     @json
+    @validate_form(exact=['limit', 'lastId'])
+    def peek(self, market: str):
+        try:
+            response = stexchange_client.market_deals(
+                market, int(context.query_string['limit']), int(context.query_string['lastId'])
+            )
+        except StexchangeException as e:
+            raise stexchange_http_exception_handler(e)
+
+        return [
+            {
+                'id': deal['id'],
+                'time': deal['time'],
+                'price': deal['price'],
+                'amount': deal['amount'],
+                'type': deal['type'],
+            } for deal in response
+        ]
+
+    @json
     @prevent_form
     def list(self):
         try:
@@ -31,7 +51,7 @@ class MarketController(RestController):
     def last(self, market: str):
         try:
             return {
-                'market': market,
+                'name': market,
                 'price': stexchange_client.market_last(market),
             }
         except StexchangeException as e:
@@ -40,24 +60,6 @@ class MarketController(RestController):
     @json
     @prevent_form
     def summary(self, market: str):
-        try:
-            response = stexchange_client.market_summary(market)
-        except StexchangeException as e:
-            raise stexchange_http_exception_handler(e)
-
-        return [
-            {
-                'name': market['name'],
-                'bidAmount': market['bid_amount'],
-                'bidCount': market['bid_count'],
-                'askAmount': market['ask_amount'],
-                'askCount': market['ask_count'],
-            } for market in response
-        ]
-
-    @json
-    @prevent_form
-    def last(self, market: str):
         try:
             response = stexchange_client.market_summary(market)
         except StexchangeException as e:

@@ -1,6 +1,6 @@
 import ujson
 
-from stemerald.stexchange import StexchangeClient, stexchange_client
+from stemerald.stexchange import StexchangeClient, stexchange_client, StexchangeException, StexchangeUnknownException
 from stemerald.tests.helpers import WebTestCase, As
 
 
@@ -14,7 +14,7 @@ class MarketGetTestCase(WebTestCase):
             def __init__(self, headers=None):
                 super().__init__("", headers)
 
-            def market_last(self, **kwargs):
+            def market_last(self, market):
                 return '2.00000000'
 
             def market_list(self):
@@ -38,6 +38,22 @@ class MarketGetTestCase(WebTestCase):
                 return ujson.loads(
                     '{"open": "88", "deal": "1622", "high": "88", "last": "2", "low": "2", "volume": "37"}'
                 )
+
+            def market_deals(self, market, limit, last_id):
+                if market == 'TESTNET3RINKEBY' and limit == 10 and last_id < 18:
+                    return ujson.loads(
+                        '[{"id": 27, "time": 1547419172.446089, "price": "2", "amount": "3", "type": "sell"},{"id": 26,'
+                        '"time": 1547419117.217958, "price": "2", "amount": "3", "type": "sell"}, {"id": 25, '
+                        '"time": 1547419093.255915, "price": "2", "amount": "3", "type": "sell"}, {"id": 24, '
+                        '"time": 1547419090.164703, "price": "2", "amount": "3", "type": "sell"}, {"id": 23, '
+                        '"time": 1547419079.117212, "price": "2", "amount": "3", "type": "sell"}, {"id": 22, '
+                        '"time": 1547419050.312692, "price": "2", "amount": "1", "type": "sell"}, {"id": 21, '
+                        '"time": 1547419045.695404, "price": "2", "amount": "1", "type": "sell"}, {"id": 20, '
+                        '"time": 1547419044.574597, "price": "2", "amount": "1", "type": "sell"}, {"id": 19, '
+                        '"time": 1547419043.018591, "price": "2", "amount": "1", "type": "sell"}, {"id": 18, '
+                        '"time": 1547419014.44956, "price": "88", "amount": "1", "type": "sell"}]'
+                    )
+                raise StexchangeUnknownException()
 
         stexchange_client._set_instance(MockStexchangeClient())
 
@@ -68,6 +84,19 @@ class MarketGetTestCase(WebTestCase):
         self.assertIn('bidCount', response[0])
         self.assertIn('askAmount', response[0])
         self.assertIn('askCount', response[0])
+
+    def test_market_peek(self):
+        response, ___ = self.request(
+            As.anonymous, 'PEEK', f"{self.url}/TESTNET3RINKEBY",
+            query_string={'limit': 10, 'lastId': 3}
+        )
+
+        self.assertEqual(len(response), 10)
+        self.assertIn('id', response[0])
+        self.assertIn('time', response[0])
+        self.assertIn('price', response[0])
+        self.assertIn('amount', response[0])
+        self.assertIn('type', response[0])
 
     def test_market_status(self):
         response, ___ = self.request(
