@@ -10,35 +10,53 @@ class MarketController(RestController):
     @authorize('client')
     def _peek_me(self, market):
         try:
-            return stexchange_client.market_user_deals(
-                context.identity.id, market, int(context.query_string['limit']), int(context.query_string['offset'])
+            response = stexchange_client.market_user_deals(
+                user_id=context.identity.id,
+                market=market,
+                offset=int(context.query_string['offset']),
+                limit=int(context.query_string['limit'])
             )
+            return [
+                {
+                    'id': deal['id'],
+                    'time': deal['time'],
+                    'side': deal['side'],
+                    'user': deal['user'],
+                    'price': deal['price'],
+                    'amount': deal['amount'],
+                    'fee': deal['fee'],
+                    'deal': deal['deal'],
+                    'dealOrderId': deal['deal_order_id'],
+                    'role': deal['role'],
+                } for deal in response['records']
+            ]
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
     @json
     @validate_form(whitelist=['limit', 'lastId', 'offset'])
-    def peek(self, market: str, inner_resource: str, inner_resource2: str = None):
-        if inner_resource == 'deals':
-            if inner_resource2 == 'me':
-                return self._peek_me(market)
-            else:
-                try:
-                    response = stexchange_client.market_deals(
-                        market, int(context.query_string['limit']), int(context.query_string['lastId'])
-                    )
-                except StexchangeException as e:
-                    raise stexchange_http_exception_handler(e)
+    def peek(self, market: str, inner_resource: str):
+        if inner_resource == 'mydeals':
+            return self._peek_me(market)
+        elif inner_resource == 'marketdeals':
+            try:
+                response = stexchange_client.market_deals(
+                    market=market,
+                    limit=int(context.query_string['limit']),
+                    last_id=int(context.query_string['lastId'])
+                )
+            except StexchangeException as e:
+                raise stexchange_http_exception_handler(e)
 
-                return [
-                    {
-                        'id': deal['id'],
-                        'time': deal['time'],
-                        'price': deal['price'],
-                        'amount': deal['amount'],
-                        'type': deal['type'],
-                    } for deal in response
-                ]
+            return [
+                {
+                    'id': deal['id'],
+                    'time': deal['time'],
+                    'price': deal['price'],
+                    'amount': deal['amount'],
+                    'type': deal['type'],
+                } for deal in response
+            ]
 
     @json
     @prevent_form

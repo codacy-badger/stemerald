@@ -1,6 +1,7 @@
 import ujson
 
-from stemerald.stexchange import StexchangeClient, stexchange_client, StexchangeException, StexchangeUnknownException
+from stemerald.models import Client
+from stemerald.stexchange import StexchangeClient, stexchange_client, StexchangeUnknownException
 from stemerald.tests.helpers import WebTestCase, As
 
 
@@ -10,6 +11,16 @@ class MarketGetTestCase(WebTestCase):
     # noinspection PyArgumentList
     @classmethod
     def mockup(cls):
+        client1 = Client()
+        client1.email = 'client1@test.com'
+        client1.password = '123456'
+        client1.is_active = True
+        cls.session.add(client1)
+
+        cls.session.commit()
+
+        cls.mock_client1 = client1
+
         class MockStexchangeClient(StexchangeClient):
             def __init__(self, headers=None):
                 super().__init__("", headers)
@@ -56,7 +67,7 @@ class MarketGetTestCase(WebTestCase):
                 raise StexchangeUnknownException()
 
             def market_user_deals(self, user_id, market, offset, limit):
-                if user_id == 1 and market == 'TESTNET3RINKEBY' and offset == 0 and limit == 10:
+                if user_id == cls.mock_client1.id and market == 'TESTNET3RINKEBY' and offset == 0 and limit == 10:
                     return ujson.loads(
                         '{"offset": 0, "limit": 10, "records": [{"time": 1547419172.446089, "id": 27, "side": 2, '
                         '"price": "2", "user": 1, "fee": "0.3", "role": 1, "amount": "3", "deal": "6", '
@@ -109,19 +120,6 @@ class MarketGetTestCase(WebTestCase):
         self.assertIn('askAmount', response[0])
         self.assertIn('askCount', response[0])
 
-    def test_market_peek(self):
-        response, ___ = self.request(
-            As.anonymous, 'PEEK', f"{self.url}/TESTNET3RINKEBY",
-            query_string={'limit': 10, 'lastId': 3}
-        )
-
-        self.assertEqual(len(response), 10)
-        self.assertIn('id', response[0])
-        self.assertIn('time', response[0])
-        self.assertIn('price', response[0])
-        self.assertIn('amount', response[0])
-        self.assertIn('type', response[0])
-
     def test_market_status(self):
         response, ___ = self.request(
             As.anonymous, 'STATUS', f"{self.url}/TESTNET3RINKEBY",
@@ -150,9 +148,9 @@ class MarketGetTestCase(WebTestCase):
         self.assertIsNone(response['period'])
         self.assertIsNone(response['close'])
 
-    def test_fills(self):
+    def test_market_deals(self):
         response, ___ = self.request(
-            As.client, 'PEEK', f"{self.url}/TESTNET3RINKEBY/deals",
+            As.anonymous, 'PEEK', f"{self.url}/TESTNET3RINKEBY/marketdeals",
             query_string={'limit': 10, 'lastId': 10}
         )
 
@@ -163,15 +161,22 @@ class MarketGetTestCase(WebTestCase):
         self.assertIn('amount', response[0])
         self.assertIn('type', response[0])
 
-    def test_fills_me(self):
+    def test_my_deals(self):
+        self.login('client1@test.com', '123456')
+
         response, ___ = self.request(
-            As.client, 'PEEK', f"{self.url}/TESTNET3RINKEBY/deals/me",
-            query_string={'limit': 10, 'lastId': 10}
+            As.client, 'PEEK', f"{self.url}/TESTNET3RINKEBY/mydeals",
+            query_string={'limit': 10, 'offset': 0}
         )
 
         self.assertEqual(len(response), 10)
         self.assertIn('id', response[0])
         self.assertIn('time', response[0])
+        self.assertIn('side', response[0])
         self.assertIn('price', response[0])
+        self.assertIn('user', response[0])
         self.assertIn('amount', response[0])
-        self.assertIn('type', response[0])
+        self.assertIn('fee', response[0])
+        self.assertIn('deal', response[0])
+        self.assertIn('dealOrderId', response[0])
+        self.assertIn('role', response[0])
