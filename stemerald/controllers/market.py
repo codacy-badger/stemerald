@@ -1,4 +1,5 @@
 from nanohttp import RestController, json, context
+from restfulpy.authorization import authorize
 from restfulpy.validation import prevent_form, validate_form
 
 from stemerald.stexchange import stexchange_client, StexchangeException, stexchange_http_exception_handler
@@ -6,25 +7,38 @@ from stemerald.stexchange import stexchange_client, StexchangeException, stexcha
 
 class MarketController(RestController):
 
-    @json
-    @validate_form(exact=['limit', 'lastId'])
-    def peek(self, market: str):
+    @authorize('client')
+    def _peek_me(self, market):
         try:
-            response = stexchange_client.market_deals(
-                market, int(context.query_string['limit']), int(context.query_string['lastId'])
+            return stexchange_client.market_user_deals(
+                context.identity.id, market, int(context.query_string['limit']), int(context.query_string['offset'])
             )
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
-        return [
-            {
-                'id': deal['id'],
-                'time': deal['time'],
-                'price': deal['price'],
-                'amount': deal['amount'],
-                'type': deal['type'],
-            } for deal in response
-        ]
+    @json
+    @validate_form(whitelist=['limit', 'lastId', 'offset'])
+    def peek(self, market: str, inner_resource: str, inner_resource2: str = None):
+        if inner_resource == 'deals':
+            if inner_resource2 == 'me':
+                return self._peek_me(market)
+            else:
+                try:
+                    response = stexchange_client.market_deals(
+                        market, int(context.query_string['limit']), int(context.query_string['lastId'])
+                    )
+                except StexchangeException as e:
+                    raise stexchange_http_exception_handler(e)
+
+                return [
+                    {
+                        'id': deal['id'],
+                        'time': deal['time'],
+                        'price': deal['price'],
+                        'amount': deal['amount'],
+                        'type': deal['type'],
+                    } for deal in response
+                ]
 
     @json
     @prevent_form

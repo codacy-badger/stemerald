@@ -55,6 +55,30 @@ class MarketGetTestCase(WebTestCase):
                     )
                 raise StexchangeUnknownException()
 
+            def market_user_deals(self, user_id, market, offset, limit):
+                if user_id == 1 and market == 'TESTNET3RINKEBY' and offset == 0 and limit == 10:
+                    return ujson.loads(
+                        '{"offset": 0, "limit": 10, "records": [{"time": 1547419172.446089, "id": 27, "side": 2, '
+                        '"price": "2", "user": 1, "fee": "0.3", "role": 1, "amount": "3", "deal": "6", '
+                        '"deal_order_id": 61}, {"time": 1547419172.446089, "id": 27, "side": 1, "price": "2", '
+                        '"user": 1, "fee": "0.6", "role": 2, "amount": "3", "deal": "6", "deal_order_id": 60}, '
+                        '{"time": 1547419117.217958, "id": 26, "side": 2, "price": "2", "user": 1, "fee": "0.3", '
+                        '"role": 1, "amount": "3", "deal": "6", "deal_order_id": 59}, {"time": 1547419117.217958, '
+                        '"id": 26, "side": 1, "price": "2", "user": 1, "fee": "0.6", "role": 2, "amount": "3", '
+                        '"deal": "6", "deal_order_id": 58}, {"time": 1547419093.255915, "id": 25, "side": 2, '
+                        '"price": "2", "user": 1, "fee": "0.3", "role": 1, "amount": "3", "deal": "6", '
+                        '"deal_order_id": 57}, {"time": 1547419093.255915, "id": 25, "side": 1, "price": "2", '
+                        '"user": 1, "fee": "0.6", "role": 2, "amount": "3", "deal": "6", "deal_order_id": 56}, '
+                        '{"time": 1547419090.164703, "id": 24, "side": 2, "price": "2", "user": 1, "fee": "0.3", '
+                        '"role": 1, "amount": "3", "deal": "6", "deal_order_id": 55}, {"time": 1547419090.164703, '
+                        '"id": 24, "side": 1, "price": "2", "user": 1, "fee": "0.6", "role": 2, "amount": "3", '
+                        '"deal": "6", "deal_order_id": 54}, {"time": 1547419079.117212, "id": 23, "side": 2, '
+                        '"price": "2", "user": 1, "fee": "0.3", "role": 1, "amount": "3", "deal": "6", '
+                        '"deal_order_id": 53}, {"time": 1547419079.117212, "id": 23, "side": 1, "price": "2", '
+                        '"user": 1, "fee": "0.6", "role": 2, "amount": "3", "deal": "6", "deal_order_id": 52}]} '
+                    )
+                raise StexchangeUnknownException()
+
         stexchange_client._set_instance(MockStexchangeClient())
 
     def test_market_list(self):
@@ -125,3 +149,29 @@ class MarketGetTestCase(WebTestCase):
         self.assertIn('deal', response)
         self.assertIsNone(response['period'])
         self.assertIsNone(response['close'])
+
+    def test_fills(self):
+        response, ___ = self.request(
+            As.client, 'PEEK', f"{self.url}/TESTNET3RINKEBY/deals",
+            query_string={'limit': 10, 'lastId': 10}
+        )
+
+        self.assertEqual(len(response), 10)
+        self.assertIn('id', response[0])
+        self.assertIn('time', response[0])
+        self.assertIn('price', response[0])
+        self.assertIn('amount', response[0])
+        self.assertIn('type', response[0])
+
+    def test_fills_me(self):
+        response, ___ = self.request(
+            As.client, 'PEEK', f"{self.url}/TESTNET3RINKEBY/deals/me",
+            query_string={'limit': 10, 'lastId': 10}
+        )
+
+        self.assertEqual(len(response), 10)
+        self.assertIn('id', response[0])
+        self.assertIn('time', response[0])
+        self.assertIn('price', response[0])
+        self.assertIn('amount', response[0])
+        self.assertIn('type', response[0])
