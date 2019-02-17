@@ -35,9 +35,12 @@ class OrderController(RestController):
 
     @json
     @authorize('semitrusted_client', 'trusted_client')
-    @validate_form(exact=['marketId', 'type', 'price', 'amount'], types={'price': int, 'amount': int, 'marketId': int})
+    @validate_form(
+        exact=['marketId', 'type', 'price', 'amount'],
+        types={'price': int, 'amount': int, 'marketId': int}
+    )
     def create(self):
-        # TODO
+
         pass
 
     @json

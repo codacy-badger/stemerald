@@ -38,26 +38,6 @@ class BalanceTestCase(WebTestCase):
                     '"freeze": "10.01"}}'
                 )
 
-            def balance_history(self, *args, **kwargs):
-                return ujson.loads(
-                    '{"offset": 0, "limit": 10, "records": [{"time": 1547419212.987738, "asset": "TESTNET3", '
-                    '"balance": "9137.8", "change": "100", "business": "null", "detail": {"id": 1547419212}}, '
-                    '{"time": 1547419172.410369, "asset": "TESTNET3", "balance": "9038.4", "change": "100", '
-                    '"business": "null", "detail": {"id": 1547419172}}, {"time": 1547419117.182499, '
-                    '"asset": "TESTNET3", "balance": "8939", "change": "100", "business": "null", "detail": {"id": '
-                    '1547419117}}, {"time": 1547419093.216783, "asset": "TESTNET3", "balance": "8839.6", '
-                    '"change": "100", "business": "null", "detail": {"id": 1547419093}}, {"time": 1547419090.127026, '
-                    '"asset": "TESTNET3", "balance": "8740.2", "change": "100", "business": "null", "detail": {"id": '
-                    '1547419090}}, {"time": 1547419079.001812, "asset": "TESTNET3", "balance": "8640.8", '
-                    '"change": "100", "business": "null", "detail": {"id": 1547419078}}, {"time": 1547419050.210154, '
-                    '"asset": "TESTNET3", "balance": "8541", "change": "100", "business": "null", "detail": {"id": '
-                    '1547419050}}, {"time": 1547419045.657284, "asset": "TESTNET3", "balance": "8441.2", '
-                    '"change": "100", "business": "null", "detail": {"id": 1547419045}}, {"time": 1547419044.539546, '
-                    '"asset": "TESTNET3", "balance": "8341.4", "change": "100", "business": "null", "detail": {"id": '
-                    '1547419044}}, {"time": 1547419042.979995, "asset": "TESTNET3", "balance": "8241.6", '
-                    '"change": "100", "business": "null", "detail": {"id": 1547419042}}]}'
-                )
-
         stexchange_client._set_instance(MockStexchangeClient())
 
     def test_balance_list(self):
