@@ -97,6 +97,9 @@ class Application(BaseApplication):
     stexchange: 
       rpc_url: "http://localhost:8080"
 
+    stawallet: 
+      rest_url: "http://localhost:8080"
+
     """
 
     def __init__(self):

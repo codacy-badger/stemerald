@@ -6,7 +6,7 @@ from sqlalchemy.sql.sqltypes import Unicode, Enum
 class Currency(OrderingMixin, FilteringMixin, DeclarativeBase):
     __tablename__ = 'currency'
 
-    code = Field(Unicode(10), min_length=1, max_length=10, pattern=r'^[a-z]{1,10}$', primary_key=True)
+    symbol = Field(Unicode(10), min_length=1, max_length=10, pattern=r'^[a-z]{1,10}$', primary_key=True)
     name = Field(Unicode(25), min_length=1, max_length=25)
     type = Field(Enum('fiat', 'cryptocurrency', name='currency_type'))
 
@@ -46,8 +46,16 @@ class Cryptocurrency(Currency):
         'polymorphic_identity': __tablename__,
     }
 
-    code = Field(Unicode(10), ForeignKey(Currency.code), min_length=1, max_length=10, pattern=r'^[a-z]{1,10}$',
-                 primary_key=True)
+    symbol = Field(
+        Unicode(10),
+        ForeignKey(Currency.symbol),
+        min_length=1,
+        max_length=10,
+        pattern=r'^[a-z]{1,10}$',
+        primary_key=True
+    )
+
+    wallet_id = Field(Integer)
 
 
 class Fiat(Currency):
@@ -56,5 +64,10 @@ class Fiat(Currency):
         'polymorphic_identity': __tablename__,
     }
 
-    code = Field(Unicode(10), ForeignKey(Currency.code), min_length=1, max_length=10, pattern=r'^[a-z]{1,10}$',
-                 primary_key=True)
+    symbol = Field(
+        Unicode(10), ForeignKey(Currency.symbol),
+        min_length=1,
+        max_length=10,
+        pattern=r'^[a-z]{1,10}$',
+        primary_key=True
+    )
