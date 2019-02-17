@@ -150,46 +150,6 @@ class ShebaAddressController(ModelRestController):
         return sheba_address
 
 
-class DepositController(ModelRestController):
-    __model__ = Deposit
-
-    @json
-    @authorize('semitrusted_client', 'trusted_client')
-    @validate_form(exact=['cryptocurrencyCode'])
-    @commit
-    def show(self, inner_resource: str):
-        # TODO
-        pass
-
-    @json
-    @authorize('semitrusted_client', 'trusted_client')
-    @validate_form(exact=['cryptocurrencyCode'])
-    @commit
-    def renew(self, inner_resource: str):
-        # TODO
-        pass
-
-    @json
-    @authorize('semitrusted_client', 'trusted_client')
-    @validate_form(exact=['cryptocurrencyCode'])
-    @commit
-    def check(self):
-        # TODO
-        pass
-
-
-class WithdrawController(ModelRestController):
-    __model__ = Withdraw
-
-    @json
-    @authorize('semitrusted_client', 'trusted_client')
-    @validate_form(exact=['cryptocurrencyCode', 'amount', 'address'], types={'amount': int})
-    @commit
-    def schedule(self):
-        # TODO
-        pass
-
-
 class ShaparakInController(ModelRestController):
     __model__ = ShaparakIn
 
@@ -411,9 +371,6 @@ class ShaparakOutController(ModelRestController):
 
 class TransactionController(ModelRestController):
     __model__ = Transaction
-
-    deposits = DepositController()
-    withdraws = WithdrawController()
 
     @json
     @authorize('admin', 'client')

@@ -68,6 +68,9 @@ class ApiV1(Controller):
 
     territories = TerritoryController()
 
+    deposits = DepositController()
+    withdraws = WithdrawController()
+
     @json
     def version(self):
         return {
