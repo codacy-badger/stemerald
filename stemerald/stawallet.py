@@ -10,8 +10,14 @@ from stemerald.helpers import DeferredObject
 
 logger = get_logger('STAWALLET_REST_CLIENT')
 
+WALLETS_URL = "wallets"
+INVOICES_URL = "invoices"
+DEPOSITS_URL = "deposits"
+WITHDRAWS_URL = "whitdraws"
+
 
 class StawalletClient:
+
     def __init__(self, server_url, headers=None):
         self.server_url = server_url
         self.headers = {'content-type': 'application/json'}
@@ -44,35 +50,60 @@ class StawalletClient:
         else:
             return StexchangeUnknownException("Neither error and result fields available")
 
+    def get_wallets(self):
+        url = f'{WALLETS_URL}'
 
-    def get_invoices(self, ):
-        pass
+    def get_invoice(self, wallet_id, invoice_id):
+        url = f'{WALLETS_URL}/{wallet_id}/{INVOICES_URL}/{invoice_id}'
 
-    def delete_invoices(self, user_id, *asset_name):
-        pass
+    def get_invoices(self, wallet_id, user_id):
+        url = f'{WALLETS_URL}/{wallet_id}/{INVOICES_URL}'
+        query_string = {'user': user_id}
 
-    def get_invoices(self, user_id, *asset_name):
-        """
-        Asset inquiry:
-        method: balance.query
+    def post_invoice(self, wallet_id, user_id, force=False):
+        url = f'{WALLETS_URL}/{wallet_id}/{INVOICES_URL}'
+        query_string = {'force': force}
+        body = {'user': user_id}
 
-        params: unfixed parameters, first parameter is user ID, followed by list of asset names.
-        Return to user's overall asset if the list is blank.
+    def get_deposits(self, wallet_id, user_id, page=0):
+        url = f'{WALLETS_URL}/{wallet_id}/{DEPOSITS_URL}'
+        query_string = {'user': user_id, 'page': page}
 
-        :param user_id: user ID，Integer
-        :param asset_name: list
+    def get_withdraws(self, wallet_id, user_id, page=0):
+        url = f'{WALLETS_URL}/{wallet_id}/{WITHDRAWS_URL}'
+        query_string = {'user': user_id, 'page': page}
 
-        :return: {"asset": {"available": "amount", "freeze": "amount"}}
+    def post_withdraw(
+            self,
+            wallet_id,
+            user_id,
+            business_uid,
+            is_manual: bool,
+            destination_address,
+            amount_to_be_withdrawed,
+            withdrawal_fee,
+            estimated_network_fee,
+            is_decharge=False
+    ):
+        url = f'{WALLETS_URL}/{wallet_id}/{WITHDRAWS_URL}'
+        body = {
+            'user': user_id,
+            'businessUid': business_uid,
+            'isManual': is_manual,
+            'target': destination_address,
+            'netAmount': amount_to_be_withdrawed,
+            'grossAmount': amount_to_be_withdrawed + withdrawal_fee,
+            'estimatedNetworkFee': estimated_network_fee,
+            'type': "decharge" if is_decharge else "withdraw",
+        }
 
-        Example:
-            "params": [1, "BTC"]
-            "result": {"BTC": {"available": "1.10000000","freeze": "9.90000000"}}
+    def edit_withdraw(self, wallet_id, withdraw_id, is_manual: bool):
+        url = f'{WALLETS_URL}/{wallet_id}/{WITHDRAWS_URL}/{withdraw_id}'
+        body = {'isManual': is_manual}
 
-        """
-        return self._execute(
-            "balance.query",
-            [user_id, *asset_name]
-        )
+    def resolve_withdraw(self, wallet_id, withdraw_id, final_network_fee, transaction_hash: str):
+        url = f'{WALLETS_URL}/{wallet_id}/{WITHDRAWS_URL}/{withdraw_id}'
+        body = {'finalNetworkFee': final_network_fee, 'txid': transaction_hash}
 
     def balance_update(self, user_id, asset, business, business_id, change, detail):
         """
