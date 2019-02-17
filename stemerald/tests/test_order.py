@@ -165,7 +165,10 @@ class OrderTestCase(WebTestCase):
 
             def order_cancel(self, user_id, market, order_id):
                 if user_id == cls.mock_client1.id and market == 'TESTNET3RINKEBY' and offset == 0 and limit == 10:
-                    return ujson.loads("""{"price": "2", "id": 62, "side": 2, "market": "TESTNET3RINKEBY", "taker_fee": "0.1", "type": 1, "deal_fee": "0.3", "deal_stock": "3", "maker_fee": "0.1", "source": "abc", "user": 1, "left": "97", "ctime": 1547419213.026914, "mtime": 1547419213.029483, "amount": "100", "deal_money": "6"}""")
+                    return ujson.loads("""{"price": "2", "id": 62, "side": 2, "market": "TESTNET3RINKEBY", 
+                    "taker_fee": "0.1", "type": 1, "deal_fee": "0.3", "deal_stock": "3", "maker_fee": "0.1", 
+                    "source": "abc", "user": 1, "left": "97", "ctime": 1547419213.026914, "mtime": 1547419213.029483, 
+                    "amount": "100", "deal_money": "6"}""")
                 raise StexchangeUnknownException()
 
         stexchange_client._set_instance(MockStexchangeClient())

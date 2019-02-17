@@ -10,7 +10,7 @@ from restfulpy.controllers import RootController, ModelRestController
 
 import stemerald
 from stemerald.models import Currency
-from stemerald.controllers.securities import SecurityController
+from stemerald.controllers.security import SecurityController
 from stemerald.controllers.members import ClientController, AdminController, SessionController
 from stemerald.controllers.tickets import TicketController
 from stemerald.controllers.trading import TradeController, OrderController
