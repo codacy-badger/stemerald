@@ -1,5 +1,4 @@
 from nanohttp import json, context
-from nanohttp.controllers import RestController
 from restfulpy.authorization import authorize
 from restfulpy.controllers import ModelRestController
 from restfulpy.validation import validate_form
@@ -42,7 +41,3 @@ class IpWhitelistController(ModelRestController):
 
         return query
 
-
-class SecurityController(RestController):
-    logs = LogController()
-    ipwhitelists = LogController()

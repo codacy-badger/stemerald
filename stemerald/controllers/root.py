@@ -9,8 +9,9 @@ from nanohttp import Controller, json, HttpNotFound
 from restfulpy.controllers import RootController, ModelRestController
 
 import stemerald
+from stemerald.controllers.wallet import DepositController, WithdrawController
 from stemerald.models import Currency
-from stemerald.controllers.security import SecurityController
+from stemerald.controllers.security import SecurityController, LogController, IpWhitelistController
 from stemerald.controllers.members import ClientController, AdminController, SessionController
 from stemerald.controllers.tickets import TicketController
 from stemerald.controllers.trading import TradeController, OrderController
@@ -47,29 +48,37 @@ class CurrencyController(ModelRestController):
 
 
 class ApiV1(Controller):
+    # Users
     admins = AdminController()
     clients = ClientController()
-    sessions = SessionController()
-
-    securities = SecurityController()
-
-    currencies = CurrencyController()
-    markets = MarketController()
-
-    assets = AssetsController()
-    balances = BalancesController()
-
-    orders = OrderController()
-    trades = TradeController()
-
-    transactions = TransactionController()
-
-    tickets = TicketController()
-
     territories = TerritoryController()
 
-    deposits = DepositController()
-    withdraws = WithdrawController()
+    # Security
+    sessions = SessionController()
+    logs = LogController()
+    ipwhitelists = IpWhitelistController()  # TODO
+
+    # Support
+    tickets = TicketController()
+
+    # Base
+    currencies = CurrencyController()  # TODO
+    markets = MarketController()  # TODO
+
+    # Trading
+    orders = OrderController()  # TODO
+    trades = TradeController()  # TODO
+
+    # Assets
+    assets = AssetsController()  # FIXME
+    balances = BalancesController()  # FIXME
+
+    # Transactions (fiat)
+    transactions = TransactionController()  # TODO
+
+    # Wallet (crypto)
+    deposits = DepositController()  # TODO
+    withdraws = WithdrawController()  # TODO
 
     @json
     def version(self):
