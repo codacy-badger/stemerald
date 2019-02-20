@@ -70,7 +70,7 @@ class BankingId(TimestampMixin, DeclarativeBase):
     }
 
 
-class BankAccount:
+class BankAccount(BankingId):
     __tablename__ = 'bank_account'
     __mapper_args__ = {
         'polymorphic_identity': __tablename__,
@@ -83,7 +83,7 @@ class BankAccount:
     bic = Field(Unicode(20), pattern=r'^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$', nullable=True)
 
 
-class BankCard(TimestampMixin, DeclarativeBase):
+class BankCard(BankingId):
     __tablename__ = 'bank_card'
     __mapper_args__ = {
         'polymorphic_identity': __tablename__,

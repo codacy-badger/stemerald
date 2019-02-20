@@ -4,7 +4,7 @@ from restfulpy.validation import validate_form
 
 from stemerald.controllers.assets import AssetsController, BalancesController
 from stemerald.controllers.territories import TerritoryController
-from stemerald.controllers.transactions import TransactionController, ShetabAddressController, ShebaAddressController
+from stemerald.controllers.transactions import TransactionController, BankCardController, BankAccountController
 from nanohttp import Controller, json, HttpNotFound
 from restfulpy.controllers import RootController, ModelRestController
 
@@ -91,5 +91,5 @@ class Root(RootController):
     apiv2 = ApiV2()
 
 
-setattr(ApiV2, 'shetab-addresses', ShetabAddressController())
-setattr(ApiV2, 'sheba-addresses', ShebaAddressController())
+setattr(ApiV2, 'shetab-addresses', BankCardController())
+setattr(ApiV2, 'sheba-addresses', BankAccountController())

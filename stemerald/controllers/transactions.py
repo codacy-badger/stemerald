@@ -18,8 +18,8 @@ logger = get_logger('CLIENT')
 MemberId = Union[int, str]
 
 
-class ShetabAddressController(ModelRestController):
-    __model__ = Pan
+class BankCardController(ModelRestController):
+    __model__ = BankCard
 
     @json
     @authorize('admin', 'client')
@@ -32,10 +32,10 @@ class ShetabAddressController(ModelRestController):
     )
     @__model__.expose
     def get(self):
-        query = Pan.query
+        query = BankCard.query
 
         if context.identity.is_in_roles('client'):
-            query = query.filter(Pan.client_id == context.identity.id)
+            query = query.filter(BankCard.client_id == context.identity.id)
 
         return query
 
@@ -44,7 +44,7 @@ class ShetabAddressController(ModelRestController):
     @validate_form(exact=['address'])
     @commit
     def add(self):
-        shetab_address = Pan()
+        shetab_address = BankCard()
         shetab_address.client_id = context.identity.id
         shetab_address.address = context.form.get('address')
         DBSession.add(shetab_address)
@@ -55,7 +55,7 @@ class ShetabAddressController(ModelRestController):
     @prevent_form
     @commit
     def accept(self, shetab_address_id: int):
-        shetab_address = Pan.query.filter(Pan.id == shetab_address_id).one_or_none()
+        shetab_address = BankCard.query.filter(BankCard.id == shetab_address_id).one_or_none()
         if shetab_address is None:
             raise HttpNotFound()
 
@@ -72,7 +72,7 @@ class ShetabAddressController(ModelRestController):
     @validate_form(exact=['error'])
     @commit
     def reject(self, shetab_address_id: int):
-        shetab_address = Pan.query.filter(Pan.id == shetab_address_id).one_or_none()
+        shetab_address = BankCard.query.filter(BankCard.id == shetab_address_id).one_or_none()
         if shetab_address is None:
             raise HttpNotFound()
 
@@ -84,8 +84,8 @@ class ShetabAddressController(ModelRestController):
         return shetab_address
 
 
-class ShebaAddressController(ModelRestController):
-    __model__ = Iban
+class BankAccountController(ModelRestController):
+    __model__ = BankAccount
 
     @json
     @authorize('admin', 'client')
@@ -98,10 +98,10 @@ class ShebaAddressController(ModelRestController):
     )
     @__model__.expose
     def get(self):
-        query = Iban.query
+        query = BankAccount.query
 
         if context.identity.is_in_roles('client'):
-            query = query.filter(Iban.client_id == context.identity.id)
+            query = query.filter(BankAccount.client_id == context.identity.id)
 
         return query
 
@@ -110,7 +110,7 @@ class ShebaAddressController(ModelRestController):
     @validate_form(exact=['address'])
     @commit
     def add(self):
-        sheba_address = Iban()
+        sheba_address = BankAccount()
         sheba_address.client_id = context.identity.id
         sheba_address.address = context.form.get('address')
         DBSession.add(sheba_address)
@@ -121,7 +121,7 @@ class ShebaAddressController(ModelRestController):
     @prevent_form
     @commit
     def accept(self, sheba_address_id: int):
-        sheba_address = Iban.query.filter(Iban.id == sheba_address_id).one_or_none()
+        sheba_address = BankAccount.query.filter(BankAccount.id == sheba_address_id).one_or_none()
         if sheba_address is None:
             raise HttpNotFound()
 
@@ -138,7 +138,7 @@ class ShebaAddressController(ModelRestController):
     @validate_form(exact=['error'])
     @commit
     def reject(self, sheba_address_id: int):
-        sheba_address = Iban.query.filter(Iban.id == sheba_address_id).one_or_none()
+        sheba_address = BankAccount.query.filter(BankAccount.id == sheba_address_id).one_or_none()
         if sheba_address is None:
             raise HttpNotFound()
 
@@ -170,9 +170,9 @@ class ShaparakInController(ModelRestController):
             raise HttpBadRequest('Amount is not between valid deposit range.')
 
         # Check sheba
-        target_shetab = Pan.query \
-            .filter(Pan.id == shetab_address_id) \
-            .filter(Pan.client_id == context.identity.id) \
+        target_shetab = BankCard.query \
+            .filter(BankCard.id == shetab_address_id) \
+            .filter(BankCard.client_id == context.identity.id) \
             .one_or_none()
 
         if target_shetab is None:

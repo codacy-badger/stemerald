@@ -19,7 +19,7 @@ from sqlalchemy_media.exceptions import DimensionValidationError, AspectRatioVal
 
 from stemerald.authentication import VerificationEmailPrincipal, ResetPasswordPrincipal
 from stemerald.models import Client, Admin, Member, ClientEvidence, VerificationEmail, VerificationSms, \
-    ResetPasswordEmail, SecurityLog, Fund, Invitation
+    ResetPasswordEmail, SecurityLog, Invitation
 from stemerald.oath import Oath
 
 logger = get_logger('CLIENT')
@@ -31,27 +31,6 @@ email_pattern = r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)'
 
 
 # TODO: IMPORTANT: Invalidate member sessions in all services!
-
-class FundController(ModelRestController):
-    __model__ = Fund
-
-    @json
-    @authorize('admin', 'client')
-    # TODO: This validate_form is toooooo important -> 'blacklist': ['clientId'] !!!
-    @validate_form(
-        whitelist=['clientId', 'sort', 'id', 'currencyCode'],
-        client={'blacklist': ['clientId']},
-        pattern={'sort': r'^(-)?(id|currencyCode)$'}
-    )
-    @__model__.expose
-    def get(self):
-        query = Fund.query
-
-        if context.identity.is_in_roles('client'):
-            query = query.filter(Fund.client_id == context.identity.id)
-
-        return query
-
 
 class SessionController(RestController):
     @json
@@ -368,7 +347,6 @@ class ClientController(ModelRestController):
 
     passwords = ClientPasswordController()
     evidences = EvidenceController()
-    funds = FundController()
     invitations = InvitationController()
     secondfactors = SecondfactorController()
 

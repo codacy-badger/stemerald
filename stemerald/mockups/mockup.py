@@ -89,11 +89,11 @@ def insert():  # pragma: no cover
     DBSession.flush()
 
     # Funds
-    DBSession.add(Fund(client=client1, currency=btc, total_balance=0, blocked_balance=0))
-    DBSession.add(Fund(client=client2, currency=btc, total_balance=34700000, blocked_balance=14660000))
-    DBSession.add(Fund(client=client3, currency=btc, total_balance=10000000000, blocked_balance=0))
-    DBSession.add(Fund(client=client1, currency=irr, total_balance=0, blocked_balance=0))
-    DBSession.add(Fund(client=client2, currency=irr, total_balance=56000000, blocked_balance=158000))
-    DBSession.add(Fund(client=client3, currency=irr, total_balance=9872000000, blocked_balance=150578))
+    # DBSession.add(Fund(client=client1, currency=btc, total_balance=0, blocked_balance=0))
+    # DBSession.add(Fund(client=client2, currency=btc, total_balance=34700000, blocked_balance=14660000))
+    # DBSession.add(Fund(client=client3, currency=btc, total_balance=10000000000, blocked_balance=0))
+    # DBSession.add(Fund(client=client1, currency=irr, total_balance=0, blocked_balance=0))
+    # DBSession.add(Fund(client=client2, currency=irr, total_balance=56000000, blocked_balance=158000))
+    # DBSession.add(Fund(client=client3, currency=irr, total_balance=9872000000, blocked_balance=150578))
 
     DBSession.flush()
