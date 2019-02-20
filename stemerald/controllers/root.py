@@ -11,7 +11,7 @@ from restfulpy.controllers import RootController, ModelRestController
 import stemerald
 from stemerald.controllers.wallet import DepositController, WithdrawController
 from stemerald.models import Currency
-from stemerald.controllers.security import SecurityController, LogController, IpWhitelistController
+from stemerald.controllers.security import LogController, IpWhitelistController
 from stemerald.controllers.members import ClientController, AdminController, SessionController
 from stemerald.controllers.tickets import TicketController
 from stemerald.controllers.trading import TradeController, OrderController

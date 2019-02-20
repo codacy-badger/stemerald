@@ -1,7 +1,6 @@
 import hashlib
 import uuid
 import os
-from _ast import BoolOp
 from datetime import datetime
 
 from nanohttp import context
@@ -14,8 +13,6 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import synonym
 from sqlalchemy.sql.sqltypes import Integer, Unicode, Enum, DateTime, JSON
 from sqlalchemy_media import Image, WandAnalyzer, ImageValidator, ImageProcessor
-
-from stemerald.models import Currency, Fund
 
 
 class Member(ModifiedMixin, ActivationMixin, OrderingMixin, FilteringMixin, DeclarativeBase):
@@ -132,13 +129,9 @@ class Client(Member):
     }
 
     # noinspection PyArgumentList
-    def __init__(self, session=None):
-        # TODO: Move them somewhere better
+    def __init__(self):
+        # TODO: Move it to somewhere better
         self.evidence = ClientEvidence()
-
-        # FIXME: Should not use DBSession always
-        for currency in (session or DBSession).query(Currency).all():
-            self.funds.append(Fund(client=self, currency=currency))
 
     id = Field(Integer, ForeignKey(Member.id), primary_key=True)
 
