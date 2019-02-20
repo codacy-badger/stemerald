@@ -144,7 +144,6 @@ class Client(Member):
 
     # FIXME: is `select` the best choice?
     evidence = relationship('ClientEvidence', lazy='select', uselist=False, protected=True)
-    funds = relationship('Fund', lazy='select', protected=True)
 
     @hybrid_property
     def is_email_verified(self):

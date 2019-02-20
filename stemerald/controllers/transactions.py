@@ -9,10 +9,9 @@ from restfulpy.controllers import ModelRestController
 from restfulpy.logging_ import get_logger
 from restfulpy.validation import validate_form, prevent_form
 
-from stemerald import stexchange_client
 from stemerald.models import *
 from stemerald.shaparak import create_shaparak_provider, ShaparakError
-from stemerald.stexchange import StexchangeException, stexchange_http_exception_handler
+from stemerald.stexchange import StexchangeException, stexchange_http_exception_handler, stexchange_client
 
 logger = get_logger('CLIENT')
 
