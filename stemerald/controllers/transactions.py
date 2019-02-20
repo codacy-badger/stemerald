@@ -2,7 +2,6 @@ from typing import Union
 
 from restfulpy.authorization import authorize
 from restfulpy.orm import commit, DBSession
-from sqlalchemy import desc
 
 from nanohttp import json, HttpMethodNotAllowed, context, HttpConflict, HttpBadRequest, HttpNotFound, HttpFound, \
     settings
@@ -10,8 +9,10 @@ from restfulpy.controllers import ModelRestController
 from restfulpy.logging_ import get_logger
 from restfulpy.validation import validate_form, prevent_form
 
+from stemerald import stexchange_client
 from stemerald.models import *
 from stemerald.shaparak import create_shaparak_provider, ShaparakError
+from stemerald.stexchange import StexchangeException, stexchange_http_exception_handler
 
 logger = get_logger('CLIENT')
 
@@ -254,11 +255,27 @@ class ShaparakInController(ModelRestController):
                                 # Set reference_id
                                 target_transaction.reference_id = trace_number
 
-                                # Set new balance
-                                fund_ = Fund.get_fund_with_lock(target_transaction.client_id, 'irr')
-                                fund_.total_balance += target_transaction.amount - target_transaction.commission
+                                stexchange_client.balance_update(
+                                    user_id=target_transaction.client_id,
+                                    asset="irr",  # FIXME
+                                    # asset=target_transaction.payment_gateway.fiat_symbol,
+                                    business="cashin",  # FIXME
+                                    business_id=target_transaction.id,  # FIXME: Think about double payment
+                                    change=target_transaction.amount - target_transaction.commission,
+                                    detail=target_transaction.to_dict(),
+                                )
+
+                                # FIXME: Important !!!! : rollback the updated balance if
+                                #  DBSession.commit() was not successful
 
                                 DBSession.commit()
+                            except StexchangeException as e:
+                                if DBSession.is_active:
+                                    DBSession.rollback()
+                                    result = 'stexchange-error' + str(
+                                        e  # FIXME: Delete the exception message for deployment
+                                    )
+
                             except:
                                 if DBSession.is_active:
                                     DBSession.rollback()
@@ -292,14 +309,19 @@ class ShaparakOutController(ModelRestController):
         commission = irr.calculate_withdraw_commission(amount)
 
         # Check balance
-        fund_ = Fund.get_fund_with_lock(context.identity.id, irr.code)
-        if fund_.available_balance < amount + commission:
+        try:
+            available_balance = stexchange_client.balance_query(context.identity.id, 'irr')['irr']['available']
+        except StexchangeException as e:
+            raise stexchange_http_exception_handler(e)
+
+        # FIXME: Think about concurrency
+        if available_balance < amount + commission:
             raise HttpBadRequest('Not enough balance')
 
         # Check sheba
-        target_sheba = Iban.query \
-            .filter(Iban.id == sheba_address_address_id) \
-            .filter(Iban.client_id == context.identity.id) \
+        target_sheba = BankAccount.query \
+            .filter(BankAccount.id == sheba_address_address_id) \
+            .filter(BankAccount.client_id == context.identity.id) \
             .one_or_none()
 
         if target_sheba is None:
@@ -316,7 +338,20 @@ class ShaparakOutController(ModelRestController):
         DBSession.add(shaparak_out)
 
         # Set new balance
-        fund_.total_balance -= amount + commission
+        try:
+            # Cash back (without commission) FIXME: Really without commission?
+            stexchange_client.balance_update(
+                user_id=shaparak_out.client_id,
+                asset='irr',  # FIXME
+                business='withdraw',  # FIXME
+                business_id=shaparak_out.id,
+                change=f'-{amount + commission}',
+                detail=shaparak_out.to_dict(),
+            )
+            # FIXME: Important !!!! : rollback the updated balance if
+            #  DBSession.commit() was not successful
+        except StexchangeException as e:
+            raise stexchange_http_exception_handler(e)
 
         return shaparak_out
 
@@ -362,9 +397,20 @@ class ShaparakOutController(ModelRestController):
 
         shaparak_out.error = error
 
-        # Cash back (without commission) FIXME: Really without commission?
-        fund_ = Fund.get_fund_with_lock(shaparak_out.client_id, 'irr')
-        fund_.total_balance += shaparak_out.amount
+        try:
+            # Cash back (without commission) FIXME: Really without commission?
+            stexchange_client.balance_update(
+                user_id=shaparak_out.client_id,
+                asset='irr',  # FIXME
+                business='cashback',  # FIXME
+                business_id=shaparak_out.id,
+                change=shaparak_out.amount,
+                detail=shaparak_out.to_dict(),
+            )
+            # FIXME: Important !!!! : rollback the updated balance if
+            #  DBSession.commit() was not successful
+        except StexchangeException as e:
+            raise stexchange_http_exception_handler(e)
 
         return shaparak_out
 
