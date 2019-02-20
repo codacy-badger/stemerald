@@ -19,13 +19,13 @@ class Market(OrderingMixin, FilteringMixin, DeclarativeBase):
     """
     __tablename__ = 'market'
 
-    id = Field(Integer(), primary_key=True)
+    name = Field(Unicode(20), pattern=r'^[a-z]{1-10}/[a-z]{1-10}$', primary_key=True)  # e.g. btc/usd
 
-    base_currency_code = Field(Unicode(), ForeignKey('currency.code'), protected=True)
-    quote_currency_code = Field(Unicode(), ForeignKey('currency.code'), protected=True)
+    base_currency_symbol = Field(Unicode(), ForeignKey('currency.symbol'), protected=True)
+    quote_currency_symbol = Field(Unicode(), ForeignKey('currency.symbol'), protected=True)
 
-    base_currency = relationship('Currency', foreign_keys=[base_currency_code])
-    quote_currency = relationship('Currency', foreign_keys=[quote_currency_code])
+    base_currency = relationship('Currency', foreign_keys=[base_currency_symbol])
+    quote_currency = relationship('Currency', foreign_keys=[quote_currency_symbol])
 
     buy_amount_min = Field(BigInteger(), default=0)
     buy_amount_max = Field(BigInteger(), default=0)
@@ -40,14 +40,6 @@ class Market(OrderingMixin, FilteringMixin, DeclarativeBase):
     sell_max_commission = Field(BigInteger(), default=0)
 
     divide_by_ten = Field(Integer(), default=0)
-    price_latest = Field(BigInteger(), default=0)
-    price_24 = Field(BigInteger(), default=0)
-    price_lowest_24 = Field(BigInteger(), default=0)
-    price_highest_24 = Field(BigInteger(), default=0)
-    cap_total = Field(BigInteger(), default=0)
-    cap_24 = Field(BigInteger(), default=0)
-    cap_quote_total = Field(BigInteger(), default=0)
-    cap_quote_24 = Field(BigInteger(), default=0)
 
     @property
     def divide_by(self):

@@ -5,7 +5,7 @@ from datetime import datetime
 
 from nanohttp import context
 from nanohttp.exceptions import HttpBadRequest, HttpUnauthorized, HttpNotFound
-from restfulpy.orm import DeclarativeBase, Field, relationship, DBSession
+from restfulpy.orm import DeclarativeBase, Field, relationship
 from restfulpy.orm.mixins import ActivationMixin, ModifiedMixin, OrderingMixin, FilteringMixin
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 from sqlalchemy import ForeignKey, CheckConstraint, Boolean

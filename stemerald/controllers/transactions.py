@@ -19,7 +19,7 @@ MemberId = Union[int, str]
 
 
 class ShetabAddressController(ModelRestController):
-    __model__ = ShetabAddress
+    __model__ = Pan
 
     @json
     @authorize('admin', 'client')
@@ -32,10 +32,10 @@ class ShetabAddressController(ModelRestController):
     )
     @__model__.expose
     def get(self):
-        query = ShetabAddress.query
+        query = Pan.query
 
         if context.identity.is_in_roles('client'):
-            query = query.filter(ShetabAddress.client_id == context.identity.id)
+            query = query.filter(Pan.client_id == context.identity.id)
 
         return query
 
@@ -44,7 +44,7 @@ class ShetabAddressController(ModelRestController):
     @validate_form(exact=['address'])
     @commit
     def add(self):
-        shetab_address = ShetabAddress()
+        shetab_address = Pan()
         shetab_address.client_id = context.identity.id
         shetab_address.address = context.form.get('address')
         DBSession.add(shetab_address)
@@ -55,7 +55,7 @@ class ShetabAddressController(ModelRestController):
     @prevent_form
     @commit
     def accept(self, shetab_address_id: int):
-        shetab_address = ShetabAddress.query.filter(ShetabAddress.id == shetab_address_id).one_or_none()
+        shetab_address = Pan.query.filter(Pan.id == shetab_address_id).one_or_none()
         if shetab_address is None:
             raise HttpNotFound()
 
@@ -72,7 +72,7 @@ class ShetabAddressController(ModelRestController):
     @validate_form(exact=['error'])
     @commit
     def reject(self, shetab_address_id: int):
-        shetab_address = ShetabAddress.query.filter(ShetabAddress.id == shetab_address_id).one_or_none()
+        shetab_address = Pan.query.filter(Pan.id == shetab_address_id).one_or_none()
         if shetab_address is None:
             raise HttpNotFound()
 
@@ -85,7 +85,7 @@ class ShetabAddressController(ModelRestController):
 
 
 class ShebaAddressController(ModelRestController):
-    __model__ = ShebaAddress
+    __model__ = Iban
 
     @json
     @authorize('admin', 'client')
@@ -98,10 +98,10 @@ class ShebaAddressController(ModelRestController):
     )
     @__model__.expose
     def get(self):
-        query = ShebaAddress.query
+        query = Iban.query
 
         if context.identity.is_in_roles('client'):
-            query = query.filter(ShebaAddress.client_id == context.identity.id)
+            query = query.filter(Iban.client_id == context.identity.id)
 
         return query
 
@@ -110,7 +110,7 @@ class ShebaAddressController(ModelRestController):
     @validate_form(exact=['address'])
     @commit
     def add(self):
-        sheba_address = ShebaAddress()
+        sheba_address = Iban()
         sheba_address.client_id = context.identity.id
         sheba_address.address = context.form.get('address')
         DBSession.add(sheba_address)
@@ -121,7 +121,7 @@ class ShebaAddressController(ModelRestController):
     @prevent_form
     @commit
     def accept(self, sheba_address_id: int):
-        sheba_address = ShebaAddress.query.filter(ShebaAddress.id == sheba_address_id).one_or_none()
+        sheba_address = Iban.query.filter(Iban.id == sheba_address_id).one_or_none()
         if sheba_address is None:
             raise HttpNotFound()
 
@@ -138,7 +138,7 @@ class ShebaAddressController(ModelRestController):
     @validate_form(exact=['error'])
     @commit
     def reject(self, sheba_address_id: int):
-        sheba_address = ShebaAddress.query.filter(ShebaAddress.id == sheba_address_id).one_or_none()
+        sheba_address = Iban.query.filter(Iban.id == sheba_address_id).one_or_none()
         if sheba_address is None:
             raise HttpNotFound()
 
@@ -151,7 +151,7 @@ class ShebaAddressController(ModelRestController):
 
 
 class ShaparakInController(ModelRestController):
-    __model__ = ShaparakIn
+    __model__ = Cashin
 
     @json
     @authorize('trusted_client')
@@ -170,9 +170,9 @@ class ShaparakInController(ModelRestController):
             raise HttpBadRequest('Amount is not between valid deposit range.')
 
         # Check sheba
-        target_shetab = ShetabAddress.query \
-            .filter(ShetabAddress.id == shetab_address_id) \
-            .filter(ShetabAddress.client_id == context.identity.id) \
+        target_shetab = Pan.query \
+            .filter(Pan.id == shetab_address_id) \
+            .filter(Pan.client_id == context.identity.id) \
             .one_or_none()
 
         if target_shetab is None:
@@ -188,7 +188,7 @@ class ShaparakInController(ModelRestController):
         if commission >= amount:
             raise HttpConflict('Commission is more than the amount')
 
-        shaparak_in = ShaparakIn()
+        shaparak_in = Cashin()
         shaparak_in.client_id = context.identity.id
         shaparak_in.amount = amount
         shaparak_in.commission = commission
@@ -231,10 +231,10 @@ class ShaparakInController(ModelRestController):
             elif trace_number is None:
                 result = 'bad-trace-number'
             else:
-                target_transaction = ShaparakIn.query \
-                    .filter(ShaparakIn.id == factor_number) \
-                    .filter(ShaparakIn.reference_id.is_(None)) \
-                    .filter(ShaparakIn.transaction_id == trans_id).one_or_none()
+                target_transaction = Cashin.query \
+                    .filter(Cashin.id == factor_number) \
+                    .filter(Cashin.reference_id.is_(None)) \
+                    .filter(Cashin.transaction_id == trans_id).one_or_none()
 
                 if target_transaction is None:
                     result = 'bad-transaction'
@@ -273,7 +273,7 @@ class ShaparakInController(ModelRestController):
 
 
 class ShaparakOutController(ModelRestController):
-    __model__ = ShaparakOut
+    __model__ = Cashout
 
     @json
     @authorize('trusted_client')
@@ -297,9 +297,9 @@ class ShaparakOutController(ModelRestController):
             raise HttpBadRequest('Not enough balance')
 
         # Check sheba
-        target_sheba = ShebaAddress.query \
-            .filter(ShebaAddress.id == sheba_address_address_id) \
-            .filter(ShebaAddress.client_id == context.identity.id) \
+        target_sheba = Iban.query \
+            .filter(Iban.id == sheba_address_address_id) \
+            .filter(Iban.client_id == context.identity.id) \
             .one_or_none()
 
         if target_sheba is None:
@@ -308,7 +308,7 @@ class ShaparakOutController(ModelRestController):
         if target_sheba.is_verified is False:
             raise HttpConflict('Sheba address is not verified.')
 
-        shaparak_out = ShaparakOut()
+        shaparak_out = Cashout()
         shaparak_out.client_id = context.identity.id
         shaparak_out.amount = amount
         shaparak_out.commission = commission
@@ -327,7 +327,7 @@ class ShaparakOutController(ModelRestController):
     def accept(self, shaparak_out_id: int):
         reference_id = context.form.get('referenceId')
 
-        shaparak_out = ShaparakOut.query.filter(ShaparakOut.id == shaparak_out_id).one_or_none()
+        shaparak_out = Cashout.query.filter(Cashout.id == shaparak_out_id).one_or_none()
 
         if shaparak_out is None:
             raise HttpNotFound()
@@ -349,7 +349,7 @@ class ShaparakOutController(ModelRestController):
     def reject(self, shaparak_out_id: int):
         error = context.form.get('error')
 
-        shaparak_out = ShaparakOut.query.filter(ShaparakOut.id == shaparak_out_id).one_or_none()
+        shaparak_out = Cashout.query.filter(Cashout.id == shaparak_out_id).one_or_none()
 
         if shaparak_out is None:
             raise HttpNotFound()
@@ -370,7 +370,7 @@ class ShaparakOutController(ModelRestController):
 
 
 class TransactionController(ModelRestController):
-    __model__ = Transaction
+    __model__ = BankingTransaction
 
     @json
     @authorize('admin', 'client')
@@ -381,12 +381,12 @@ class TransactionController(ModelRestController):
         admin={'whitelist': ['sort', 'amount', 'commission']},
         types={'take': int, 'skip': int}
     )
-    @Transaction.expose
+    @BankingTransaction.expose
     def get(self):
-        query = Transaction.query
+        query = BankingTransaction.query
 
         if context.identity.is_in_roles('client'):
-            query = query.filter(Transaction.client_id == context.identity.id)
+            query = query.filter(BankingTransaction.client_id == context.identity.id)
 
         return query
 

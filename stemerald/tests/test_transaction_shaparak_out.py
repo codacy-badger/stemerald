@@ -1,6 +1,6 @@
 from restfulpy.testing import FormParameter
 
-from stemerald.models import Client, ShebaAddress, Admin, Fiat, Fund
+from stemerald.models import Client, Iban, Admin, Fiat, Fund
 from stemerald.tests.helpers import WebTestCase, As
 
 current_balance = 3001
@@ -58,11 +58,11 @@ class TransactionShaparakInTestCase(WebTestCase):
         cls.session.add(Fund(client=client2, currency=irr, total_balance=0))
 
         # Mine, verified:
-        sheba_address_1 = ShebaAddress(client=client1, address='IR123456789123456789123456', is_verified=True)
+        sheba_address_1 = Iban(client=client1, address='IR123456789123456789123456', is_verified=True)
         # Mine, unverified:
-        sheba_address_2 = ShebaAddress(client=client1, address='IR837498056254698443242343', is_verified=False)
+        sheba_address_2 = Iban(client=client1, address='IR837498056254698443242343', is_verified=False)
         # Other's, verified:
-        sheba_address_3 = ShebaAddress(client=client2, address='IR673943849382759839285634', is_verified=True)
+        sheba_address_3 = Iban(client=client2, address='IR673943849382759839285634', is_verified=True)
 
         for address in [sheba_address_1, sheba_address_2, sheba_address_3]:
             cls.session.add(address)

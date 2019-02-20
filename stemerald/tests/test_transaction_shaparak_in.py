@@ -1,6 +1,6 @@
 from nanohttp import settings
 
-from stemerald.models import Client, ShetabAddress, Fiat, Fund
+from stemerald.models import Client, Pan, Fiat, Fund
 from stemerald.shaparak import ShaparakProvider, ShaparakError
 from stemerald.tests.helpers import WebTestCase, As
 from restfulpy.testing import FormParameter
@@ -69,7 +69,7 @@ class TransactionShaparakInTestCase(WebTestCase):
 
         cls.session.add(Fund(client=client1, currency=irr))
 
-        shetab_address_1 = ShetabAddress(client=client1, address=mockup_card_address, is_verified=True)
+        shetab_address_1 = Pan(client=client1, address=mockup_card_address, is_verified=True)
         cls.session.add(shetab_address_1)
 
         cls.session.commit()

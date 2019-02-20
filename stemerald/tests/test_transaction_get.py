@@ -1,5 +1,5 @@
-from stemerald.models import Client, Admin, Cryptocurrency, Deposit, Withdraw, ShaparakIn, Fiat, \
-    ShetabAddress, ShebaAddress, ShaparakOut
+from stemerald.models import Client, Admin, Cryptocurrency, Deposit, Withdraw, Cashin, Fiat, \
+    Pan, Iban, Cashout
 from stemerald.tests.helpers import WebTestCase, As
 
 
@@ -32,11 +32,11 @@ class TransactionGetTestCase(WebTestCase):
         # Adding a withdraw
 
         # Adding a shaparak-in
-        shetab_address = ShetabAddress()
+        shetab_address = Pan()
         shetab_address.address = '0000-1111-2222-3333'
         shetab_address.client = client1
         shetab_address.is_verified = True
-        shaparak_in = ShaparakIn()
+        shaparak_in = Cashin()
         shaparak_in.client = client1
         shaparak_in.amount = 342523
         shaparak_in.commission = 6323
@@ -46,11 +46,11 @@ class TransactionGetTestCase(WebTestCase):
         cls.session.add(shaparak_in)
 
         # Adding a shaparak-out
-        sheba_address = ShebaAddress()
+        sheba_address = Iban()
         sheba_address.address = 'IR123444567889445535345345'
         sheba_address.client = client1
         sheba_address.is_verified = True
-        shaparak_out = ShaparakOut()
+        shaparak_out = Cashout()
         shaparak_out.client = client1
         shaparak_out.amount = 5554
         shaparak_out.commission = 523
