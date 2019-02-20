@@ -6,7 +6,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class ClientActivationTestCase(WebTestCase):
-    url = '/apiv1/clients/passwords'
+    url = '/apiv2/clients/passwords'
 
     @classmethod
     def mockup(cls):
@@ -30,17 +30,17 @@ class ClientActivationTestCase(WebTestCase):
         ])
 
         # Should not be  authorized
-        self.request(None, 'GET', '/apiv1/clients', doc=False, expected_status=401)
+        self.request(None, 'GET', '/apiv2/clients', doc=False, expected_status=401)
 
         # Should not be able to login
         self.logout()
-        self.request(None, 'POST', '/apiv1/sessions', doc=False, params={
+        self.request(None, 'POST', '/apiv2/sessions', doc=False, params={
             'email': 'client1@test.com',
             'password': '123456'
         }, expected_status=400)
 
         # Can login with new password
-        self.request(None, 'POST', '/apiv1/sessions', doc=False, params={
+        self.request(None, 'POST', '/apiv2/sessions', doc=False, params={
             'email': 'client1@test.com',
             'password': '654321'
         })
@@ -67,13 +67,13 @@ class ClientActivationTestCase(WebTestCase):
 
         # Should not be able to login
         self.logout()
-        self.request(None, 'POST', '/apiv1/sessions', doc=False, params={
+        self.request(None, 'POST', '/apiv2/sessions', doc=False, params={
             'email': 'client1@test.com',
             'password': '654321'
         }, expected_status=400)
 
         # Can login with new password
-        self.request(None, 'POST', '/apiv1/sessions', doc=False, params={
+        self.request(None, 'POST', '/apiv2/sessions', doc=False, params={
             'email': 'client1@test.com',
             'password': '654456'
         })

@@ -5,7 +5,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class ClientLoginTestCase(WebTestCase):
-    url = '/apiv1/sessions'
+    url = '/apiv2/sessions'
 
     @classmethod
     def mockup(cls):
@@ -41,4 +41,4 @@ class ClientLoginTestCase(WebTestCase):
 
         # Testing the token
         self.wsgi_app.jwt_token = response['token']
-        self.request(As.client, 'GET', '/apiv1/clients/me', doc=False)
+        self.request(As.client, 'GET', '/apiv2/clients/me', doc=False)

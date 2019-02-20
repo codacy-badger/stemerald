@@ -10,7 +10,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class ClientEvidenceTestCase(WebTestCase):
-    url = '/apiv1/clients/evidences'
+    url = '/apiv2/clients/evidences'
 
     # noinspection PyArgumentList
     @classmethod
@@ -92,7 +92,7 @@ class ClientEvidenceTestCase(WebTestCase):
 
         # Check the new role:
         self.login('client1@test.com', '123456')
-        response, ___ = self.request(None, 'GET', '/apiv1/clients/me', doc=False)
+        response, ___ = self.request(None, 'GET', '/apiv2/clients/me', doc=False)
         self.assertEqual(response['isEvidenceVerified'], True)
 
         # 5. Some bad situations
@@ -121,7 +121,7 @@ class ClientEvidenceTestCase(WebTestCase):
 
         # 6. Get evidence by admin
         self.login('admin1@test.com', '123456')
-        response, ___ = self.request(As.admin, 'GET', f'/apiv1/clients/{self.client1_id}/evidences')
+        response, ___ = self.request(As.admin, 'GET', f'/apiv2/clients/{self.client1_id}/evidences')
         self.assertIn('mobilePhone', response)
         self.assertIn('fixedPhone', response)
         self.assertIn('firstName', response)
@@ -136,7 +136,7 @@ class ClientEvidenceTestCase(WebTestCase):
 
         # 7. Get evidence by client
         self.login('client1@test.com', '123456')
-        response, ___ = self.request(As.client, 'GET', '/apiv1/clients/me/evidences')
+        response, ___ = self.request(As.client, 'GET', '/apiv2/clients/me/evidences')
         self.assertIn('mobilePhone', response)
         self.assertIn('fixedPhone', response)
         self.assertIn('firstName', response)

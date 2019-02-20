@@ -3,7 +3,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class ClientActivationTestCase(WebTestCase):
-    url = '/apiv1/clients'
+    url = '/apiv2/clients'
 
     @classmethod
     def mockup(cls):
@@ -32,12 +32,12 @@ class ClientActivationTestCase(WebTestCase):
 
         # She wouldn't be able to use the previous token
         self.wsgi_app.jwt_token = token
-        self.request(As.client, 'GET', '/apiv1/clients/me', expected_status=401, doc=False)
+        self.request(As.client, 'GET', '/apiv2/clients/me', expected_status=401, doc=False)
 
         # Also she would't able to login
         self.logout()
         self.request(
-            None, 'POST', '/apiv1/sessions',
+            None, 'POST', '/apiv2/sessions',
             doc=False,
             params={'email': 'client1@test.com', 'password': '123456'},
             expected_status=400,

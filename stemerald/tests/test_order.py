@@ -9,7 +9,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class OrderTestCase(WebTestCase):
-    url = '/apiv1/orders'
+    url = '/apiv2/orders'
 
     # noinspection PyArgumentList
     @classmethod

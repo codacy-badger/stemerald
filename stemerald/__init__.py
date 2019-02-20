@@ -55,7 +55,7 @@ class Application(BaseApplication):
       pay_ir:
         api_key: 2bf8727eb3772b28ce4a0707bf4ee456
         gateway_url: https://pay.ir/payment/gateway/{transactionId}
-        post_redirect_url: https://stacrypt.io/apiv1/transactions/shaparak-ins/pay-irs
+        post_redirect_url: https://stacrypt.io/apiv2/transactions/shaparak-ins/pay-irs
         result_redirect_url: https://stacrypt.io/payment_redirect
 
     sms:

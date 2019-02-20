@@ -13,7 +13,7 @@ withdraw_max_commission = 746
 
 
 class TransactionWithdrawTestCase(WebTestCase):
-    url = '/apiv1/transactions/withdraws'
+    url = '/apiv2/transactions/withdraws'
 
     # noinspection PyArgumentList
     @classmethod

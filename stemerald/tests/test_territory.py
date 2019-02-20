@@ -3,7 +3,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class TerritoryTestCase(WebTestCase):
-    url = '/apiv1/territories'
+    url = '/apiv2/territories'
 
     # noinspection PyArgumentList
     @classmethod

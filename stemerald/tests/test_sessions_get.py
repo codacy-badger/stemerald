@@ -3,7 +3,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class SessionsGetTestCase(WebTestCase):
-    url = '/apiv1/sessions'
+    url = '/apiv2/sessions'
 
     @classmethod
     def mockup(cls):

@@ -6,7 +6,7 @@ from freezegun import freeze_time
 
 
 class ClientLoginTestCase(WebTestCase):
-    url = '/apiv1/clients/secondfactors'
+    url = '/apiv2/clients/secondfactors'
 
     @classmethod
     def mockup(cls):
@@ -34,7 +34,7 @@ class ClientLoginTestCase(WebTestCase):
         self.assertFalse(client.has_second_factor)
 
         self.request(
-            None, 'POST', '/apiv1/sessions',
+            None, 'POST', '/apiv2/sessions',
             params={'email': 'client1@test.com', 'password': '123456'},
             doc=False
         )
@@ -48,7 +48,7 @@ class ClientLoginTestCase(WebTestCase):
         self.logout()
 
         self.request(
-            As.anonymous, 'POST', '/apiv1/sessions',
+            As.anonymous, 'POST', '/apiv2/sessions',
             params=[
                 FormParameter('email', 'client1@test.com'),
                 FormParameter('password', '123456'),
@@ -59,7 +59,7 @@ class ClientLoginTestCase(WebTestCase):
 
         # 3. Login with invalid otp
         self.request(
-            As.anonymous, 'POST', '/apiv1/sessions',
+            As.anonymous, 'POST', '/apiv2/sessions',
             params=[
                 FormParameter('email', 'client1@test.com'),
                 FormParameter('password', '123456'),
@@ -71,7 +71,7 @@ class ClientLoginTestCase(WebTestCase):
 
         # 4. Login with valid otp
         result, ___ = self.request(
-            As.anonymous, 'POST', '/apiv1/sessions',
+            As.anonymous, 'POST', '/apiv2/sessions',
             params=[
                 FormParameter('email', 'client1@test.com'),
                 FormParameter('password', '123456'),
@@ -83,7 +83,7 @@ class ClientLoginTestCase(WebTestCase):
         # It should be invalid on another time
         with freeze_time('2019-01-02'):
             self.request(
-                None, 'POST', '/apiv1/sessions',
+                None, 'POST', '/apiv2/sessions',
                 params={'email': 'client1@test.com', 'password': '123456', 'otp': '111111'},
                 expected_status=400,
                 expected_headers={'x-reason': 'invalid-otp'},

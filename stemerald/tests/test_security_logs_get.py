@@ -3,7 +3,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class SecurityLogGetTestCase(WebTestCase):
-    url = '/apiv1/securities/logs'
+    url = '/apiv2/securities/logs'
 
     @classmethod
     def mockup(cls):

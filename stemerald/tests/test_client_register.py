@@ -7,7 +7,7 @@ from stemerald.models import ClientEvidence, Fund, Fiat, Cryptocurrency, Invitat
 
 
 class ClientRegisterTestCase(WebTestCase):
-    url = '/apiv1/clients'
+    url = '/apiv2/clients'
 
     # noinspection PyArgumentList
     @classmethod

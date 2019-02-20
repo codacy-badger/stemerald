@@ -3,7 +3,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class CurrencyGetTestCase(WebTestCase):
-    url = '/apiv1/currencies'
+    url = '/apiv2/currencies'
 
     # noinspection PyArgumentList
     @classmethod

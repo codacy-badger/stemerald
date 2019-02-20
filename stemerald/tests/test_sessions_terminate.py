@@ -5,7 +5,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class SessionsTerminateTestCase(WebTestCase):
-    url = '/apiv1/sessions'
+    url = '/apiv2/sessions'
 
     @classmethod
     def mockup(cls):
@@ -48,7 +48,7 @@ class SessionsTerminateTestCase(WebTestCase):
 
         # And I shouldn't be authorized by `token1`
         self.wsgi_app.jwt_token = token1
-        self.request(As.client, 'GET', '/apiv1/clients/me', expected_status=401, doc=False)
+        self.request(As.client, 'GET', '/apiv2/clients/me', expected_status=401, doc=False)
 
         # Admin is able to terminate all sessions
         self.login('admin1@test.com', '123456')

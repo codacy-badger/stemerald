@@ -4,7 +4,7 @@ from stemerald.tests.helpers import As, WebTestCase
 
 
 class RootTestCase(WebTestCase):
-    url = '/apiv1/version'
+    url = '/apiv2/version'
 
     def test_root(self):
         result, ___ = self.request(As.everyone, 'GET', self.url)

@@ -4,7 +4,7 @@ from restfulpy.testing import FormParameter
 
 
 class ClientActivationTestCase(WebTestCase):
-    url = '/apiv1/clients/invitations'
+    url = '/apiv2/clients/invitations'
 
     @classmethod
     def mockup(cls):

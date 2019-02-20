@@ -6,7 +6,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class AssetTestCase(WebTestCase):
-    url = '/apiv1/assets'
+    url = '/apiv2/assets'
 
     # noinspection PyArgumentList
     @classmethod

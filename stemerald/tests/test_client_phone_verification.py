@@ -7,8 +7,8 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class ClientPhoneVerificationTestCase(WebTestCase):
-    mobile_phone_url = '/apiv1/clients/mobile-phone-verifications'
-    fixed_phone_url = '/apiv1/clients/fixed-phone-verifications'
+    mobile_phone_url = '/apiv2/clients/mobile-phone-verifications'
+    fixed_phone_url = '/apiv2/clients/fixed-phone-verifications'
 
     @classmethod
     def mockup(cls):

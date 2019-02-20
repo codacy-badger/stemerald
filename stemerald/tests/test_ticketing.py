@@ -9,7 +9,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class ClientActivationTestCase(WebTestCase):
-    url = '/apiv1/tickets'
+    url = '/apiv2/tickets'
 
     # noinspection PyArgumentList
     @classmethod

@@ -47,7 +47,7 @@ class CurrencyController(ModelRestController):
         return currency
 
 
-class ApiV1(Controller):
+class ApiV2(Controller):
     # Users
     admins = AdminController()
     clients = ClientController()
@@ -88,8 +88,8 @@ class ApiV1(Controller):
 
 
 class Root(RootController):
-    apiv1 = ApiV1()
+    apiv2 = ApiV2()
 
 
-setattr(ApiV1, 'shetab-addresses', ShetabAddressController())
-setattr(ApiV1, 'sheba-addresses', ShebaAddressController())
+setattr(ApiV2, 'shetab-addresses', ShetabAddressController())
+setattr(ApiV2, 'sheba-addresses', ShebaAddressController())

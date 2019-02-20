@@ -4,7 +4,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class TransactionGetTestCase(WebTestCase):
-    url = '/apiv1/transactions'
+    url = '/apiv2/transactions'
 
     # noinspection PyArgumentList
     @classmethod

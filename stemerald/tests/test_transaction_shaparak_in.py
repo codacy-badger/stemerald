@@ -28,7 +28,7 @@ class MockupShaparakProvider(ShaparakProvider):
 
 
 class TransactionShaparakInTestCase(WebTestCase):
-    url = '/apiv1/transactions/shaparak-ins'
+    url = '/apiv2/transactions/shaparak-ins'
 
     @classmethod
     def configure_app(cls):
@@ -39,7 +39,7 @@ class TransactionShaparakInTestCase(WebTestCase):
           provider: stemerald.tests.test_transaction_shaparak_in.MockupShaparakProvider
           
           pay_ir:
-            post_redirect_url: http://stacrypt.io/apiv1/transactions/shaparak-ins/pay-irs
+            post_redirect_url: http://stacrypt.io/apiv2/transactions/shaparak-ins/pay-irs
             result_redirect_url: http://stacrypt.io/payment_redirect
 
           

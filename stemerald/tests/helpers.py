@@ -25,7 +25,7 @@ class WebTestCase(ModelRestCrudTestCase):
         """)
 
     def login(self, email, password):
-        result, metadata = self.request(None, 'POST', '/apiv1/sessions', doc=False, params={
+        result, metadata = self.request(None, 'POST', '/apiv2/sessions', doc=False, params={
             'email': email,
             'password': password
         })

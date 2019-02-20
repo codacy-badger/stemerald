@@ -7,7 +7,7 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class ClientEmailVerificationTestCase(WebTestCase):
-    url = '/apiv1/clients/email-verifications'
+    url = '/apiv2/clients/email-verifications'
 
     @classmethod
     def mockup(cls):
@@ -83,7 +83,7 @@ class ClientEmailVerificationTestCase(WebTestCase):
 
         # Check
         self.login('client1@test.com', '123456')
-        response, ___ = self.request(As.client, 'GET', '/apiv1/clients/me', doc=False)
+        response, ___ = self.request(As.client, 'GET', '/apiv2/clients/me', doc=False)
 
         self.assertTrue(response['isEmailVerified'])
         self.assertFalse(response['isEvidenceVerified'])

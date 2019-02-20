@@ -16,7 +16,7 @@ mockup_amount = 4576
 
 
 class TransactionShaparakInTestCase(WebTestCase):
-    url = '/apiv1/transactions/shaparak-outs'
+    url = '/apiv2/transactions/shaparak-outs'
 
     # noinspection PyArgumentList
     @classmethod
