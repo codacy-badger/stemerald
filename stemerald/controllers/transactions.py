@@ -25,7 +25,7 @@ class BankCardController(ModelRestController):
     @authorize('admin', 'client')
     # TODO: This validate_form is toooooo important -> 'blacklist': ['clientId'] !!!
     @validate_form(
-        whitelist=['clientId', 'take', 'skip', 'address', 'isVerified', 'error'],
+        whitelist=['clientId', 'take', 'skip', 'pan', 'fiatSymbol', 'holder', 'isVerified', 'error'],
         client={'blacklist': ['clientId']},
         admin={'whitelist': ['sort', 'id']},
         types={'take': int, 'skip': int}
@@ -41,47 +41,49 @@ class BankCardController(ModelRestController):
 
     @json
     @authorize('trusted_client')
-    @validate_form(exact=['address'])
+    @validate_form(exact=['pan', 'fiatSymbol', 'holder'])
     @commit
     def add(self):
-        shetab_address = BankCard()
-        shetab_address.client_id = context.identity.id
-        shetab_address.address = context.form.get('address')
-        DBSession.add(shetab_address)
-        return shetab_address
+        bank_card = BankCard()
+        bank_card.client_id = context.identity.id
+        bank_card.fiat_symbol = context.form.get('fiatSymbol')
+        bank_card.holder = context.form.get('holder')
+        bank_card.pan = context.form.get('pan')
+        DBSession.add(bank_card)
+        return bank_card
 
     @json
     @authorize('admin')
     @prevent_form
     @commit
     def accept(self, shetab_address_id: int):
-        shetab_address = BankCard.query.filter(BankCard.id == shetab_address_id).one_or_none()
-        if shetab_address is None:
+        bank_card = BankCard.query.filter(BankCard.id == shetab_address_id).one_or_none()
+        if bank_card is None:
             raise HttpNotFound()
 
-        if shetab_address.is_verified is True:
+        if bank_card.is_verified is True:
             raise HttpConflict('Already accepted')
 
-        shetab_address.error = None
-        shetab_address.is_verified = True
+        bank_card.error = None
+        bank_card.is_verified = True
 
-        return shetab_address
+        return bank_card
 
     @json
     @authorize('admin')
     @validate_form(exact=['error'])
     @commit
     def reject(self, shetab_address_id: int):
-        shetab_address = BankCard.query.filter(BankCard.id == shetab_address_id).one_or_none()
-        if shetab_address is None:
+        bank_card = BankCard.query.filter(BankCard.id == shetab_address_id).one_or_none()
+        if bank_card is None:
             raise HttpNotFound()
 
-        if shetab_address.is_verified is True:
+        if bank_card.is_verified is True:
             raise HttpConflict('Already accepted')
 
-        shetab_address.error = context.form.get('error')
+        bank_card.error = context.form.get('error')
 
-        return shetab_address
+        return bank_card
 
 
 class BankAccountController(ModelRestController):
@@ -91,7 +93,7 @@ class BankAccountController(ModelRestController):
     @authorize('admin', 'client')
     # TODO: This validate_form is toooooo important -> 'blacklist': ['clientId'] !!!
     @validate_form(
-        whitelist=['clientId', 'take', 'skip', 'address', 'isVerified', 'error'],
+        whitelist=['clientId', 'take', 'skip', 'fiatSymbol', 'iban', 'bic', 'owner', 'isVerified', 'error'],
         client={'blacklist': ['clientId']},
         admin={'whitelist': ['sort', 'id']},
         types={'take': int, 'skip': int}
@@ -107,12 +109,15 @@ class BankAccountController(ModelRestController):
 
     @json
     @authorize('trusted_client')
-    @validate_form(exact=['address'])
+    @validate_form(exact=['fiatSymbol', 'iban', 'owner'])
     @commit
     def add(self):
         sheba_address = BankAccount()
         sheba_address.client_id = context.identity.id
-        sheba_address.address = context.form.get('address')
+        sheba_address.fiat_symbol = context.form.get('fiatSymbol')
+        sheba_address.iban = context.form.get('iban')
+        sheba_address.bic = context.form.get('bic', None)
+        sheba_address.owner = context.form.get('owner')
         DBSession.add(sheba_address)
         return sheba_address
 
@@ -120,8 +125,8 @@ class BankAccountController(ModelRestController):
     @authorize('admin')
     @prevent_form
     @commit
-    def accept(self, sheba_address_id: int):
-        sheba_address = BankAccount.query.filter(BankAccount.id == sheba_address_id).one_or_none()
+    def accept(self, bank_account_id: int):
+        sheba_address = BankAccount.query.filter(BankAccount.id == bank_account_id).one_or_none()
         if sheba_address is None:
             raise HttpNotFound()
 
@@ -137,8 +142,8 @@ class BankAccountController(ModelRestController):
     @authorize('admin')
     @validate_form(exact=['error'])
     @commit
-    def reject(self, sheba_address_id: int):
-        sheba_address = BankAccount.query.filter(BankAccount.id == sheba_address_id).one_or_none()
+    def reject(self, bank_account_id: int):
+        sheba_address = BankAccount.query.filter(BankAccount.id == bank_account_id).one_or_none()
         if sheba_address is None:
             raise HttpNotFound()
 

@@ -91,5 +91,5 @@ class Root(RootController):
     apiv2 = ApiV2()
 
 
-setattr(ApiV2, 'shetab-addresses', BankCardController())
-setattr(ApiV2, 'sheba-addresses', BankAccountController())
+setattr(ApiV2, 'bank-cards', BankCardController())
+setattr(ApiV2, 'bank-accounts', BankAccountController())

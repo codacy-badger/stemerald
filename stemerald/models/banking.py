@@ -77,9 +77,10 @@ class BankAccount(BankingId):
     }
 
     id = Field(Integer(), ForeignKey(BankingId.id), primary_key=True)
-    fiat_symbol = Field(Unicode(10), ForeignKey('fiat.symbol'), protected=True)
+    fiat_symbol = Field(Unicode(10), ForeignKey('fiat.symbol'))
 
-    iban = Field(Unicode(50), pattern=r'^[A-Z]{2}[A-Z0-9]{4-10}[0-9]{5-40}$')  # TODO: Should be unique if is_valid
+    iban = Field(Unicode(50), pattern=r'^[A-Z]{2}[A-Z0-9]{4,10}[0-9]{5,40}$')  # TODO: Should be unique if is_valid
+    owner = Field(Unicode(100))
     bic = Field(Unicode(20), pattern=r'^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$', nullable=True)
 
 
@@ -90,11 +91,11 @@ class BankCard(BankingId):
     }
 
     id = Field(Integer(), ForeignKey(BankingId.id), primary_key=True)
-    fiat_symbol = Field(Unicode(10), ForeignKey('fiat.symbol'), protected=True)
+    fiat_symbol = Field(Unicode(10), ForeignKey('fiat.symbol'))
 
     pan = Field(Unicode(30), pattern=r'^([0-9]{4}-){3}[0-9]{4}$')  # TODO: Should be unique if is_valid
     holder = Field(Unicode(100))
-    expiration = Field(Unicode(7), pattern=r'^[0-1]{1}/[0-9]{2-4}$', nullable=True)  # mm/yy or mm/yyyy
+    expiration = Field(Unicode(7), pattern=r'^[0-1]{1}/[0-9]{2,4}$', nullable=True)  # mm/yy or mm/yyyy
 
 
 class PaymentGateway(DeclarativeBase):
