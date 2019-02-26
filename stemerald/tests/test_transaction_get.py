@@ -1,5 +1,4 @@
-from stemerald.models import Client, Admin, Cryptocurrency, Deposit, Withdraw, Cashin, Fiat, \
-    Pan, Iban, Cashout
+from stemerald.models import Client, Admin, Cryptocurrency, Cashin, Fiat, Cashout, BankAccount, BankCard
 from stemerald.tests.helpers import WebTestCase, As
 
 
@@ -9,8 +8,8 @@ class TransactionGetTestCase(WebTestCase):
     # noinspection PyArgumentList
     @classmethod
     def mockup(cls):
-        cls.session.add(Cryptocurrency(code='btc', name='Bitcoin'))
-        cls.session.add(Fiat(code='irr', name='Iran Rial'))
+        cls.session.add(Cryptocurrency(symbol='btc', name='Bitcoin', wallet_id=1))
+        cls.session.add(Fiat(symbol='irr', name='Iran Rial'))
 
         cls.session.flush()
 
@@ -32,7 +31,7 @@ class TransactionGetTestCase(WebTestCase):
         # Adding a withdraw
 
         # Adding a shaparak-in
-        shetab_address = Pan()
+        shetab_address = BankCard()
         shetab_address.address = '0000-1111-2222-3333'
         shetab_address.client = client1
         shetab_address.is_verified = True
@@ -46,7 +45,7 @@ class TransactionGetTestCase(WebTestCase):
         cls.session.add(shaparak_in)
 
         # Adding a shaparak-out
-        sheba_address = Iban()
+        sheba_address = BankAccount()
         sheba_address.address = 'IR123444567889445535345345'
         sheba_address.client = client1
         sheba_address.is_verified = True

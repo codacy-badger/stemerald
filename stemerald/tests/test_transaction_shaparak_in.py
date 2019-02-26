@@ -1,6 +1,6 @@
 from nanohttp import settings
 
-from stemerald.models import Client, Pan, Fiat, Fund
+from stemerald.models import Client, Fiat
 from stemerald.shaparak import ShaparakProvider, ShaparakError
 from stemerald.tests.helpers import WebTestCase, As
 from restfulpy.testing import FormParameter
