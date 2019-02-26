@@ -3,7 +3,7 @@ from nanohttp import settings
 from restfulpy.testing.documentation import FormParameter
 
 from stemerald.tests.helpers import WebTestCase, As
-from stemerald.models import ClientEvidence, Fund, Fiat, Cryptocurrency, Invitation
+from stemerald.models import ClientEvidence, Fiat, Cryptocurrency, Invitation
 
 
 class ClientRegisterTestCase(WebTestCase):
@@ -12,10 +12,10 @@ class ClientRegisterTestCase(WebTestCase):
     # noinspection PyArgumentList
     @classmethod
     def mockup(cls):
-        cls.session.add(Fiat(code='irr', name='Iran Rial'))
-        cls.session.add(Cryptocurrency(code='btc', name='Bitcoin'))
-        cls.session.add(Fiat(code='usd', name='USA Dollar'))
-        cls.session.add(Cryptocurrency(code='ltc', name='Litecoin'))
+        cls.session.add(Fiat(symbol='irr', name='Iran Rial'))
+        cls.session.add(Cryptocurrency(symbol='btc', name='Bitcoin', wallet_id=1))
+        cls.session.add(Fiat(symbol='usd', name='USA Dollar'))
+        cls.session.add(Cryptocurrency(symbol='ltc', name='Litecoin', wallet_id=2))
 
         invitation1 = Invitation()
         invitation1.code = 'test-code-1'
@@ -63,9 +63,8 @@ class ClientRegisterTestCase(WebTestCase):
         # Can I login?
         self.login('client1@test.com', '123456')
 
-        # Check evidence and fund automatic creation:
+        # Check evidence automatic creation:
         self.assertTrue(self.session.query(ClientEvidence).filter(ClientEvidence.client_id == response['id']).count())
-        self.assertEqual(self.session.query(Fund).filter(Fund.client_id == response['id']).count(), 4)
 
     def test_client_register_with_invitation_code(self):
         settings.merge("""

@@ -17,8 +17,8 @@ class CurrencyEditTestCase(WebTestCase):
         admin1.is_active = True
         cls.session.add(admin1)
 
-        cls.session.add(Fiat(code='usd', name='USA Dollar'))
-        cls.session.add(Cryptocurrency(code='btc', name='Bitcoin'))
+        cls.session.add(Fiat(symbol='usd', name='USA Dollar'))
+        cls.session.add(Cryptocurrency(symbol='btc', name='Bitcoin', wallet_id=1))
 
         cls.session.commit()
 
@@ -41,6 +41,6 @@ class CurrencyEditTestCase(WebTestCase):
             ]
         )
 
-        self.assertIn('code', response)
+        self.assertIn('symbol', response)
         self.assertIn('withdrawMin', response)
         self.assertIn('depositMin', response)

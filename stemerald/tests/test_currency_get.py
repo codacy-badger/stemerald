@@ -8,8 +8,8 @@ class CurrencyGetTestCase(WebTestCase):
     # noinspection PyArgumentList
     @classmethod
     def mockup(cls):
-        cls.session.add(Fiat(code='usd', name='USA Dollar'))
-        cls.session.add(Cryptocurrency(code='btc', name='Bitcoin'))
+        cls.session.add(Fiat(symbol='usd', name='USA Dollar'))
+        cls.session.add(Cryptocurrency(symbol='btc', name='Bitcoin', wallet_id=1))
 
         cls.session.commit()
 
@@ -17,6 +17,6 @@ class CurrencyGetTestCase(WebTestCase):
         response, ___ = self.request(As.anonymous, 'GET', self.url)
 
         self.assertEqual(len(response), 2)
-        self.assertIn('code', response[0])
+        self.assertIn('symbol', response[0])
         self.assertIn('name', response[0])
         self.assertIn('type', response[0])

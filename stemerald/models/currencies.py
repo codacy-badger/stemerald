@@ -31,6 +31,7 @@ class Cryptocurrency(Currency):
         primary_key=True
     )
 
+    # A reference to an external cryptocurrency wallet
     wallet_id = Field(Integer)
 
     withdraw_min = Field(Integer(), default=0)

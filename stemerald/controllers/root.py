@@ -37,8 +37,8 @@ class CurrencyController(ModelRestController):
     )
     @__model__.expose
     @commit
-    def edit(self, currency_code: str):
-        currency = Currency.query.filter(Currency.code == currency_code).one_or_none()
+    def edit(self, currency_symbol: str):
+        currency = Currency.query.filter(Currency.symbol == currency_symbol).one_or_none()
 
         if currency is None:
             raise HttpNotFound()
