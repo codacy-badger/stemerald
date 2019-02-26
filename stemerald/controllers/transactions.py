@@ -4,7 +4,7 @@ from restfulpy.authorization import authorize
 from restfulpy.orm import commit, DBSession
 
 from nanohttp import json, HttpMethodNotAllowed, context, HttpConflict, HttpBadRequest, HttpNotFound, HttpFound, \
-    settings
+    settings, RestController
 from restfulpy.controllers import ModelRestController
 from restfulpy.logging_ import get_logger
 from restfulpy.validation import validate_form, prevent_form
@@ -153,6 +153,11 @@ class BankAccountController(ModelRestController):
         sheba_address.error = context.form.get('error')
 
         return sheba_address
+
+
+class BankingController(RestController):
+    cards = BankCardController()
+    accounts = BankAccountController()
 
 
 class ShaparakInController(ModelRestController):

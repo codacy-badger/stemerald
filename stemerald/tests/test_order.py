@@ -2,7 +2,7 @@ import ujson
 
 from restfulpy.testing import FormParameter
 
-from stemerald.models import Client, Market, Fund
+from stemerald.models import Client, Market
 from stemerald.models.currencies import Fiat, Cryptocurrency
 from stemerald.stexchange import StexchangeClient, stexchange_client
 from stemerald.tests.helpers import WebTestCase, As

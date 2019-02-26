@@ -5,8 +5,8 @@ from stemerald.tests.helpers import WebTestCase, As
 
 
 class BankAddressTestCase(WebTestCase):
-    bank_cards_url = '/apiv2/bank-cards'
-    bank_accounts_url = '/apiv2/bank-accounts'
+    bank_cards_url = '/apiv2/banking/cards'
+    bank_accounts_url = '/apiv2/banking/accounts'
 
     # noinspection PyArgumentList
     @classmethod

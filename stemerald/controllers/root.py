@@ -4,7 +4,8 @@ from restfulpy.validation import validate_form
 
 from stemerald.controllers.assets import AssetsController, BalancesController
 from stemerald.controllers.territories import TerritoryController
-from stemerald.controllers.transactions import TransactionController, BankCardController, BankAccountController
+from stemerald.controllers.transactions import TransactionController, BankCardController, BankAccountController, \
+    BankingController
 from nanohttp import Controller, json, HttpNotFound
 from restfulpy.controllers import RootController, ModelRestController
 
@@ -72,6 +73,9 @@ class ApiV2(Controller):
     # Assets
     assets = AssetsController()  # FIXME
     balances = BalancesController()  # FIXME
+
+    # Banking
+    banking = BankingController()  # TODO
 
     # Transactions (fiat)
     transactions = TransactionController()  # TODO
