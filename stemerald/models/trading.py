@@ -1,3 +1,4 @@
+from nanohttp import HttpBadRequest, settings
 from restfulpy.orm import DeclarativeBase
 from restfulpy.orm.field import Field, relationship
 from restfulpy.orm.mixins import FilteringMixin, OrderingMixin
@@ -29,18 +30,43 @@ class Market(OrderingMixin, FilteringMixin, DeclarativeBase):
 
     buy_amount_min = Field(BigInteger(), default=0)
     buy_amount_max = Field(BigInteger(), default=0)
-    buy_static_commission = Field(BigInteger(), default=0)
-    buy_permille_commission = Field(Integer(), default=0)
-    buy_max_commission = Field(BigInteger(), default=0)
 
     sell_amount_min = Field(BigInteger(), default=0)
     sell_amount_max = Field(BigInteger(), default=0)
-    sell_static_commission = Field(BigInteger(), default=0)
-    sell_permille_commission = Field(Integer(), default=0)
-    sell_max_commission = Field(BigInteger(), default=0)
+
+    taker_commission_rate = Field(Unicode(10), default="0.0")
+    maker_commission_rate = Field(Unicode(10), default="0.0")
+
+    # taker_static_commission = Field(BigInteger(), default=0)
+    # taker_permille_commission = Field(Integer(), default=0)
+    # taker_max_commission = Field(BigInteger(), default=0)
+
+    # maker_static_commission = Field(BigInteger(), default=0)
+    # maker_permille_commission = Field(Integer(), default=0)
+    # maker_max_commission = Field(BigInteger(), default=0)
 
     divide_by_ten = Field(Integer(), default=0)
 
     @property
     def divide_by(self):
         return 10 ** self.divide_by_ten
+
+    def validate_ranges(self, type_, total_amount, price):
+        threshold = settings.trader.price_threshold_permille
+        price_rate = int(1000 * price / self.ticker_price) - 1000
+
+        if type_ == 'buy':
+            if price_rate > threshold:
+                raise HttpBadRequest('Price not in valid range', 'price-not-in-range')
+
+            if total_amount < self.buy_amount_min or \
+                    (self.buy_amount_max != 0 and total_amount > self.buy_amount_max):
+                raise HttpBadRequest('Amount not in range', 'amount-not-in-range')
+
+        elif type_ == 'sell':
+            if price_rate < -threshold:
+                raise HttpBadRequest('Price not in valid range', 'price-not-in-range')
+
+            if total_amount < self.sell_amount_min or \
+                    (self.sell_amount_max != 0 and total_amount > self.sell_amount_max):
+                raise HttpBadRequest('Amount not in range', 'amount-not-in-range')
