@@ -81,5 +81,5 @@ class WithdrawController(RestController):
     @authorize('semitrusted_client', 'trusted_client')
     @validate_form(exact=['coin', 'amount', 'address'], types={'amount': int})
     def schedule(self):
-        # TODO
+        stawallet_client.schedule_withdraw()
         pass
