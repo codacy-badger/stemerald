@@ -18,7 +18,7 @@ cashin_max_commission = 897
 mockup_transaction_id = '4738'
 mockup_amount = 4576
 mockup_card_address = '6473-7563-8264-1092'
-is_transaction_verified = False
+is_transaction_verified = [False, True, True]
 
 
 class MockupShaparakProvider(ShaparakProvider):
@@ -26,13 +26,15 @@ class MockupShaparakProvider(ShaparakProvider):
         return mockup_transaction_id
 
     def verify_transaction(self, transaction_id):
-        if is_transaction_verified:
+        if is_transaction_verified.pop(0):
             return mockup_amount, None, None
         raise ShaparakError(None)
 
 
 class TransactionShaparakInTestCase(WebTestCase):
     url = '/apiv2/transactions/shaparak-ins'
+
+    is_shaparak_transaction_verified = False
 
     @classmethod
     def configure_app(cls):
@@ -94,7 +96,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         class MockStexchangeClient(StexchangeClient):
             def __init__(self, headers=None):
                 super().__init__("", headers)
-                self.mock_balance = (0, 0)
+                self.mock_balance = [0, 0]
 
             def asset_list(self):
                 return ujson.loads('[{"name": "irr", "prec": 2}]')
@@ -165,8 +167,6 @@ class TransactionShaparakInTestCase(WebTestCase):
         )
 
         # 3. Verify the transaction (Bad card)
-        global is_transaction_verified
-        is_transaction_verified = True
         self.logout()
         self.request(
             As.anonymous, 'POST', f'{self.url}/pay-irs',
@@ -209,9 +209,8 @@ class TransactionShaparakInTestCase(WebTestCase):
 
         # Check balance
         balance = stexchange_client.balance_query(self.mockup_client_1_id, 'irr').get('irr')
-        self.assertEqual(balance['available'], 3971)
-        self.assertEqual(balance['freeze'], 0)
-        self.session.refresh(balance)
+        self.assertEqual(int(balance['available']), 3971)
+        self.assertEqual(int(balance['freeze']), 0)
 
         # 5. Verify the transaction (Double spent)
         self.request(
@@ -234,5 +233,5 @@ class TransactionShaparakInTestCase(WebTestCase):
 
         # Check balance
         balance = stexchange_client.balance_query(self.mockup_client_1_id, 'irr').get('irr')
-        self.assertEqual(balance['available'], 3971)
-        self.assertEqual(balance['freeze'], 0)
+        self.assertEqual(int(balance['available']), 3971)
+        self.assertEqual(int(balance['freeze']), 0)

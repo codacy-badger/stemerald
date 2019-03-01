@@ -119,13 +119,13 @@ class PaymentGateway(DeclarativeBase):
 
     fiat = relationship('Fiat')
 
-    def calculate_cashin_commission(self, amount):
+    def calculate_cashout_commission(self, amount):
         commission = self.cashout_static_commission
         if self.cashout_permille_commission != 0:
             commission += int((amount * self.cashout_permille_commission) / 1000)
         return min(commission, self.cashout_max_commission) if self.cashout_max_commission != 0 else commission
 
-    def calculate_cashout_commission(self, amount):
+    def calculate_cashin_commission(self, amount):
         commission = self.cashin_static_commission
         if self.cashin_permille_commission != 0:
             commission += int((amount * self.cashin_permille_commission) / 1000)
