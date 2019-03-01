@@ -821,13 +821,13 @@ def stexchange_http_exception_handler(e):
         return HttpInternalServerError(e.message)
 
     if isinstance(e, InvalidArgumentException) or isinstance(e, OrderNotFoundException):
-        return HttpNotFound(e.message)
+        return HttpNotFound(e.message, reason="invalid-argument")
 
     if isinstance(e, UserNotMatchException):
-        return HttpConflict(e.message)
+        return HttpConflict(e.message, reason="user-not-match")
 
     if isinstance(e, BalanceNotEnoughException):
-        return HttpBadRequest(e.message)
+        return HttpBadRequest(e.message, reason="not-enough-balance")
 
     if isinstance(e, RepeatUpdateException):
-        return HttpBadRequest(e.message)
+        return HttpBadRequest(e.message, reason="repeat-update")

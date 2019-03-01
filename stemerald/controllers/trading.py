@@ -45,7 +45,7 @@ class OrderController(RestController):
         pattern={'status': r'^(-)?(pending|finished)$'}
     )
     def get(self, order_id: int = None):
-        client_id = context.identity.id if context.identity.is_in_roles(['client']) \
+        client_id = context.identity.id if context.identity.is_in_roles('client') \
             else context.query_string['clientId']
 
         try:
@@ -79,11 +79,11 @@ class OrderController(RestController):
                 if context.query_string['status'] == 'pending':
                     order = stexchange_client.order_pending_detail(
                         market=context.query_string['marketName'],
-                        order_id=order_id,
+                        order_id=int(order_id),
                     )
                 elif context.query_string['status'] == 'finished':
                     order = stexchange_client.order_finished_detail(
-                        order_id=order_id,
+                        order_id=int(order_id),
                     )
                 else:
                     raise HttpNotFound('Bad status.')
@@ -102,14 +102,14 @@ class OrderController(RestController):
         admin={'requires': ['clientId']},
     )
     def cancel(self, order_id: int):
-        client_id = context.identity.id if context.identity.is_in_roles(['client']) \
+        client_id = context.identity.id if context.identity.is_in_roles('client') \
             else context.query_string['clientId']
 
         try:
             order = stexchange_client.order_cancel(
                 user_id=client_id,
                 market=context.query_string['marketName'],
-                order_id=order_id,
+                order_id=int(order_id),
             )
 
             return order_to_dict(order)
@@ -127,8 +127,9 @@ class OrderController(RestController):
     @json
     @authorize('semitrusted_client', 'trusted_client')
     @validate_form(
-        exact=['marketName', 'type', 'price', 'amount', 'side'],
-        types={'price': int, 'amount': int, 'marketName': int},
+        whitelist=['marketName', 'type', 'price', 'amount', 'side'],
+        requires=['marketName', 'type', 'amount', 'side'],
+        types={'price': int, 'amount': int, 'marketName': str},
         pattern={'type': r'^(-)?(market|limit)$', 'side': r'^(-)?(buy|sell)$', }
     )
     def create(self):
@@ -140,7 +141,7 @@ class OrderController(RestController):
 
         side = 1 if (context.form['side'] == 'sell') else 2
 
-        price = context.form['price']
+        price = context.form.get('price', None)
         amount = context.form['amount']
         market.validate_ranges(type_=context.form['side'], total_amount=amount, price=price)
 
@@ -154,7 +155,7 @@ class OrderController(RestController):
                     taker_fee_rate=market.taker_commission_rate,
                     source="nothing",  # FIXME
                 )
-            elif context.form['status'] == 'limit':
+            elif context.form['type'] == 'limit':
                 order = stexchange_client.order_put_limit(
                     user_id=client_id,
                     market=market.name,
@@ -189,7 +190,7 @@ class OrderController(RestController):
     )
     def deal(self, order_id: int):
 
-        client_id = context.identity.id if context.identity.is_in_roles(['client']) \
+        client_id = context.identity.id if context.identity.is_in_roles('client') \
             else context.query_string['clientId']
 
         offset = context.query_string.get('offset', 0)
@@ -197,7 +198,7 @@ class OrderController(RestController):
 
         try:
             deals = stexchange_client.order_deals(
-                order_id=order_id,
+                order_id=int(order_id),
                 offset=offset,
                 limit=limit
             )
@@ -212,7 +213,7 @@ class OrderController(RestController):
                 'deal': deal['deal'],
                 'fee': deal['fee'],
                 'orderId': deal['deal_order_id'],
-            } for deal in deals['records'] if (context.identity.is_in_roles(['admin']) or (deal['user'] == client_id))]
+            } for deal in deals['records'] if (context.identity.is_in_roles('admin') or (deal['user'] == client_id))]
 
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)

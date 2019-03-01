@@ -4,7 +4,8 @@ from restfulpy.testing import FormParameter
 
 from stemerald.models import Client, Market
 from stemerald.models.currencies import Fiat, Cryptocurrency
-from stemerald.stexchange import StexchangeClient, stexchange_client, StexchangeUnknownException
+from stemerald.stexchange import StexchangeClient, stexchange_client, StexchangeUnknownException, \
+    BalanceNotEnoughException
 from stemerald.tests.helpers import WebTestCase, As
 
 
@@ -39,7 +40,7 @@ class OrderTestCase(WebTestCase):
         cls.session.commit()
 
         cls.market1_name = btc_usd.name
-        cls.mockup_client_1_id = client1
+        cls.mockup_client_1_id = client1.id
 
         class MockStexchangeClient(StexchangeClient):
             def __init__(self, headers=None):
@@ -49,6 +50,10 @@ class OrderTestCase(WebTestCase):
 
             def asset_list(self):
                 return ujson.loads('[{"name": "btc", "prec": 8}, {"name": "usd", "prec": 2}]')
+
+            def market_last(self, market):
+                if market == 'btc/usd':
+                    return '1000.00000000'
 
             def balance_update(self, user_id, asset, business, business_id, change, detail):
                 if user_id == cls.mockup_client_1_id and business in ['deposit', 'withdraw']:
@@ -79,12 +84,17 @@ class OrderTestCase(WebTestCase):
                 )
 
             def order_put_limit(self, user_id, market, side, amount, price, taker_fee_rate, maker_fee_rate, source):
-                return """{"price": "2", "id": 62, "side": 2, "market": "TESTNET3RINKEBY", "taker_fee": "0.1",
+                if int(amount) == 120:
+                    raise BalanceNotEnoughException(0)
+
+                return ujson.loads("""{"price": "2", "id": 62, "side": 2, "market": "TESTNET3RINKEBY", "taker_fee": "0.1",
                 "type": 1, "deal_fee": "0", "deal_stock": "0", "maker_fee": "0.1", "source": "abc", "user": 1,
                 "left": "100", "ctime": 1547419213.026914, "mtime": 1547419213.026914, "amount": "100", "deal_money":
-                "0"} """
+                "0"} """)
 
             def order_put_market(self, user_id, market, side, amount, taker_fee_rate, source):
+                if int(amount) == 120:
+                    raise BalanceNotEnoughException(0)
                 return ujson.loads("""{"price": "0", "id": 63, "side": 1, "market": "TESTNET3RINKEBY", "taker_fee":
                 "0.1", "type": 2, "deal_fee": "0.6", "deal_stock": "3", "maker_fee": "0", "source": "cbd", "user": 1,
                 "left": "0e-8", "ctime": 1547419213.029479, "mtime": 1547419213.029483, "amount": "3", "deal_money":
@@ -106,8 +116,8 @@ class OrderTestCase(WebTestCase):
                 "deal_money": "6"}""")
 
             def order_finished(self, user_id, market, start_time, end_time, offset, limit, side):
-                if market == 'TESTNET3RINKEBY' and user_id == 'TESTNET3RINKEBY' and limit == 10 and start_time == 10 \
-                        and start_time == 10 and side < 18 and offset < 18:
+                if market == 'btc/usd' and user_id == cls.mockup_client_1_id and limit == 10 and start_time == 10 \
+                        and end_time == 10 and side < 18 and offset < 18:
                     return ujson.loads("""{"offset": 0, "limit": 20, "records": [{"id": 61, "source": "cbd", "side":
                     1, "type": 2, "deal_money": "6", "ctime": 1547419172.446086, "ftime": 1547419172.446089,
                     "user": 1, "market": "TESTNET3RINKEBY", "price": "0", "amount": "3", "taker_fee": "0.1",
@@ -166,7 +176,7 @@ class OrderTestCase(WebTestCase):
                 raise StexchangeUnknownException()
 
             def order_finished_detail(self, order_id):
-                if user_id == cls.mockup_client_1_id and market == 'TESTNET3RINKEBY' and offset == 0 and limit == 10:
+                if order_id == 1:
                     return ujson.loads("""{"id": 57, "source": "cbd", "side": 1, "type": 2, "deal_money": "6",
                     "ctime": 1547419093.255911, "ftime": 1547419093.255915, "user": 1, "market": "TESTNET3RINKEBY",
                     "price": "0", "amount": "3", "taker_fee": "0.1", "maker_fee": "0", "deal_stock": "3", "deal_fee":
@@ -174,17 +184,17 @@ class OrderTestCase(WebTestCase):
                 raise StexchangeUnknownException()
 
             def order_deals(self, order_id, offset, limit):
-                if order_id == 'TESTNET3RINKEBY' and offset == 0 and limit == 10:
+                if order_id == 1 and offset == 0:
                     return ujson.loads("""{"offset": 0, "limit": 10, "records": []}""")
                 raise StexchangeUnknownException()
 
             def order_depth(self, market, limit, interval):
-                if market == 'TESTNET3RINKEBY' and interval == 0 and limit == 10:
+                if market == 'btc/usd' and interval == 0 and limit == 10:
                     return ujson.loads("""{"asks": [], "bids": [["2", "97"]]}""")
                 raise StexchangeUnknownException()
 
             def order_cancel(self, user_id, market, order_id):
-                if user_id == cls.mockup_client_1_id and market == 'TESTNET3RINKEBY' and order_id == 10:
+                if user_id == cls.mockup_client_1_id and market == 'btc/usd' and order_id == 1:
                     return ujson.loads("""{"price": "2", "id": 62, "side": 2, "market": "TESTNET3RINKEBY",
                     "taker_fee": "0.1", "type": 1, "deal_fee": "0.3", "deal_stock": "3", "maker_fee": "0.1",
                     "source": "abc", "user": 1, "left": "97", "ctime": 1547419213.026914, "mtime": 1547419213.029483,
@@ -193,15 +203,56 @@ class OrderTestCase(WebTestCase):
 
         stexchange_client._set_instance(MockStexchangeClient())
 
-    def test_order(self):
+    def test_market_order(self):
+        self.login('client1@test.com', '123456')
+
+        # 1. Add buy (amount not in range)
+        self.request(
+            As.client, 'CREATE', self.url,
+            params=[
+                FormParameter('marketName', self.market1_name, type_=str),
+                FormParameter('type', 'market'),
+                FormParameter('side', 'buy'),
+                FormParameter('amount', 1, type_=int),
+            ],
+            expected_status=400,
+            expected_headers={'x-reason': 'amount-not-in-range'}
+        )
+
+        # 2. Add buy (not enough balance)
+        self.request(
+            As.client, 'CREATE', self.url,
+            params=[
+                FormParameter('marketName', self.market1_name, type_=str),
+                FormParameter('type', 'market'),
+                FormParameter('side', 'buy'),
+                FormParameter('amount', 120, type_=int),
+            ],
+            expected_status=400,
+            expected_headers={'x-reason': 'not-enough-balance'}
+        )
+
+        # 3. Add buy
+        self.request(
+            As.client, 'CREATE', self.url,
+            params=[
+                FormParameter('marketName', self.market1_name, type_=str),
+                FormParameter('type', 'market'),
+                FormParameter('side', 'buy'),
+                FormParameter('amount', 11, type_=int),
+            ],
+        )
+
+    def test_limit_order(self):
         self.login('client1@test.com', '123456')
 
         # 1. Add buy (price not in range)
         self.request(
             As.client, 'CREATE', self.url,
             params=[
-                FormParameter('marketId', self.market1_name, type_=int),
-                FormParameter('type', 'buy'),
+                FormParameter('marketName', self.market1_name, type_=str),
+                FormParameter('type', 'limit'),
+                FormParameter('side', 'buy'),
                 FormParameter('price', 1200, type_=int),
                 FormParameter('amount', 12, type_=int),
             ],
@@ -213,8 +264,9 @@ class OrderTestCase(WebTestCase):
         self.request(
             As.client, 'CREATE', self.url,
             params=[
-                FormParameter('marketId', self.market1_name, type_=int),
-                FormParameter('type', 'buy'),
+                FormParameter('marketName', self.market1_name, type_=str),
+                FormParameter('type', 'limit'),
+                FormParameter('side', 'buy'),
                 FormParameter('price', 1000, type_=int),
                 FormParameter('amount', 1, type_=int),
             ],
@@ -226,8 +278,9 @@ class OrderTestCase(WebTestCase):
         self.request(
             As.client, 'CREATE', self.url,
             params=[
-                FormParameter('marketId', self.market1_name, type_=int),
-                FormParameter('type', 'buy'),
+                FormParameter('marketName', self.market1_name, type_=str),
+                FormParameter('type', 'limit'),
+                FormParameter('side', 'buy'),
                 FormParameter('price', 1050, type_=int),
                 FormParameter('amount', 120, type_=int),
             ],
@@ -239,14 +292,49 @@ class OrderTestCase(WebTestCase):
         self.request(
             As.client, 'CREATE', self.url,
             params=[
-                FormParameter('marketId', self.market1_name, type_=int),
-                FormParameter('type', 'buy'),
+                FormParameter('marketName', self.market1_name, type_=str),
+                FormParameter('type', 'limit'),
+                FormParameter('side', 'buy'),
                 FormParameter('price', 1050, type_=int),
                 FormParameter('amount', 11, type_=int),
             ],
         )
 
-        # 5. Getting my orders
+    def test_cancel_order(self):
+        self.login('client1@test.com', '123456')
+
+        self.request(
+            As.client, 'CANCEL', f'{self.url}/1',
+            query_string={'marketName': 'btc/usd'},
+        )
+
+    def test_order_deals(self):
+        self.login('client1@test.com', '123456')
+
+        self.request(
+            As.client, 'DEAL', f'{self.url}/1',
+            query_string={'marketName': 'btc/usd'},
+        )
+
+    def test_order_get(self):
+        # 1. Getting my orders (pending)
+        response, ___ = self.request(As.client, 'GET', self.url)
+
+        self.assertEqual(len(response), 1)
+        self.assertIsNotNone(response[0]['id'])
+        self.assertEqual(response[0]['type'], 'buy')
+        self.assertEqual(response[0]['status'], 'active')
+        self.assertEqual(response[0]['totalAmount'], 11)
+        self.assertEqual(response[0]['filledAmount'], 0)
+        self.assertEqual(response[0]['price'], 1050)
+        self.assertEqual(response[0]['totalCommission'], 2)
+        # 2. Getting my orders (finished)
+
+        # 3. Getting order detail (pending)
+
+        # 4. Getting order detail (finished)
+
+        # 1. Getting my orders
         response, ___ = self.request(As.client, 'GET', self.url)
 
         self.assertEqual(len(response), 1)

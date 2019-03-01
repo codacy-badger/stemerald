@@ -5,6 +5,8 @@ from restfulpy.orm.mixins import FilteringMixin, OrderingMixin
 from sqlalchemy import ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, Unicode, BigInteger
 
+from stemerald.stexchange import stexchange_client, StexchangeException, stexchange_http_exception_handler
+
 
 class Market(OrderingMixin, FilteringMixin, DeclarativeBase):
     """
@@ -51,9 +53,15 @@ class Market(OrderingMixin, FilteringMixin, DeclarativeBase):
     def divide_by(self):
         return 10 ** self.divide_by_ten
 
-    def validate_ranges(self, type_, total_amount, price):
+    def get_last_price(self):
+        try:
+            return float(stexchange_client.market_last(self.name))
+        except StexchangeException as e:
+            raise stexchange_http_exception_handler(e)
+
+    def validate_ranges(self, type_, total_amount, price=None):
         threshold = settings.trader.price_threshold_permille
-        price_rate = int(1000 * price / self.ticker_price) - 1000
+        price_rate = int(1000 * (price or self.get_last_price()) / self.get_last_price()) - 1000
 
         if type_ == 'buy':
             if price_rate > threshold:
