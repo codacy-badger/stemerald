@@ -172,13 +172,13 @@ class ShaparakInController(ModelRestController):
         # Use description part)
         amount = context.form.get('amount')
         shetab_address_id = context.form.get('shetabAddressId')
-        # payment_gateway_name = context.form.get('paymentGatewayName')
 
         # Check deposit range
-        irr = Fiat.query.filter(Fiat.code == 'irr').one_or_none()
+        Fiat.query.filter(Fiat.symbol == 'irr').one()
+        payment_gateway = PaymentGateway.query.filter(PaymentGateway.name == 'shaparak').one()
 
-        if (irr.deposit_max != 0 and amount > irr.deposit_max) or amount < irr.deposit_min:
-            raise HttpBadRequest('Amount is not between valid deposit range.')
+        if (payment_gateway.cashin_max != 0 and amount > payment_gateway.cashin_max) or amount < payment_gateway.cashin_min:
+            raise HttpBadRequest('Amount is not between valid cashin range.')
 
         # Check sheba
         target_shetab = BankCard.query \
@@ -193,8 +193,7 @@ class ShaparakInController(ModelRestController):
             raise HttpConflict('Shetab address is not verified.')
 
         # Check commission
-        irr = Fiat.query.filter(Fiat.code == 'irr').one_or_none()
-        commission = irr.calculate_deposit_commission(amount)
+        commission = payment_gateway.calculate_cashin_commission(amount)
 
         if commission >= amount:
             raise HttpConflict('Commission is more than the amount')
@@ -204,7 +203,7 @@ class ShaparakInController(ModelRestController):
         shaparak_in.fiat_symbol = 'irr'
         shaparak_in.amount = amount
         shaparak_in.commission = commission
-        shaparak_in.shetab_address_id = shetab_address_id
+        shaparak_in.banking_id = target_shetab
         shaparak_in.transaction_id = ''
         shaparak_in.payment_gateway_name = 'shaparak'
 
@@ -251,8 +250,8 @@ class ShaparakInController(ModelRestController):
 
                 if target_transaction is None:
                     result = 'bad-transaction'
-                elif card_number[:6] != target_transaction.shetab_address.address.replace('-', '')[:6] or \
-                        card_number[-4:] != target_transaction.shetab_address.address[-4:]:
+                elif card_number[:6] != target_transaction.banking_id.pan.replace('-', '')[:6] or \
+                        card_number[-4:] != target_transaction.banking_id.pan[-4:]:
                     result = 'bad-card'
                 else:
                     shaparak_provider = create_shaparak_provider()
@@ -314,9 +313,10 @@ class ShaparakOutController(ModelRestController):
 
         # Check withdraw range
         irr = Fiat.query.filter(Fiat.code == 'irr').one_or_none()
+        payment_gateway = PaymentGateway.query.filter(PaymentGateway.name == 'shaparak').one_or_none()
 
-        if (irr.withdraw_max != 0 and amount > irr.withdraw_max) or amount < irr.withdraw_min:
-            raise HttpBadRequest('Amount is not between valid withdraw range.')
+        if (irr.cashout_max != 0 and amount > irr.cashout_max) or amount < irr.cashout_min:
+            raise HttpBadRequest('Amount is not between valid cashout range.')
 
         commission = irr.calculate_withdraw_commission(amount)
 

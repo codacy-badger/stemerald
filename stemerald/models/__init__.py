@@ -1,5 +1,5 @@
 from .currencies import Currency, Fiat, Cryptocurrency
-from .banking import BankingTransaction, Cashin, Cashout, BankingId, BankAccount, BankCard
+from .banking import BankingTransaction, Cashin, Cashout, BankingId, BankAccount, BankCard, PaymentGateway
 from .territories import Country, State, City
 from .trading import Market
 from .membership import Member, Admin, Client, ClientEvidence, Invitation

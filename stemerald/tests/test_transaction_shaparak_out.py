@@ -1,6 +1,6 @@
 from restfulpy.testing import FormParameter
 
-from stemerald.models import Client, Iban, Admin, Fiat, Fund
+from stemerald.models import Client, BankAccount, Admin, Fiat
 from stemerald.tests.helpers import WebTestCase, As
 
 current_balance = 3001
@@ -53,9 +53,6 @@ class TransactionShaparakInTestCase(WebTestCase):
             withdraw_max_commission=withdraw_max_commission,
         )
         cls.session.add(irr)
-
-        cls.session.add(Fund(client=client1, currency=irr, total_balance=current_balance))
-        cls.session.add(Fund(client=client2, currency=irr, total_balance=0))
 
         # Mine, verified:
         sheba_address_1 = Iban(client=client1, address='IR123456789123456789123456', is_verified=True)
