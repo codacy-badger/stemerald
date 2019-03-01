@@ -178,7 +178,7 @@ class OrderController(RestController):
     @validate_form(whitelist=['take'], types={'take': int})
     def present(self, market_id: int, type_: str):
         # FIXME
-        raise HttpBadRequest("Deprecated.")
+        raise HttpNotFound("Deprecated")
 
 
 class TradeController(RestController):

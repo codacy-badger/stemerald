@@ -1,7 +1,8 @@
-from nanohttp import RestController, json, context
+from nanohttp import RestController, json, context, HttpBadRequest
 from restfulpy.authorization import authorize
 from restfulpy.validation import prevent_form, validate_form
 
+from stemerald.models import Market
 from stemerald.stexchange import stexchange_client, StexchangeException, stexchange_http_exception_handler
 
 
@@ -129,4 +130,57 @@ class MarketController(RestController):
             'deal': status['deal'],
             'last': status['last'],
             'period': status.get('period', None),
+        }
+
+    @json
+    @validate_form(
+        requires=['side'],
+        whitelist=['side', 'offset', 'limit'],
+        pattern={'side': r'^(-)?(buy|sell)$'}
+    )
+    def book(self, market: str):
+        offset = context.query_string.get('offset', 0)
+        limit = min(context.query_string.get('limit', 10), 10)
+        side = 1 if (context.query_string['side'] == 'sell') else 2
+
+        market = Market.query.filter(Market.name == market).one_or_none()
+        if market is None:
+            raise HttpBadRequest('Market not found', 'market-not-found')
+
+        try:
+            orders = stexchange_client.order_book(market.name, side, offset, limit)
+        except StexchangeException as e:
+            raise stexchange_http_exception_handler(e)
+
+        return [{
+            'ctime': order.get('ctime', None),
+            'mtime': order.get('mtime', None),
+            'market': order.get('market', None),
+            'type': 'limit' if order.get('type', None) == 1 else 'market',
+            'side': 'sell' if order.get('side', None) == 1 else 'buy',
+            'amount': order.get('amount', None),
+            'price': order.get('price', None),
+        } for order in orders]
+
+    @json
+    @validate_form(
+        whitelist=['interval', 'limit'],
+        pattern={'side': r'^(-)?(buy|sell)$'}
+    )
+    def depth(self, market: str):
+        limit = min(context.query_string.get('limit', 10), 10)
+        interval = context.query_string.get('interval', 0)
+
+        market = Market.query.filter(Market.name == market).one_or_none()
+        if market is None:
+            raise HttpBadRequest('Market not found', 'market-not-found')
+
+        try:
+            depth = stexchange_client.order_depth(market.name, limit, interval)
+        except StexchangeException as e:
+            raise stexchange_http_exception_handler(e)
+
+        return {
+            'asks': [{'price': ask[0], 'amount': ask[1]} for ask in depth['asks']],
+            'bids': [{'price': bid[0], 'amount': bid[1]} for bid in depth['bids']],
         }
