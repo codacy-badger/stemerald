@@ -100,9 +100,6 @@ class OrderTestCase(WebTestCase):
                 "left": "0e-8", "ctime": 1547419213.029479, "mtime": 1547419213.029483, "amount": "3", "deal_money":
                 "6"}""")
 
-            def order_book(self, market, side, offset, limit):
-                return ujson.loads("""{"offset": 0, "orders": [], "limit": 10, "total": 0}""")
-
             def order_pending(self, user_id, market, offset, limit):
                 return ujson.loads("""{"limit": 10, "offset": 0, "total": 1, "records": [{"price": "2", "id": 62,
                 "side": 2, "market": "TESTNET3RINKEBY", "taker_fee": "0.1", "type": 1, "deal_fee": "0.3",
@@ -186,11 +183,6 @@ class OrderTestCase(WebTestCase):
             def order_deals(self, order_id, offset, limit):
                 if order_id == 1 and offset == 0:
                     return ujson.loads("""{"offset": 0, "limit": 10, "records": []}""")
-                raise StexchangeUnknownException()
-
-            def order_depth(self, market, limit, interval):
-                if market == 'btc/usd' and interval == 0 and limit == 10:
-                    return ujson.loads("""{"asks": [], "bids": [["2", "97"]]}""")
                 raise StexchangeUnknownException()
 
             def order_cancel(self, user_id, market, order_id):
