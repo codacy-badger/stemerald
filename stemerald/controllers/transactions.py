@@ -172,6 +172,7 @@ class ShaparakInController(ModelRestController):
         # Use description part)
         amount = context.form.get('amount')
         shetab_address_id = context.form.get('shetabAddressId')
+        # payment_gateway_name = context.form.get('paymentGatewayName')
 
         # Check deposit range
         irr = Fiat.query.filter(Fiat.code == 'irr').one_or_none()
@@ -199,11 +200,13 @@ class ShaparakInController(ModelRestController):
             raise HttpConflict('Commission is more than the amount')
 
         shaparak_in = Cashin()
-        shaparak_in.client_id = context.identity.id
+        shaparak_in.member_id = context.identity.id
+        shaparak_in.fiat_symbol = 'irr'
         shaparak_in.amount = amount
         shaparak_in.commission = commission
         shaparak_in.shetab_address_id = shetab_address_id
         shaparak_in.transaction_id = ''
+        shaparak_in.payment_gateway_name = 'shaparak'
 
         DBSession.add(shaparak_in)
         DBSession.flush()
@@ -265,7 +268,7 @@ class ShaparakInController(ModelRestController):
                                 target_transaction.reference_id = trace_number
 
                                 stexchange_client.balance_update(
-                                    user_id=target_transaction.client_id,
+                                    user_id=target_transaction.member_id,
                                     asset="irr",  # FIXME
                                     # asset=target_transaction.payment_gateway.fiat_symbol,
                                     business="cashin",  # FIXME
@@ -340,10 +343,12 @@ class ShaparakOutController(ModelRestController):
             raise HttpConflict('Sheba address is not verified.')
 
         shaparak_out = Cashout()
-        shaparak_out.client_id = context.identity.id
+        shaparak_out.fiat_symbol = 'irr'
+        shaparak_out.member_id = context.identity.id
         shaparak_out.amount = amount
         shaparak_out.commission = commission
         shaparak_out.sheba_address_id = sheba_address_address_id
+        shaparak_out.payment_gateway_name = 'shaparak'  # FIXME
         DBSession.add(shaparak_out)
 
         # Set new balance
@@ -409,7 +414,7 @@ class ShaparakOutController(ModelRestController):
         try:
             # Cash back (without commission) FIXME: Really without commission?
             stexchange_client.balance_update(
-                user_id=shaparak_out.client_id,
+                user_id=shaparak_out.member_id,
                 asset='irr',  # FIXME
                 business='cashback',  # FIXME
                 business_id=shaparak_out.id,
@@ -431,7 +436,7 @@ class TransactionController(ModelRestController):
     @authorize('admin', 'client')
     # TODO: This validate_form is toooooo important -> 'blacklist': ['clientId'] !!!
     @validate_form(
-        whitelist=['clientId', 'type', 'take', 'skip', 'currencyCode'],
+        whitelist=['clientId', 'type', 'take', 'skip', 'fiatSymbol'],
         client={'blacklist': ['clientId']},
         admin={'whitelist': ['sort', 'amount', 'commission']},
         types={'take': int, 'skip': int}
@@ -441,7 +446,7 @@ class TransactionController(ModelRestController):
         query = BankingTransaction.query
 
         if context.identity.is_in_roles('client'):
-            query = query.filter(BankingTransaction.client_id == context.identity.id)
+            query = query.filter(BankingTransaction.member_id == context.identity.id)
 
         return query
 

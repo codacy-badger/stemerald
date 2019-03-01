@@ -9,6 +9,7 @@ class BankingTransaction(ModifiedMixin, OrderingMixin, FilteringMixin, Paginatio
     __tablename__ = 'banking_transaction'
 
     id = Field(Integer(), primary_key=True)
+    fiat_symbol = Field(Unicode(10), ForeignKey('fiat.symbol'))
     member_id = Field(Integer(), ForeignKey('member.id'))  # FIXME: Change the name to `member_id`
     payment_gateway_name = Field(Unicode(30), ForeignKey('payment_gateway.name'))
     amount = Field(BigInteger())  # Value without commission
@@ -102,7 +103,7 @@ class PaymentGateway(DeclarativeBase):
     __tablename__ = 'payment_gateway'
 
     name = Field(Unicode(30), primary_key=True)
-    fiat_symbol = Field(Unicode(10), ForeignKey('fiat.symbol'), protected=True)
+    fiat_symbol = Field(Unicode(10), ForeignKey('fiat.symbol'))
 
     cashin_min = Field(Integer(), default=0)
     cashin_max = Field(Integer(), default=0)
