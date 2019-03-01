@@ -180,16 +180,40 @@ class OrderController(RestController):
         # FIXME
         raise HttpNotFound("Deprecated")
 
-
-class TradeController(RestController):
-
     @json
     @authorize('admin', 'client')
     @validate_form(
-        whitelist=['sort', 'take', 'skip'],
-        admin={'whitelist': ['id', 'clientId', 'marketName', 'isDone', 'type', 'price', 'amount', 'createdAt']},
-        pattern={'sort': r'^(-)?(id|clientId|marketName|doneAt|isDone|type|price|amount)$'}
+        requires=['marketName'],
+        whitelist=['clientId', 'marketName'],
+        client={'blacklist': ['clientId']},
+        admin={'requires': ['clientId']},
     )
-    def get(self, trade_id: int = None):
-        # TODO
-        pass
+    def deal(self, order_id: int):
+
+        client_id = context.identity.id if context.identity.is_in_roles(['client']) \
+            else context.query_string['clientId']
+
+        offset = context.query_string.get('offset', 0)
+        limit = min(context.query_string.get('limit', 100), 100)
+
+        try:
+            deals = stexchange_client.order_deals(
+                order_id=order_id,
+                offset=offset,
+                limit=limit
+            )
+
+            return [{
+                'id': deal['id'],
+                'time': deal['time'],
+                'user': deal['user'],
+                'role': 'maker' if deal['role'] == 1 else 'taker',
+                'amount': deal['amount'],
+                'price': deal['price'],
+                'deal': deal['deal'],
+                'fee': deal['fee'],
+                'orderId': deal['deal_order_id'],
+            } for deal in deals['records'] if (context.identity.is_in_roles(['admin']) or (deal['user'] == client_id))]
+
+        except StexchangeException as e:
+            raise stexchange_http_exception_handler(e)
