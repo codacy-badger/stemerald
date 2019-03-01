@@ -177,7 +177,8 @@ class ShaparakInController(ModelRestController):
         Fiat.query.filter(Fiat.symbol == 'irr').one()
         payment_gateway = PaymentGateway.query.filter(PaymentGateway.name == 'shaparak').one()
 
-        if (payment_gateway.cashin_max != 0 and amount > payment_gateway.cashin_max) or amount < payment_gateway.cashin_min:
+        if (
+                payment_gateway.cashin_max != 0 and amount > payment_gateway.cashin_max) or amount < payment_gateway.cashin_min:
             raise HttpBadRequest('Amount is not between valid cashin range.')
 
         # Check sheba
@@ -311,18 +312,19 @@ class ShaparakOutController(ModelRestController):
         amount = context.form.get('amount')
         sheba_address_address_id = context.form.get('shebaAddressId')
 
-        # Check withdraw range
-        irr = Fiat.query.filter(Fiat.code == 'irr').one_or_none()
-        payment_gateway = PaymentGateway.query.filter(PaymentGateway.name == 'shaparak').one_or_none()
+        # Check cashout range
+        Fiat.query.filter(Fiat.symbol == 'irr').one()
+        payment_gateway = PaymentGateway.query.filter(PaymentGateway.name == 'shaparak').one()
 
-        if (irr.cashout_max != 0 and amount > irr.cashout_max) or amount < irr.cashout_min:
+        if (payment_gateway.cashout_max != 0 and amount > payment_gateway.cashout_max) or \
+                amount < payment_gateway.cashout_min:
             raise HttpBadRequest('Amount is not between valid cashout range.')
 
-        commission = irr.calculate_withdraw_commission(amount)
+        commission = payment_gateway.calculate_cashout_commission(amount)
 
         # Check balance
         try:
-            available_balance = stexchange_client.balance_query(context.identity.id, 'irr')['irr']['available']
+            available_balance = int(stexchange_client.balance_query(context.identity.id, 'irr')['irr']['available'])
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
@@ -347,7 +349,7 @@ class ShaparakOutController(ModelRestController):
         shaparak_out.member_id = context.identity.id
         shaparak_out.amount = amount
         shaparak_out.commission = commission
-        shaparak_out.sheba_address_id = sheba_address_address_id
+        shaparak_out.banking_id_id = sheba_address_address_id
         shaparak_out.payment_gateway_name = 'shaparak'  # FIXME
         DBSession.add(shaparak_out)
 
@@ -355,9 +357,9 @@ class ShaparakOutController(ModelRestController):
         try:
             # Cash back (without commission) FIXME: Really without commission?
             stexchange_client.balance_update(
-                user_id=shaparak_out.client_id,
+                user_id=shaparak_out.member_id,
                 asset='irr',  # FIXME
-                business='withdraw',  # FIXME
+                business='cashout',  # FIXME
                 business_id=shaparak_out.id,
                 change=f'-{amount + commission}',
                 detail=shaparak_out.to_dict(),

@@ -1,15 +1,18 @@
+import ujson
+
 from restfulpy.testing import FormParameter
 
-from stemerald.models import Client, BankAccount, Admin, Fiat
+from stemerald.models import Client, BankAccount, Admin, Fiat, PaymentGateway
+from stemerald.stexchange import StexchangeClient, stexchange_client
 from stemerald.tests.helpers import WebTestCase, As
 
 current_balance = 3001
 
-withdraw_min = 1000
-withdraw_max = 599000
-withdraw_static_commission = 129
-withdraw_permille_commission = 23
-withdraw_max_commission = 746
+cashout_min = 1000
+cashout_max = 599000
+cashout_static_commission = 129
+cashout_permille_commission = 23
+cashout_max_commission = 746
 
 mockup_transaction_id = '4738'
 mockup_amount = 4576
@@ -44,22 +47,45 @@ class TransactionShaparakInTestCase(WebTestCase):
         cls.session.add(client2)
 
         irr = Fiat(
-            code='irr',
+            symbol='irr',
             name='Iran Rial',
-            withdraw_min=withdraw_min,
-            withdraw_max=withdraw_max,
-            withdraw_static_commission=withdraw_static_commission,
-            withdraw_permille_commission=withdraw_permille_commission,
-            withdraw_max_commission=withdraw_max_commission,
         )
         cls.session.add(irr)
 
+        # Adding a payment gateway
+        shaparak = PaymentGateway()
+        shaparak.name = "shaparak"
+        shaparak.fiat_symbol = "irr"
+        shaparak.cashout_min = cashout_min,
+        shaparak.cashout_max = cashout_max,
+        shaparak.cashout_static_commission = cashout_static_commission,
+        shaparak.cashout_permille_commission = cashout_permille_commission,
+        shaparak.cashout_max_commission = cashout_max_commission,
+        cls.session.add(shaparak)
+
         # Mine, verified:
-        sheba_address_1 = Iban(client=client1, address='IR123456789123456789123456', is_verified=True)
+        sheba_address_1 = BankAccount()
+        sheba_address_1.iban = 'IR123456789123456789123456'
+        sheba_address_1.owner = "Client One"
+        sheba_address_1.client = client1
+        sheba_address_1.fiat_symbol = "irr"
+        sheba_address_1.is_verified = True
+
         # Mine, unverified:
-        sheba_address_2 = Iban(client=client1, address='IR837498056254698443242343', is_verified=False)
+        sheba_address_2 = BankAccount()
+        sheba_address_2.iban = 'IR837498056254698443242343'
+        sheba_address_2.owner = "Client One"
+        sheba_address_2.client = client1
+        sheba_address_2.fiat_symbol = "irr"
+        sheba_address_2.is_verified = False
+
         # Other's, verified:
-        sheba_address_3 = Iban(client=client2, address='IR673943849382759839285634', is_verified=True)
+        sheba_address_3 = BankAccount()
+        sheba_address_3.iban = 'IR837498056254698443242343'
+        sheba_address_3.owner = "Client Two"
+        sheba_address_3.client = client2
+        sheba_address_3.fiat_symbol = "irr"
+        sheba_address_3.is_verified = True
 
         for address in [sheba_address_1, sheba_address_2, sheba_address_3]:
             cls.session.add(address)
@@ -71,6 +97,36 @@ class TransactionShaparakInTestCase(WebTestCase):
         cls.mockup_sheba_address_verified_id = sheba_address_1.id
         cls.mockup_sheba_address_unverified_id = sheba_address_2.id
         cls.mockup_sheba_address_others_id = sheba_address_3.id
+
+        class MockStexchangeClient(StexchangeClient):
+            def __init__(self, headers=None):
+                super().__init__("", headers)
+                self.mock_balance = [3001, 0]
+
+            def asset_list(self):
+                return ujson.loads('[{"name": "irr", "prec": 2}]')
+
+            def balance_update(self, user_id, asset, business, business_id, change, detail):
+                if user_id == cls.mockup_client_1_id and business in ['cashout', 'cashback'] and asset == 'irr':
+                    self.mock_balance[0] += int(change)
+                return ujson.loads(
+                    '{"irr": {"available": "' +
+                    str(self.mock_balance[0]) +
+                    '", "freeze": "' +
+                    str(self.mock_balance[1]) +
+                    '"}}'
+                )
+
+            def balance_query(self, *args, **kwargs):
+                return ujson.loads(
+                    '{"irr": {"available": "' +
+                    str(self.mock_balance[0]) +
+                    '", "freeze": "' +
+                    str(self.mock_balance[1]) +
+                    '"}}'
+                )
+
+        stexchange_client._set_instance(MockStexchangeClient())
 
     def test_transaction_deposit_create(self):
         self.login('client1@test.com', '123456')
@@ -118,12 +174,9 @@ class TransactionShaparakInTestCase(WebTestCase):
         transaction_id = result['id']
 
         # Check balance
-        fund = self.session.query(Fund) \
-            .filter(Fund.client_id == self.mockup_client_1_id) \
-            .filter(Fund.currency_code == 'irr') \
-            .one_or_none()
-        self.assertEqual(fund.total_balance, 826)
-        self.assertEqual(fund.blocked_balance, 0)
+        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'irr').get('irr')
+        self.assertEqual(int(balance['available']), 826)
+        self.assertEqual(int(balance['freeze']), 0)
 
         # 6. Reject the Shaparak-Out request
         self.login('admin1@test.com', '123456')
@@ -143,9 +196,9 @@ class TransactionShaparakInTestCase(WebTestCase):
         self.assertIsNone(result['referenceId'])
 
         # Check balance (cash back without commission)
-        self.session.refresh(fund)
-        self.assertEqual(fund.total_balance, 2826)
-        self.assertEqual(fund.blocked_balance, 0)
+        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'irr').get('irr')
+        self.assertEqual(int(balance['available']), 2826)
+        self.assertEqual(int(balance['freeze']), 0)
 
         # 7. Accept the Shaparak-Out request ()
         self.login('client1@test.com', '123456')
@@ -171,6 +224,6 @@ class TransactionShaparakInTestCase(WebTestCase):
         self.assertIsNotNone(result['referenceId'])
 
         # Check balance
-        self.session.refresh(fund)
-        self.assertEqual(fund.total_balance, 651)
-        self.assertEqual(fund.blocked_balance, 0)
+        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'irr').get('irr')
+        self.assertEqual(int(balance['available']), 651)
+        self.assertEqual(int(balance['freeze']), 0)
