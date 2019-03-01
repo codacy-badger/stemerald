@@ -5,9 +5,8 @@ from nanohttp import json, RestController, context, HttpNotFound, HttpBadRequest
 from restfulpy.authorization import authorize
 from restfulpy.validation import validate_form
 
-from stemerald import stexchange_client
 from stemerald.models import Market
-from stemerald.stexchange import StexchangeException, stexchange_http_exception_handler
+from stemerald.stexchange import stexchange_client, StexchangeException, stexchange_http_exception_handler
 
 BidId = Union[int, str]
 TradeId = Union[int, str]

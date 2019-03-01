@@ -29,14 +29,10 @@ class OrderTestCase(WebTestCase):
             quote_currency=usd,
             buy_amount_min=10,
             buy_amount_max=10000,
-            buy_static_commission=1,
-            buy_permille_commission=100,
-            buy_max_commission=0,
             sell_amount_min=0,
             sell_amount_max=0,
-            sell_static_commission=0,
-            sell_permille_commission=0,
-            sell_max_commission=0,
+            taker_commission_rate="0.4",
+            maker_commission_rate="0.1",
         )
         cls.session.add(btc_usd)
 
