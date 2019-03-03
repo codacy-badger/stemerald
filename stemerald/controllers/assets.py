@@ -60,31 +60,6 @@ class BalancesController(RestController):
     @json
     @authorize("client")
     @validate_form(
-        exact=['page'], types={'page': int}
-    )
-    def list(self):
-        try:
-            return [
-                {
-                    'time': x['timestamp'],
-                    'asset': x['asset'],
-                    'business': x['business'],
-                    'change': x['change'],
-                    'balance': x['balance'],
-                    'detail': x['detail'],
-                } for x in stexchange_client.balance_history(
-                    context.identity.id,
-                    limit=context.query_string.get('take', self.PAGE_SIZE),
-                    offset=context.query_string.get('skip', self.PAGE_SIZE * context.query_string.get('page', 0))
-                )['records']
-            ]
-
-        except StexchangeException as e:
-            raise stexchange_http_exception_handler(e)
-
-    @json
-    @authorize("client")
-    @validate_form(
         exact=['asset', 'page'], types={'page': int}
     )
     def history(self):
