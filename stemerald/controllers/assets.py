@@ -36,6 +36,7 @@ class AssetsController(RestController):
 
 
 class BalancesController(RestController):
+    PAGE_SIZE = 20
 
     @json
     @authorize("client")
@@ -59,7 +60,7 @@ class BalancesController(RestController):
     @json
     @authorize("client")
     @validate_form(
-        whitelist=['take', 'skip'],
+        exact=['page'], types={'page': int}
     )
     def list(self):
         try:
@@ -73,8 +74,8 @@ class BalancesController(RestController):
                     'detail': x['detail'],
                 } for x in stexchange_client.balance_history(
                     context.identity.id,
-                    limit=context.query_string.get('take', 0),
-                    offset=context.query_string.get('skip', 0)
+                    limit=context.query_string.get('take', self.PAGE_SIZE),
+                    offset=context.query_string.get('skip', self.PAGE_SIZE * context.query_string.get('page', 0))
                 )['records']
             ]
 
@@ -84,9 +85,9 @@ class BalancesController(RestController):
     @json
     @authorize("client")
     @validate_form(
-        whitelist=['asset', 'take', 'skip'],
+        exact=['asset', 'page'], types={'page': int}
     )
-    def list(self):
+    def history(self):
         try:
             return [
                 {
@@ -99,8 +100,8 @@ class BalancesController(RestController):
                 } for x in stexchange_client.balance_history(
                     context.identity.id,
                     asset=context.query_string.get('asset', None),
-                    limit=context.query_string.get('take', 0),
-                    offset=context.query_string.get('skip', 0)
+                    limit=context.query_string.get('take', self.PAGE_SIZE),
+                    offset=context.query_string.get('skip', self.PAGE_SIZE * context.query_string.get('page', 0))
                 )['records']
             ]
 
