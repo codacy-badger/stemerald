@@ -8,26 +8,31 @@ from stemerald.stawallet import stawallet_client, StawalletException
 
 def deposit_to_dict(deposit):
     return {
-        'id': withdraw['businessUid'],
-        'user': withdraw['user'],
-        'target': withdraw['target'],
-        'netAmount': withdraw['netAmount'],
-        'grossAmount': withdraw['grossAmount'],
-        'estimatedNetworkFee': withdraw['estimatedNetworkFee'],
-        'finalNetworkFee': withdraw['finalNetworkFee'],
-        'type': withdraw['type'],
-        'isManual': withdraw['isManual'],
-        'status': withdraw['status'],
-        'txid': withdraw['txid'],
-        'issuedAt': withdraw['issuedAt'],
-        'paidAt': withdraw['paidAt'],
-        'txHash': withdraw['proof']['txHash'] if (withdraw['proof'] is not None) else None,
-        'blockHeight': withdraw['proof']['blockHeight'] if (withdraw['proof'] is not None) else None,
-        'blockHash': withdraw['proof']['blockHash'] if (withdraw['proof'] is not None) else None,
-        'link': withdraw['proof']['link'] if (withdraw['proof'] is not None) else None,
-        'confirmationsLeft': withdraw['proof']['confirmationsLeft'] if (
-                withdraw['proof'] is not None) else None,
-        'error': withdraw['proof']['error'] if (withdraw['proof'] is not None) else None,
+        'id': deposit['businessUid'],
+        'user': deposit['user'],
+        'isConfirmed': deposit['isConfirmed'],
+        'netAmount': deposit['netAmount'],
+        'grossAmount': deposit['grossAmount'],
+        'status': deposit['status'],
+        'txHash': deposit['proof']['txHash'],
+        'blockHeight': deposit['proof']['blockHeight'],
+        'blockHash': deposit['proof']['blockHash'],
+        'link': deposit['proof']['link'],
+        'confirmationsLeft': deposit['proof']['confirmationsLeft'],
+        'error': deposit['proof']['error'],
+        'invoice': invoice_to_dict(deposit['invoice']),
+        'extra': deposit['extra'],
+    }
+
+
+def invoice_to_dict(invoice):
+    return {
+        'id': invoice['id'],
+        'user': invoice['user'],
+        'extra': invoice['extra'],
+        'creation': invoice['creation'],
+        'expiration': invoice['expiration'],
+        'address': invoice['address']['address'],
     }
 
 
@@ -80,27 +85,25 @@ class DepositController(RestController):
     def show(self):
         cryptocurrency = self.__fetch_cryptocurrency()
         try:
-            invoice = stawallet_client.get_invoices(wallet_id=cryptocurrency.wallet_id, user_id=context.identity.id)[-1]
+            return invoice_to_dict(stawallet_client.get_invoices(
+                wallet_id=cryptocurrency.wallet_id,
+                user_id=context.identity.id
+            )[0])
 
         except StawalletException as e:
             raise HttpInternalServerError("Wallet access error")
 
     @json
     @authorize('semitrusted_client', 'trusted_client')
-    @validate_form(exact=['coin'])
+    @validate_form(exact=['cryptocurrencySymbol'])
     def renew(self):
         cryptocurrency = self.__fetch_cryptocurrency()
         try:
-            return [
-                {
-
-                }
-                for item in stawallet_client.get_invoices(
-                    wallet_id=cryptocurrency.wallet_id,
-                    user_id=context.identity.id,
-                    page=context.query_string.get('page', 0)
-                )
-            ]
+            return invoice_to_dict(stawallet_client.post_invoice(
+                wallet_id=cryptocurrency.wallet_id,
+                user_id=context.identity.id,
+                force=False
+            )[-1])
         except StawalletException as e:
             raise HttpInternalServerError("Wallet access error")
 
