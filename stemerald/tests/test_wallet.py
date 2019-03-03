@@ -3,6 +3,7 @@ import ujson
 from restfulpy.testing import FormParameter
 
 from stemerald.models import Client, Cryptocurrency
+from stemerald.stawallet import StawalletClient, stawallet_client
 from stemerald.stexchange import StexchangeClient, stexchange_client
 from stemerald.tests.helpers import WebTestCase, As
 
@@ -15,8 +16,9 @@ withdraw_permille_commission = 23
 withdraw_max_commission = 746
 
 
-class TransactionWithdrawTestCase(WebTestCase):
-    url = '/apiv2/transactions/withdraws'
+class WalletTestCase(WebTestCase):
+    withdraw_url = '/apiv2/withdraws'
+    deposit_url = '/apiv2/deposits'
 
     # noinspection PyArgumentList
     @classmethod
@@ -76,14 +78,59 @@ class TransactionWithdrawTestCase(WebTestCase):
 
         stexchange_client._set_instance(MockStexchangeClient())
 
-    def test_transaction_withdraw(self):
+        class MockStawalletClient(StawalletClient):
+            def __init__(self, headers=None):
+                super().__init__("", headers)
+                self.mock_balance = [0, 0]
+
+            def asset_list(self):
+                return ujson.loads('[{"name": "btc", "prec": 8}]')
+
+            def balance_update(self, user_id, asset, business, business_id, change, detail):
+                if user_id == cls.mockup_client_1_id and business == 'withdraw' and asset == 'btc':
+                    self.mock_balance[0] += int(change)
+                return ujson.loads(
+                    '{"btc": {"available": "' +
+                    str(self.mock_balance[0]) +
+                    '", "freeze": "' +
+                    str(self.mock_balance[1]) +
+                    '"}}'
+                )
+
+            def balance_query(self, *args, **kwargs):
+                return ujson.loads(
+                    '{"btc": {"available": "' +
+                    str(self.mock_balance[0]) +
+                    '", "freeze": "' +
+                    str(self.mock_balance[1]) +
+                    '"}}'
+                )
+
+        stawallet_client._set_instance(MockStawalletClient())
+
+    def test_deposit(self):
+        self.login('client1@test.com', '123456')
+
+        # 1. Ask for a deposit address
+
+        # 2. Ask for a deposit address renew (face error, because of unused address)
+
+        # Add a fake deposit
+
+        # Check balance
+
+        # 3. Check the deposit list
+
+        # 4. Ask for address renew (successful)
+
+    def test_withdraw(self):
         self.login('client1@test.com', '123456')
 
         # 1. Schedule a withdraw (not enough credit)
         self.request(
-            As.semitrusted_client, 'SCHEDULE', self.url,
+            As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
             params=[
-                FormParameter('cryptocurrencyCode', 'btc'),
+                FormParameter('cryptocurrencySymbol', 'btc'),
                 FormParameter('amount', 599000),
                 FormParameter('address', '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV'),
             ],
@@ -92,9 +139,9 @@ class TransactionWithdrawTestCase(WebTestCase):
 
         # 2. Schedule a withdraw (bad address)
         self.request(
-            As.semitrusted_client, 'SCHEDULE', self.url,
+            As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
             params=[
-                FormParameter('cryptocurrencyCode', 'btc'),
+                FormParameter('cryptocurrencySymbol', 'btc'),
                 FormParameter('amount', 2000),
                 FormParameter('address', 'bad-address'),
             ],
@@ -104,7 +151,7 @@ class TransactionWithdrawTestCase(WebTestCase):
 
         # 3. Schedule a withdraw
         result, ___ = self.request(
-            As.semitrusted_client, 'SCHEDULE', self.url,
+            As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
             params=[
                 FormParameter('cryptocurrencyCode', 'btc'),
                 FormParameter('amount', 2000),

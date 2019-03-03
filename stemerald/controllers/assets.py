@@ -80,3 +80,29 @@ class BalancesController(RestController):
 
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
+
+    @json
+    @authorize("client")
+    @validate_form(
+        whitelist=['asset', 'take', 'skip'],
+    )
+    def list(self):
+        try:
+            return [
+                {
+                    'time': x['timestamp'],
+                    'asset': x['asset'],
+                    'business': x['business'],
+                    'change': x['change'],
+                    'balance': x['balance'],
+                    'detail': x['detail'],
+                } for x in stexchange_client.balance_history(
+                    context.identity.id,
+                    asset=context.query_string.get('asset', None),
+                    limit=context.query_string.get('take', 0),
+                    offset=context.query_string.get('skip', 0)
+                )['records']
+            ]
+
+        except StexchangeException as e:
+            raise stexchange_http_exception_handler(e)

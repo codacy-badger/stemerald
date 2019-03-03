@@ -64,10 +64,18 @@ class StawalletClient:
         query_string = {'user': user_id, 'page': page}
         return self._execute('get', url, query_string=query_string)
 
+    def get_deposit(self, wallet_id, deposit_id):
+        url = f'{WALLETS_URL}/{wallet_id}/{DEPOSITS_URL}/${deposit_id}'
+        return self._execute('get', url)
+
     def get_withdraws(self, wallet_id, user_id, page=0):
         url = f'{WALLETS_URL}/{wallet_id}/{WITHDRAWS_URL}'
         query_string = {'user': user_id, 'page': page}
         return self._execute('get', url, query_string=query_string)
+
+    def get_withdraw(self, wallet_id, withdraw_id):
+        url = f'{WALLETS_URL}/{wallet_id}/{WITHDRAWS_URL}/${withdraw_id}'
+        return self._execute('get', url)
 
     def schedule_withdraw(
             self,
