@@ -96,7 +96,7 @@ class BankCard(BankingId):
 
     pan = Field(Unicode(30), pattern=r'^([0-9]{4}-){3}[0-9]{4}$')  # TODO: Should be unique if is_valid
     holder = Field(Unicode(100))
-    expiration = Field(Unicode(7), pattern=r'^[0-1]{1}/[0-9]{2,4}$', nullable=True)  # mm/yy or mm/yyyy
+    expiration = Field(Unicode(7), pattern=r'^[0-1]{1}/[0-9]{2,4}$', nullable=True, protected=True)  # mm/yy or mm/yyyy
 
 
 class PaymentGateway(DeclarativeBase):

@@ -4,7 +4,7 @@ from stemerald.models import Client, Admin, Fiat
 from stemerald.tests.helpers import WebTestCase, As
 
 
-class BankAddressTestCase(WebTestCase):
+class BankIdsTestCase(WebTestCase):
     bank_cards_url = '/apiv2/banking/cards'
     bank_accounts_url = '/apiv2/banking/accounts'
 
