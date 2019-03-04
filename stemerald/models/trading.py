@@ -22,7 +22,7 @@ class Market(OrderingMixin, FilteringMixin, DeclarativeBase):
     """
     __tablename__ = 'market'
 
-    name = Field(Unicode(20), pattern=r'^[a-z0-9]{1,10}/[a-z0-9]{1,10}$', primary_key=True)  # e.g. btc/usd
+    name = Field(Unicode(20), pattern=r'^[a-z0-9]{1,10}_[a-z0-9]{1,10}$', primary_key=True)  # e.g. btc_usd
 
     base_currency_symbol = Field(Unicode(), ForeignKey('currency.symbol'), protected=True)
     quote_currency_symbol = Field(Unicode(), ForeignKey('currency.symbol'), protected=True)

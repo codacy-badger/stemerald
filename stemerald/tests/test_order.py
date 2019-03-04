@@ -25,7 +25,7 @@ class OrderTestCase(WebTestCase):
         usd = Fiat(symbol='usd', name='USA Dollar')
         btc = Cryptocurrency(symbol='btc', name='Bitcoin', wallet_id=1)
         btc_usd = Market(
-            name="btc/usd",
+            name="btc_usd",
             base_currency=btc,
             quote_currency=usd,
             buy_amount_min=10,
@@ -52,7 +52,7 @@ class OrderTestCase(WebTestCase):
                 return ujson.loads('[{"name": "btc", "prec": 8}, {"name": "usd", "prec": 2}]')
 
             def market_last(self, market):
-                if market == 'btc/usd':
+                if market == 'btc_usd':
                     return '1000.00000000'
 
             def balance_update(self, user_id, asset, business, business_id, change, detail):
@@ -113,7 +113,7 @@ class OrderTestCase(WebTestCase):
                 "deal_money": "6"}""")
 
             def order_finished(self, user_id, market, start_time, end_time, offset, limit, side):
-                if market == 'btc/usd' and user_id == cls.mockup_client_1_id and limit == 10 and start_time == 10 \
+                if market == 'btc_usd' and user_id == cls.mockup_client_1_id and limit == 10 and start_time == 10 \
                         and end_time == 10 and side < 18 and offset < 18:
                     return ujson.loads("""{"offset": 0, "limit": 20, "records": [{"id": 61, "source": "cbd", "side":
                     1, "type": 2, "deal_money": "6", "ctime": 1547419172.446086, "ftime": 1547419172.446089,
@@ -186,7 +186,7 @@ class OrderTestCase(WebTestCase):
                 raise StexchangeUnknownException()
 
             def order_cancel(self, user_id, market, order_id):
-                if user_id == cls.mockup_client_1_id and market == 'btc/usd' and order_id == 1:
+                if user_id == cls.mockup_client_1_id and market == 'btc_usd' and order_id == 1:
                     return ujson.loads("""{"price": "2", "id": 62, "side": 2, "market": "TESTNET3RINKEBY",
                     "taker_fee": "0.1", "type": 1, "deal_fee": "0.3", "deal_stock": "3", "maker_fee": "0.1",
                     "source": "abc", "user": 1, "left": "97", "ctime": 1547419213.026914, "mtime": 1547419213.029483,
@@ -297,7 +297,7 @@ class OrderTestCase(WebTestCase):
 
         self.request(
             As.client, 'CANCEL', f'{self.url}/1',
-            query_string={'marketName': 'btc/usd'},
+            query_string={'marketName': 'btc_usd'},
         )
 
     def test_order_deals(self):
@@ -305,7 +305,7 @@ class OrderTestCase(WebTestCase):
 
         self.request(
             As.client, 'DEAL', f'{self.url}/1',
-            query_string={'marketName': 'btc/usd'},
+            query_string={'marketName': 'btc_usd'},
         )
 
     def test_order_get(self):

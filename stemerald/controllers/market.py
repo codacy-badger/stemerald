@@ -1,4 +1,4 @@
-from nanohttp import RestController, json, context, HttpBadRequest
+from nanohttp import RestController, json, context, HttpBadRequest, HttpNotFound
 from restfulpy.authorization import authorize
 from restfulpy.validation import prevent_form, validate_form
 
@@ -64,6 +64,7 @@ class MarketController(RestController):
     def list(self):
         try:
             response = stexchange_client.market_list()
+            supporting_markets = Market.query.all()
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
@@ -76,25 +77,35 @@ class MarketController(RestController):
                 'feePrec': market['fee_prec'],
                 'minAmount': market['min_amount'],
                 'moneyPrec': market['money_prec'],
-            } for market in response
+            } for market in response if any(market['name'].lower() == sm.name for sm in supporting_markets)
         ]
 
     @json
     @prevent_form
-    def last(self, market: str):
+    def last(self, market_name: str):
+
+        market = Market.query.filter(Market.name == market_name).one_or_none()
+        if market is None:
+            raise HttpBadRequest('Market not found', 'market-not-found')
+
         try:
             return {
-                'name': market,
-                'price': stexchange_client.market_last(market),
+                'name': market.name,
+                'price': stexchange_client.market_last(market.name),
             }
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
     @json
     @prevent_form
-    def summary(self, market: str):
+    def summary(self, market_name: str):
+
+        market = Market.query.filter(Market.name == market_name).one_or_none()
+        if market is None:
+            raise HttpBadRequest('Market not found', 'market-not-found')
+
         try:
-            response = stexchange_client.market_summary(market)
+            response = stexchange_client.market_summary(market_name)
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
@@ -110,14 +121,18 @@ class MarketController(RestController):
 
     @json
     @validate_form(exact=['period'])
-    def status(self, market: str):
+    def status(self, market_name: str):
         period = context.query_string.get('period')
+
+        market = Market.query.filter(Market.name == market_name).one_or_none()
+        if market is None:
+            raise HttpBadRequest('Market not found', 'market-not-found')
 
         try:
             if period == 'today':
-                status = stexchange_client.market_status_today(market)
+                status = stexchange_client.market_status_today(market.name)
             else:
-                status = stexchange_client.market_status(market, int(period))
+                status = stexchange_client.market_status(market.name, int(period))
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
@@ -138,17 +153,17 @@ class MarketController(RestController):
         whitelist=['side', 'offset', 'limit'],
         pattern={'side': r'^(-)?(buy|sell)$'}
     )
-    def book(self, market: str):
+    def book(self, market_name: str):
         offset = context.query_string.get('offset', 0)
         limit = min(context.query_string.get('limit', 10), 10)
         side = 1 if (context.query_string['side'] == 'sell') else 2
 
-        market = Market.query.filter(Market.name == market).one_or_none()
+        market = Market.query.filter(Market.name == market_name).one_or_none()
         if market is None:
             raise HttpBadRequest('Market not found', 'market-not-found')
 
         try:
-            orders = stexchange_client.order_book(market.name, side, offset, limit)
+            result = stexchange_client.order_book(market.name, side, offset, limit)
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
@@ -160,18 +175,17 @@ class MarketController(RestController):
             'side': 'sell' if order.get('side', None) == 1 else 'buy',
             'amount': order.get('amount', None),
             'price': order.get('price', None),
-        } for order in orders]
+        } for order in result['orders']]
 
     @json
     @validate_form(
-        whitelist=['interval', 'limit'],
-        pattern={'side': r'^(-)?(buy|sell)$'}
+        whitelist=['interval', 'limit'], types={'interval': int, 'limit': int}
     )
-    def depth(self, market: str):
+    def depth(self, market_name: str):
         limit = min(context.query_string.get('limit', 10), 10)
         interval = context.query_string.get('interval', 0)
 
-        market = Market.query.filter(Market.name == market).one_or_none()
+        market = Market.query.filter(Market.name == market_name).one_or_none()
         if market is None:
             raise HttpBadRequest('Market not found', 'market-not-found')
 
