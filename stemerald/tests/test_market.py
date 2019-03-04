@@ -66,6 +66,9 @@ class MarketGetTestCase(WebTestCase):
                     '{"open": "88", "deal": "1622", "high": "88", "last": "2", "low": "2", "volume": "37"}'
                 )
 
+            def market_kline(self, market, start, end, interval):
+                return ujson.loads('[[1547337600, "88", "2", "88", "2", "37", "1622", "TESTNET3RINKEBY"]]')
+
             def market_deals(self, market, limit, last_id):
                 if market == 'testnet3_rinkeby' and limit == 10 and last_id < 18:
                     return ujson.loads(
@@ -229,3 +232,19 @@ class MarketGetTestCase(WebTestCase):
         self.assertIn('deal', response[0])
         self.assertIn('dealOrderId', response[0])
         self.assertIn('role', response[0])
+
+    def test_kline(self):
+        response, ___ = self.request(
+            As.client, 'KLINE', f"{self.url}/testnet3_rinkeby",
+            query_string={'start': 1547419117, 'end': 1547419079, 'interval': 86400}
+        )
+
+        self.assertEqual(len(response), 1)
+        self.assertIn('market', response[0])
+        self.assertIn('time', response[0])
+        self.assertIn('o', response[0])
+        self.assertIn('h', response[0])
+        self.assertIn('l', response[0])
+        self.assertIn('c', response[0])
+        self.assertIn('volume', response[0])
+        self.assertIn('amount', response[0])

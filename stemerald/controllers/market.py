@@ -198,3 +198,32 @@ class MarketController(RestController):
             'asks': [{'price': ask[0], 'amount': ask[1]} for ask in depth['asks']],
             'bids': [{'price': bid[0], 'amount': bid[1]} for bid in depth['bids']],
         }
+
+    @json
+    @validate_form(
+        exact=['interval', 'start', 'end'], types={'interval': int, 'start': int, 'end': int}
+    )
+    def kline(self, market_name: str):
+        interval = context.query_string.get('interval')
+        start = context.query_string.get('start')
+        end = context.query_string.get('end')
+
+        market = Market.query.filter(Market.name == market_name).one_or_none()
+        if market is None:
+            raise HttpBadRequest('Market not found', 'market-not-found')
+
+        try:
+            kline = stexchange_client.market_kline(market.name, start, end, interval)
+        except StexchangeException as e:
+            raise stexchange_http_exception_handler(e)
+
+        return [{
+            'market': market.name,
+            'time': k[0],
+            'o': k[1],
+            'h': k[3],
+            'l': k[4],
+            'c': k[2],
+            'volume': k[5],
+            'amount': k[6],
+        } for k in kline]
