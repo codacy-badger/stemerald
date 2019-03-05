@@ -92,6 +92,7 @@ class TransactionShaparakInTestCase(WebTestCase):
 
         cls.mockup_client_1_id = client1.id
         cls.mockup_shetab_address_1_id = shetab_address_1.id
+        cls.mockup_payment_gateway_name = shaparak.name
 
         class MockStexchangeClient(StexchangeClient):
             def __init__(self, headers=None):
@@ -130,6 +131,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         result, ___ = self.request(As.trusted_client, 'CREATE', self.url, params=[
             FormParameter('amount', mockup_amount, type_=int),
             FormParameter('shetabAddressId', self.mockup_shetab_address_1_id),
+            FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ])
 
         self.assertIn('id', result)

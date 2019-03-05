@@ -25,8 +25,9 @@ class MetadataTestCase(WebTestCase):
         self.request(As.anonymous, 'METADATA', '/apiv2/currencies')
         # self.request(As.anonymous, 'METADATA', '/apiv2/markets')
 
-        # self.request(As.anonymous, 'METADATA', '/apiv2/transactions')
+        self.request(As.anonymous, 'METADATA', '/apiv2/transactions')
         # self.request(As.anonymous, 'METADATA', '/apiv2/transactions/deposits')
         # self.request(As.anonymous, 'METADATA', '/apiv2/transactions/withdraws')
-        # self.request(As.anonymous, 'METADATA', '/apiv2/transactions/shaparak-ins')
-        # self.request(As.anonymous, 'METADATA', '/apiv2/transactions/shaparak-outs')
+        self.request(As.anonymous, 'METADATA', '/apiv2/transactions/shaparak-ins')
+        self.request(As.anonymous, 'METADATA', '/apiv2/transactions/shaparak-outs')
+        self.request(As.anonymous, 'METADATA', '/apiv2/transactions/payment-gateways')

@@ -165,7 +165,7 @@ class ShaparakInController(ModelRestController):
 
     @json
     @authorize('trusted_client')
-    @validate_form(exact=['amount', 'shetabAddressId'], types={'amount': int})
+    @validate_form(exact=['amount', 'shetabAddressId', 'paymentGatewayName'], types={'amount': int})
     @commit
     def create(self):
         # TODO: Add some salt to prevent man in the middle (Extra field to send on creation and check on verification,
@@ -174,8 +174,13 @@ class ShaparakInController(ModelRestController):
         shetab_address_id = context.form.get('shetabAddressId')
 
         # Check deposit range
-        Fiat.query.filter(Fiat.symbol == 'irr').one()
-        payment_gateway = PaymentGateway.query.filter(PaymentGateway.name == 'shaparak').one()
+        payment_gateway = PaymentGateway.query.filter(
+            PaymentGateway.name == context.form.get('paymentGatewayName')
+        ).one_or_none()
+        # TODO: More strict check and review how we control payment gateways
+        if (payment_gateway is None) or (payment_gateway.fiat_symbol not in ['IRR', 'TIRR']):
+            raise HttpBadRequest('Bad payment gateway')
+        Fiat.query.filter(Fiat.symbol == payment_gateway.fiat_symbol).one()
 
         if (
                 payment_gateway.cashin_max != 0 and amount > payment_gateway.cashin_max) or amount < payment_gateway.cashin_min:
@@ -201,12 +206,12 @@ class ShaparakInController(ModelRestController):
 
         shaparak_in = Cashin()
         shaparak_in.member_id = context.identity.id
-        shaparak_in.fiat_symbol = 'irr'
+        shaparak_in.fiat_symbol = payment_gateway.fiat_symbol
         shaparak_in.amount = amount
         shaparak_in.commission = commission
         shaparak_in.banking_id = target_shetab
         shaparak_in.transaction_id = ''
-        shaparak_in.payment_gateway_name = 'shaparak'
+        shaparak_in.payment_gateway_name = payment_gateway.name
 
         DBSession.add(shaparak_in)
         DBSession.flush()
@@ -269,8 +274,7 @@ class ShaparakInController(ModelRestController):
 
                                 stexchange_client.balance_update(
                                     user_id=target_transaction.member_id,
-                                    asset="irr",  # FIXME
-                                    # asset=target_transaction.payment_gateway.fiat_symbol,
+                                    asset=target_transaction.payment_gateway.fiat_symbol,  # FIXME
                                     business="cashin",  # FIXME
                                     business_id=target_transaction.id,  # FIXME: Think about double payment
                                     change=target_transaction.amount - target_transaction.commission,
@@ -306,15 +310,21 @@ class ShaparakOutController(ModelRestController):
 
     @json
     @authorize('trusted_client')
-    @validate_form(exact=['amount', 'shebaAddressId'], types={'amount': int})
+    @validate_form(exact=['amount', 'shebaAddressId', 'paymentGatewayName'], types={'amount': int})
     @commit
     def schedule(self):
         amount = context.form.get('amount')
         sheba_address_address_id = context.form.get('shebaAddressId')
 
         # Check cashout range
-        Fiat.query.filter(Fiat.symbol == 'irr').one()
-        payment_gateway = PaymentGateway.query.filter(PaymentGateway.name == 'shaparak').one()
+        payment_gateway = PaymentGateway.query.filter(
+            PaymentGateway.name == context.form.get('paymentGatewayName')
+        ).one()
+
+        # TODO: More strict check and review how we control payment gateways
+        if (payment_gateway is None) or (payment_gateway.fiat_symbol not in ['IRR', 'TIRR']):
+            raise HttpBadRequest('Bad payment gateway')
+        Fiat.query.filter(Fiat.symbol == payment_gateway.fiat_symbol).one()
 
         if (payment_gateway.cashout_max != 0 and amount > payment_gateway.cashout_max) or \
                 amount < payment_gateway.cashout_min:
@@ -324,7 +334,9 @@ class ShaparakOutController(ModelRestController):
 
         # Check balance
         try:
-            available_balance = int(stexchange_client.balance_query(context.identity.id, 'irr')['irr']['available'])
+            available_balance = int(stexchange_client.balance_query(
+                context.identity.id, payment_gateway.fiat_symbol
+            )[payment_gateway.fiat_symbol]['available'])
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
@@ -345,12 +357,12 @@ class ShaparakOutController(ModelRestController):
             raise HttpConflict('Sheba address is not verified.')
 
         shaparak_out = Cashout()
-        shaparak_out.fiat_symbol = 'irr'
+        shaparak_out.fiat_symbol = payment_gateway.fiat_symbol
         shaparak_out.member_id = context.identity.id
         shaparak_out.amount = amount
         shaparak_out.commission = commission
         shaparak_out.banking_id_id = sheba_address_address_id
-        shaparak_out.payment_gateway_name = 'shaparak'  # FIXME
+        shaparak_out.payment_gateway_name = payment_gateway.name  # FIXME
         DBSession.add(shaparak_out)
 
         # Set new balance
@@ -358,7 +370,7 @@ class ShaparakOutController(ModelRestController):
             # Cash back (without commission) FIXME: Really without commission?
             stexchange_client.balance_update(
                 user_id=shaparak_out.member_id,
-                asset='irr',  # FIXME
+                asset=payment_gateway.fiat_symbol,  # FIXME
                 business='cashout',  # FIXME
                 business_id=shaparak_out.id,
                 change=f'-{amount + commission}',
@@ -417,7 +429,7 @@ class ShaparakOutController(ModelRestController):
             # Cash back (without commission) FIXME: Really without commission?
             stexchange_client.balance_update(
                 user_id=shaparak_out.member_id,
-                asset='irr',  # FIXME
+                asset=shaparak_out.payment_gateway.fiat_symbol,  # FIXME
                 business='cashback',  # FIXME
                 business_id=shaparak_out.id,
                 change=shaparak_out.amount,
@@ -429,6 +441,16 @@ class ShaparakOutController(ModelRestController):
             raise stexchange_http_exception_handler(e)
 
         return shaparak_out
+
+
+class PaymentGatewayController(ModelRestController):
+    __model__ = PaymentGateway
+
+    @json
+    @prevent_form
+    @PaymentGateway.expose
+    def get(self):
+        return PaymentGateway.query
 
 
 class TransactionController(ModelRestController):
@@ -455,3 +477,4 @@ class TransactionController(ModelRestController):
 
 setattr(TransactionController, 'shaparak-ins', ShaparakInController())
 setattr(TransactionController, 'shaparak-outs', ShaparakOutController())
+setattr(TransactionController, 'payment-gateways', PaymentGatewayController())

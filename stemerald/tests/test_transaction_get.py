@@ -30,7 +30,7 @@ class TransactionGetTestCase(WebTestCase):
         # Adding a payment gateway
         shaparak = PaymentGateway()
         shaparak.name = "shaparak"
-        shaparak.fiat_symbol = "irr"
+        shaparak.fiat_symbol = "IRR"
 
         # Adding a deposit
         # TODO
@@ -42,7 +42,7 @@ class TransactionGetTestCase(WebTestCase):
         shetab_address.pan = '0000-1111-2222-3333'
         shetab_address.holder = "Test Tester"
         shetab_address.client = client1
-        shetab_address.fiat_symbol = "irr"
+        shetab_address.fiat_symbol = "IRR"
         shetab_address.is_verified = True
         shaparak_in = Cashin()
         shaparak_in.member = client1
@@ -67,7 +67,7 @@ class TransactionGetTestCase(WebTestCase):
         shaparak_out.member = client1
         shaparak_out.amount = 5554
         shaparak_out.commission = 523
-        shaparak_out.fiat_symbol = 'irr'
+        shaparak_out.fiat_symbol = 'IRR'
         shaparak_out.error = 'some-error'
         shaparak_out.sheba_address = sheba_address
         shaparak_out.payment_gateway = shaparak

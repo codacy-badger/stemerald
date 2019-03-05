@@ -55,7 +55,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         # Adding a payment gateway
         shaparak = PaymentGateway()
         shaparak.name = "shaparak"
-        shaparak.fiat_symbol = "irr"
+        shaparak.fiat_symbol = "IRR"
         shaparak.cashout_min = cashout_min,
         shaparak.cashout_max = cashout_max,
         shaparak.cashout_static_commission = cashout_static_commission,
@@ -97,6 +97,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         cls.mockup_sheba_address_verified_id = sheba_address_1.id
         cls.mockup_sheba_address_unverified_id = sheba_address_2.id
         cls.mockup_sheba_address_others_id = sheba_address_3.id
+        cls.mockup_payment_gateway_name = shaparak.name
 
         class MockStexchangeClient(StexchangeClient):
             def __init__(self, headers=None):
@@ -135,40 +136,47 @@ class TransactionShaparakInTestCase(WebTestCase):
         self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
             FormParameter('amount', 2000, type_=int),
             FormParameter('shebaAddressId', self.mockup_sheba_address_others_id),
+            FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ], expected_status=400)
 
         # 2. Schedule an Shaparak-Out transaction (unverified sheba address)
         self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
             FormParameter('amount', 2000, type_=int),
             FormParameter('shebaAddressId', self.mockup_sheba_address_unverified_id),
+            FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ], expected_status=409)
 
         # 3. Schedule an Shaparak-Out transaction (less than minimum or more than max)
         self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
             FormParameter('amount', 1, type_=int),
             FormParameter('shebaAddressId', self.mockup_sheba_address_verified_id),
+            FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ], expected_status=400)
         self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
             FormParameter('amount', 99999999999, type_=int),
             FormParameter('shebaAddressId', self.mockup_sheba_address_verified_id),
+            FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ], expected_status=400)
 
         # 4. Schedule an Shaparak-Out transaction (more than balance)
         self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
             FormParameter('amount', 599000, type_=int),
             FormParameter('shebaAddressId', self.mockup_sheba_address_verified_id),
+            FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ], expected_status=400)
 
         # 4. Schedule an Shaparak-Out transaction (amount < balance < amount + commission)
         self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
             FormParameter('amount', 3000, type_=int),
             FormParameter('shebaAddressId', self.mockup_sheba_address_verified_id),
+            FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ], expected_status=400)
 
         # 5. Schedule an Shaparak-Out transaction (everything is good)
         result, ___ = self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
             FormParameter('amount', 2000, type_=int),
             FormParameter('shebaAddressId', self.mockup_sheba_address_verified_id),
+            FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ])
 
         transaction_id = result['id']
@@ -205,6 +213,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         result, ___ = self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
             FormParameter('amount', 2000, type_=int),
             FormParameter('shebaAddressId', self.mockup_sheba_address_verified_id),
+            FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ])
         transaction_id = result['id']
         self.login('admin1@test.com', '123456')
