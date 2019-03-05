@@ -17,10 +17,10 @@ class MarketGetTestCase(WebTestCase):
         client1.is_active = True
         cls.session.add(client1)
 
-        testnet = Cryptocurrency(symbol='testnet3', name='TESTNET3', wallet_id=1)
-        rinkeby = Cryptocurrency(symbol='rinkeby', name='RINKEBY', wallet_id=2)
+        testnet = Cryptocurrency(symbol='TESTNET3', name='TESTNET3', wallet_id=1)
+        rinkeby = Cryptocurrency(symbol='RINKEBY', name='RINKEBY', wallet_id=2)
         rinkeby_testnet = Market(
-            name="testnet3_rinkeby",
+            name="TESTNET3_RINKEBY",
             base_currency=rinkeby,
             quote_currency=testnet,
             buy_amount_min=10,
@@ -45,13 +45,13 @@ class MarketGetTestCase(WebTestCase):
 
             def market_list(self):
                 return ujson.loads(
-                    '[{"name": "testnet3_rinkeby", "stock": "rinkeby", "stock_prec": 8, "money": "testnet3", '
+                    '[{"name": "TESTNET3_RINKEBY", "stock": "rinkeby", "stock_prec": 8, "money": "testnet3", '
                     '"fee_prec": 4, "min_amount": "0.00001", "money_prec": 8}] '
                 )
 
             def market_summary(self, market):
                 return ujson.loads(
-                    '[{"name": "testnet3_rinkeby", "bid_amount": "0", "bid_count": 0, "ask_count": 0, '
+                    '[{"name": "TESTNET3_RINKEBY", "bid_amount": "0", "bid_count": 0, "ask_count": 0, '
                     '"ask_amount":"0"}] '
                 )
 
@@ -70,7 +70,7 @@ class MarketGetTestCase(WebTestCase):
                 return ujson.loads('[[1547337600, "88", "2", "88", "2", "37", "1622", "TESTNET3RINKEBY"]]')
 
             def market_deals(self, market, limit, last_id):
-                if market == 'testnet3_rinkeby' and limit == 10 and last_id < 18:
+                if market == 'TESTNET3_RINKEBY' and limit == 10 and last_id < 18:
                     return ujson.loads(
                         '[{"id": 27, "time": 1547419172.446089, "price": "2", "amount": "3", "type": "sell"},{"id": 26,'
                         '"time": 1547419117.217958, "price": "2", "amount": "3", "type": "sell"}, {"id": 25, '
@@ -86,7 +86,7 @@ class MarketGetTestCase(WebTestCase):
                 raise StexchangeUnknownException()
 
             def market_user_deals(self, user_id, market, offset, limit):
-                if user_id == cls.mock_client1.id and market == 'testnet3_rinkeby' and offset == 0 and limit == 10:
+                if user_id == cls.mock_client1.id and market == 'TESTNET3_RINKEBY' and offset == 0 and limit == 10:
                     return ujson.loads(
                         '{"offset": 0, "limit": 10, "records": [{"time": 1547419172.446089, "id": 27, "side": 2, '
                         '"price": "2", "user": 1, "fee": "0.3", "role": 1, "amount": "3", "deal": "6", '
@@ -113,7 +113,7 @@ class MarketGetTestCase(WebTestCase):
                 return ujson.loads("""{"offset": 0, "orders": [], "limit": 10, "total": 0}""")
 
             def order_depth(self, market, limit, interval):
-                if market == 'testnet3_rinkeby' and interval == 0:
+                if market == 'TESTNET3_RINKEBY' and interval == 0:
                     return ujson.loads("""{"asks": [], "bids": [["2", "97"]]}""")
                 raise StexchangeUnknownException()
 
@@ -132,13 +132,13 @@ class MarketGetTestCase(WebTestCase):
         self.assertIn('moneyPrec', response[0])
 
     def test_market_last(self):
-        response, ___ = self.request(As.anonymous, 'LAST', f"{self.url}/testnet3_rinkeby")
+        response, ___ = self.request(As.anonymous, 'LAST', f"{self.url}/TESTNET3_RINKEBY")
 
         self.assertIn('name', response)
         self.assertIn('price', response)
 
     def test_market_summary(self):
-        response, ___ = self.request(As.anonymous, 'SUMMARY', f"{self.url}/testnet3_rinkeby")
+        response, ___ = self.request(As.anonymous, 'SUMMARY', f"{self.url}/TESTNET3_RINKEBY")
 
         self.assertEqual(len(response), 1)
         self.assertIn('name', response[0])
@@ -149,7 +149,7 @@ class MarketGetTestCase(WebTestCase):
 
     def test_market_status(self):
         response, ___ = self.request(
-            As.anonymous, 'STATUS', f"{self.url}/testnet3_rinkeby",
+            As.anonymous, 'STATUS', f"{self.url}/TESTNET3_RINKEBY",
             query_string={'period': 86400}
         )
 
@@ -163,7 +163,7 @@ class MarketGetTestCase(WebTestCase):
         self.assertIn('period', response)
 
         response, ___ = self.request(
-            As.anonymous, 'STATUS', f"{self.url}/testnet3_rinkeby",
+            As.anonymous, 'STATUS', f"{self.url}/TESTNET3_RINKEBY",
             query_string={'period': 'today'}
         )
         self.assertIn('open', response)
@@ -177,7 +177,7 @@ class MarketGetTestCase(WebTestCase):
 
     def test_market_deals(self):
         response, ___ = self.request(
-            As.anonymous, 'PEEK', f"{self.url}/testnet3_rinkeby/marketdeals",
+            As.anonymous, 'PEEK', f"{self.url}/TESTNET3_RINKEBY/marketdeals",
             query_string={'limit': 10, 'lastId': 10}
         )
 
@@ -190,7 +190,7 @@ class MarketGetTestCase(WebTestCase):
 
     def test_market_depth(self):
         response, ___ = self.request(
-            As.anonymous, 'DEPTH', f"{self.url}/testnet3_rinkeby",
+            As.anonymous, 'DEPTH', f"{self.url}/TESTNET3_RINKEBY",
             query_string={'interval': 0, 'limit': 10}
         )
 
@@ -201,7 +201,7 @@ class MarketGetTestCase(WebTestCase):
 
     def test_market_book(self):
         response, ___ = self.request(
-            As.anonymous, 'BOOK', f"{self.url}/testnet3_rinkeby",
+            As.anonymous, 'BOOK', f"{self.url}/TESTNET3_RINKEBY",
             query_string={'side': 'buy'}
         )
 
@@ -217,7 +217,7 @@ class MarketGetTestCase(WebTestCase):
         self.login('client1@test.com', '123456')
 
         response, ___ = self.request(
-            As.client, 'PEEK', f"{self.url}/testnet3_rinkeby/mydeals",
+            As.client, 'PEEK', f"{self.url}/TESTNET3_RINKEBY/mydeals",
             query_string={'limit': 10, 'offset': 0}
         )
 
@@ -235,7 +235,7 @@ class MarketGetTestCase(WebTestCase):
 
     def test_kline(self):
         response, ___ = self.request(
-            As.client, 'KLINE', f"{self.url}/testnet3_rinkeby",
+            As.client, 'KLINE', f"{self.url}/TESTNET3_RINKEBY",
             query_string={'start': 1547419117, 'end': 1547419079, 'interval': 86400}
         )
 

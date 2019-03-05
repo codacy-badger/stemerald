@@ -9,8 +9,8 @@ class TransactionGetTestCase(WebTestCase):
     # noinspection PyArgumentList
     @classmethod
     def mockup(cls):
-        cls.session.add(Cryptocurrency(symbol='btc', name='Bitcoin', wallet_id=1))
-        cls.session.add(Fiat(symbol='irr', name='Iran Rial'))
+        cls.session.add(Cryptocurrency(symbol='BTC', name='Bitcoin', wallet_id=1))
+        cls.session.add(Fiat(symbol='IRR', name='Iran Rial'))
 
         cls.session.flush()
 
@@ -48,7 +48,7 @@ class TransactionGetTestCase(WebTestCase):
         shaparak_in.member = client1
         shaparak_in.amount = 342523
         shaparak_in.commission = 6323
-        shaparak_in.fiat_symbol = 'irr'
+        shaparak_in.fiat_symbol = 'IRR'
         shaparak_in.transaction_id = '34982309434583'
         shaparak_in.shetab_address = shetab_address
         shaparak_in.payment_gateway = shaparak
@@ -59,7 +59,7 @@ class TransactionGetTestCase(WebTestCase):
         sheba_address = BankAccount()
         sheba_address.iban = 'IR123444567889445535345345'
         sheba_address.owner = "Test Tester"
-        sheba_address.fiat_symbol = "irr"
+        sheba_address.fiat_symbol = "IRR"
         sheba_address.client = client1
         sheba_address.is_verified = True
         sheba_address.is_verified = True

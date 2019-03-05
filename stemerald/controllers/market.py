@@ -77,7 +77,7 @@ class MarketController(RestController):
                 'feePrec': market['fee_prec'],
                 'minAmount': market['min_amount'],
                 'moneyPrec': market['money_prec'],
-            } for market in response if any(market['name'].lower() == sm.name for sm in supporting_markets)
+            } for market in response if any(market['name'] == sm.name for sm in supporting_markets)
         ]
 
     @json

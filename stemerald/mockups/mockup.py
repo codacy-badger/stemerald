@@ -77,14 +77,17 @@ def insert():  # pragma: no cover
     DBSession.flush()
 
     # Markets
-    irr = Fiat(code='irr', name='Iran Rial')
-    btc = Cryptocurrency(code='btc', name='Bitcoin')
+    tirr = Fiat(symbol='TIRR', name='Iran Rial', divide_by_ten=-8)
+    tbtc = Cryptocurrency(symbol='TBTC', name='Bitcoin', wallet_id=1)
+    teth = Cryptocurrency(symbol='TETH', name='Ethereum', wallet_id=1, divide_by_ten=-1)
 
-    btc_irr = Market(base_currency=btc, quote_currency=irr, price_latest=10000, divide_by_ten=8)
+    tirr_tbtc = Market(name='TIRR_TBTC', base_currency=tbtc, quote_currency=tirr)
+    tirr_teth = Market(name='TIRR_TETH', base_currency=teth, quote_currency=tirr)
+    tbtc_teth = Market(name='TBTC_TETH', base_currency=teth, quote_currency=tbtc)
 
-    DBSession.add(btc)
-    DBSession.add(irr)
-    DBSession.add(btc_irr)
+    DBSession.add(tirr_tbtc)
+    DBSession.add(tirr_teth)
+    DBSession.add(tbtc_teth)
 
     DBSession.flush()
 

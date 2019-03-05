@@ -18,13 +18,13 @@ def insert():  # pragma: no cover
     insert_territories()
     # 1. Currencies
     # Fiat
-    irr = Fiat(code='irr', name='Iran Rial')
+    irr = Fiat(code='IRR', name='Iran Rial')
     # usd = Currency(code='usd', name='USA Dollar', type='fiat')
     # eur = Currency(code='eur', name='Euro', type='fiat')
     # rur = Currency(code='rur', name='Russian Ruble', type='fiat')
 
     # Cryptocurrency
-    btc = Cryptocurrency(code='btc', name='Bitcoin')
+    btc = Cryptocurrency(code='BTC', name='Bitcoin')
     # ltc = Cryptocurrency(code='ltc', name='Litecoin', type='crypto')
     # nmc = Cryptocurrency(code='nmc', name='Namecoin', type='crypto')
     # nvc = Cryptocurrency(code='nvc', name='Novacoin', type='crypto')

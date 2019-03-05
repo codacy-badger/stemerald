@@ -26,7 +26,7 @@ class BankIdsTestCase(WebTestCase):
         cls.session.add(admin1)
         cls.session.add(client1)
 
-        usd = Fiat(symbol='usd', name='USA Dollar')
+        usd = Fiat(symbol='USD', name='USA Dollar')
 
         cls.session.add(usd)
 
@@ -41,7 +41,7 @@ class BankIdsTestCase(WebTestCase):
         response, ___ = self.request(
             As.trusted_client, 'ADD', self.bank_cards_url,
             params=[
-                FormParameter('fiatSymbol', 'usd'),
+                FormParameter('fiatSymbol', 'USD'),
                 FormParameter('holder', 'Test Test'),
                 FormParameter('pan', '1111-2222-3333-4444'),
             ]
@@ -62,7 +62,7 @@ class BankIdsTestCase(WebTestCase):
         self.request(
             As.trusted_client, 'ADD', self.bank_cards_url,
             params=[
-                FormParameter('fiatSymbol', 'usd'),
+                FormParameter('fiatSymbol', 'USD'),
                 FormParameter('holder', 'Another Test'),
                 FormParameter('pan', '2222-3333-4444-5555'),
             ]
@@ -115,7 +115,7 @@ class BankIdsTestCase(WebTestCase):
         response, ___ = self.request(
             As.trusted_client, 'ADD', self.bank_accounts_url,
             params=[
-                FormParameter('fiatSymbol', 'usd'),
+                FormParameter('fiatSymbol', 'USD'),
                 FormParameter('iban', 'IR123456789012345678901234'),
                 FormParameter('owner', 'Test Test'),
             ]
@@ -136,7 +136,7 @@ class BankIdsTestCase(WebTestCase):
         self.request(
             As.trusted_client, 'ADD', self.bank_accounts_url,
             params=[
-                FormParameter('fiatSymbol', 'usd'),
+                FormParameter('fiatSymbol', 'USD'),
                 FormParameter('iban', 'IR012345678901234567890123'),
                 FormParameter('owner', 'Another Test'),
             ]

@@ -33,7 +33,7 @@ class WalletTestCase(WebTestCase):
         cls.session.flush()
 
         btc = Cryptocurrency(
-            symbol='btc',
+            symbol='BTC',
             name='Bitcoin',
             wallet_id=1,
             withdraw_min=withdraw_min,
@@ -54,13 +54,13 @@ class WalletTestCase(WebTestCase):
                 self.mock_balance = [0, 0]
 
             def asset_list(self):
-                return ujson.loads('[{"name": "btc", "prec": 8}]')
+                return ujson.loads('[{"name": "BTC", "prec": 8}]')
 
             def balance_update(self, user_id, asset, business, business_id, change, detail):
-                if user_id == cls.mockup_client_1_id and business == 'withdraw' and asset == 'btc':
+                if user_id == cls.mockup_client_1_id and business == 'withdraw' and asset == 'BTC':
                     self.mock_balance[0] += int(change)
                 return ujson.loads(
-                    '{"btc": {"available": "' +
+                    '{"BTC": {"available": "' +
                     str(self.mock_balance[0]) +
                     '", "freeze": "' +
                     str(self.mock_balance[1]) +
@@ -69,7 +69,7 @@ class WalletTestCase(WebTestCase):
 
             def balance_query(self, *args, **kwargs):
                 return ujson.loads(
-                    '{"btc": {"available": "' +
+                    '{"BTC": {"available": "' +
                     str(self.mock_balance[0]) +
                     '", "freeze": "' +
                     str(self.mock_balance[1]) +
@@ -84,13 +84,13 @@ class WalletTestCase(WebTestCase):
                 self.mock_balance = [0, 0]
 
             def asset_list(self):
-                return ujson.loads('[{"name": "btc", "prec": 8}]')
+                return ujson.loads('[{"name": "BTC", "prec": 8}]')
 
             def balance_update(self, user_id, asset, business, business_id, change, detail):
-                if user_id == cls.mockup_client_1_id and business == 'withdraw' and asset == 'btc':
+                if user_id == cls.mockup_client_1_id and business == 'withdraw' and asset == 'BTC':
                     self.mock_balance[0] += int(change)
                 return ujson.loads(
-                    '{"btc": {"available": "' +
+                    '{"BTC": {"available": "' +
                     str(self.mock_balance[0]) +
                     '", "freeze": "' +
                     str(self.mock_balance[1]) +
@@ -99,7 +99,7 @@ class WalletTestCase(WebTestCase):
 
             def balance_query(self, *args, **kwargs):
                 return ujson.loads(
-                    '{"btc": {"available": "' +
+                    '{"BTC": {"available": "' +
                     str(self.mock_balance[0]) +
                     '", "freeze": "' +
                     str(self.mock_balance[1]) +
@@ -130,7 +130,7 @@ class WalletTestCase(WebTestCase):
         self.request(
             As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
             params=[
-                FormParameter('cryptocurrencySymbol', 'btc'),
+                FormParameter('cryptocurrencySymbol', 'BTC'),
                 FormParameter('amount', 599000),
                 FormParameter('address', '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV'),
             ],
@@ -141,7 +141,7 @@ class WalletTestCase(WebTestCase):
         self.request(
             As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
             params=[
-                FormParameter('cryptocurrencySymbol', 'btc'),
+                FormParameter('cryptocurrencySymbol', 'BTC'),
                 FormParameter('amount', 2000),
                 FormParameter('address', 'bad-address'),
             ],
@@ -153,7 +153,7 @@ class WalletTestCase(WebTestCase):
         result, ___ = self.request(
             As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
             params=[
-                FormParameter('cryptocurrencyCode', 'btc'),
+                FormParameter('cryptocurrencyCode', 'BTC'),
                 FormParameter('amount', 2000),
                 FormParameter('address', '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV'),
             ],
@@ -169,6 +169,6 @@ class WalletTestCase(WebTestCase):
         self.assertIsNone(result['error'])
 
         # Check balance
-        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'btc').get('btc')
+        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'BTC').get('BTC')
         self.assertEqual(int(balance['available']), 826)
         self.assertEqual(int(balance['freeze']), 0)

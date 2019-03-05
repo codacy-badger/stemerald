@@ -8,8 +8,8 @@ class CurrencyGetTestCase(WebTestCase):
     # noinspection PyArgumentList
     @classmethod
     def mockup(cls):
-        cls.session.add(Fiat(symbol='usd', name='USA Dollar'))
-        cls.session.add(Cryptocurrency(symbol='btc', name='Bitcoin', wallet_id=1))
+        cls.session.add(Fiat(symbol='USD', name='USA Dollar'))
+        cls.session.add(Cryptocurrency(symbol='BTC', name='Bitcoin', wallet_id=1))
 
         cls.session.commit()
 

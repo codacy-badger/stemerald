@@ -63,7 +63,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         cls.session.add(client1)
 
         irr = Fiat(
-            symbol='irr',
+            symbol='IRR',
             name='Iran Rial',
         )
         cls.session.add(irr)
@@ -71,7 +71,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         # Adding a payment gateway
         shaparak = PaymentGateway()
         shaparak.name = "shaparak"
-        shaparak.fiat_symbol = "irr"
+        shaparak.fiat_symbol = "IRR"
         shaparak.cashin_min = cashin_min,
         shaparak.cashin_max = cashin_max,
         shaparak.cashin_static_commission = cashin_static_commission,
@@ -83,7 +83,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         shetab_address_1.pan = mockup_card_address
         shetab_address_1.holder = "Test Tester"
         shetab_address_1.client = client1
-        shetab_address_1.fiat_symbol = "irr"
+        shetab_address_1.fiat_symbol = "IRR"
         shetab_address_1.is_verified = True
 
         cls.session.add(shetab_address_1)
@@ -99,13 +99,13 @@ class TransactionShaparakInTestCase(WebTestCase):
                 self.mock_balance = [0, 0]
 
             def asset_list(self):
-                return ujson.loads('[{"name": "irr", "prec": 2}]')
+                return ujson.loads('[{"name": "IRR", "prec": 2}]')
 
             def balance_update(self, user_id, asset, business, business_id, change, detail):
-                if user_id == cls.mockup_client_1_id and business == 'cashin' and asset == 'irr':
+                if user_id == cls.mockup_client_1_id and business == 'cashin' and asset == 'IRR':
                     self.mock_balance[0] += int(change)
                 return ujson.loads(
-                    '{"irr": {"available": "' +
+                    '{"IRR": {"available": "' +
                     str(self.mock_balance[0]) +
                     '", "freeze": "' +
                     str(self.mock_balance[1]) +
@@ -114,7 +114,7 @@ class TransactionShaparakInTestCase(WebTestCase):
 
             def balance_query(self, *args, **kwargs):
                 return ujson.loads(
-                    '{"irr": {"available": "' +
+                    '{"IRR": {"available": "' +
                     str(self.mock_balance[0]) +
                     '", "freeze": "' +
                     str(self.mock_balance[1]) +
@@ -141,7 +141,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         transaction_id = result['id']
 
         # Check balance
-        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'irr').get('irr')
+        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'IRR').get('IRR')
         self.assertEqual(int(balance['available']), 0)
         self.assertEqual(int(balance['freeze']), 0)
 
@@ -208,7 +208,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         # TODO: Check reference id
 
         # Check balance
-        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'irr').get('irr')
+        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'IRR').get('IRR')
         self.assertEqual(int(balance['available']), 3971)
         self.assertEqual(int(balance['freeze']), 0)
 
@@ -232,6 +232,6 @@ class TransactionShaparakInTestCase(WebTestCase):
         )
 
         # Check balance
-        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'irr').get('irr')
+        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'IRR').get('IRR')
         self.assertEqual(int(balance['available']), 3971)
         self.assertEqual(int(balance['freeze']), 0)

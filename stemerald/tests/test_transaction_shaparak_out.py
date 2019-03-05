@@ -47,7 +47,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         cls.session.add(client2)
 
         irr = Fiat(
-            symbol='irr',
+            symbol='IRR',
             name='Iran Rial',
         )
         cls.session.add(irr)
@@ -68,7 +68,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         sheba_address_1.iban = 'IR123456789123456789123456'
         sheba_address_1.owner = "Client One"
         sheba_address_1.client = client1
-        sheba_address_1.fiat_symbol = "irr"
+        sheba_address_1.fiat_symbol = "IRR"
         sheba_address_1.is_verified = True
 
         # Mine, unverified:
@@ -76,7 +76,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         sheba_address_2.iban = 'IR837498056254698443242343'
         sheba_address_2.owner = "Client One"
         sheba_address_2.client = client1
-        sheba_address_2.fiat_symbol = "irr"
+        sheba_address_2.fiat_symbol = "IRR"
         sheba_address_2.is_verified = False
 
         # Other's, verified:
@@ -84,7 +84,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         sheba_address_3.iban = 'IR837498056254698443242343'
         sheba_address_3.owner = "Client Two"
         sheba_address_3.client = client2
-        sheba_address_3.fiat_symbol = "irr"
+        sheba_address_3.fiat_symbol = "IRR"
         sheba_address_3.is_verified = True
 
         for address in [sheba_address_1, sheba_address_2, sheba_address_3]:
@@ -104,13 +104,13 @@ class TransactionShaparakInTestCase(WebTestCase):
                 self.mock_balance = [3001, 0]
 
             def asset_list(self):
-                return ujson.loads('[{"name": "irr", "prec": 2}]')
+                return ujson.loads('[{"name": "IRR", "prec": 2}]')
 
             def balance_update(self, user_id, asset, business, business_id, change, detail):
-                if user_id == cls.mockup_client_1_id and business in ['cashout', 'cashback'] and asset == 'irr':
+                if user_id == cls.mockup_client_1_id and business in ['cashout', 'cashback'] and asset == 'IRR':
                     self.mock_balance[0] += int(change)
                 return ujson.loads(
-                    '{"irr": {"available": "' +
+                    '{"IRR": {"available": "' +
                     str(self.mock_balance[0]) +
                     '", "freeze": "' +
                     str(self.mock_balance[1]) +
@@ -119,7 +119,7 @@ class TransactionShaparakInTestCase(WebTestCase):
 
             def balance_query(self, *args, **kwargs):
                 return ujson.loads(
-                    '{"irr": {"available": "' +
+                    '{"IRR": {"available": "' +
                     str(self.mock_balance[0]) +
                     '", "freeze": "' +
                     str(self.mock_balance[1]) +
@@ -174,7 +174,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         transaction_id = result['id']
 
         # Check balance
-        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'irr').get('irr')
+        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'IRR').get('IRR')
         self.assertEqual(int(balance['available']), 826)
         self.assertEqual(int(balance['freeze']), 0)
 
@@ -196,7 +196,7 @@ class TransactionShaparakInTestCase(WebTestCase):
         self.assertIsNone(result['referenceId'])
 
         # Check balance (cash back without commission)
-        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'irr').get('irr')
+        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'IRR').get('IRR')
         self.assertEqual(int(balance['available']), 2826)
         self.assertEqual(int(balance['freeze']), 0)
 
@@ -224,6 +224,6 @@ class TransactionShaparakInTestCase(WebTestCase):
         self.assertIsNotNone(result['referenceId'])
 
         # Check balance
-        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'irr').get('irr')
+        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'IRR').get('IRR')
         self.assertEqual(int(balance['available']), 651)
         self.assertEqual(int(balance['freeze']), 0)

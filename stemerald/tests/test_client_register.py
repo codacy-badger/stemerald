@@ -12,10 +12,10 @@ class ClientRegisterTestCase(WebTestCase):
     # noinspection PyArgumentList
     @classmethod
     def mockup(cls):
-        cls.session.add(Fiat(symbol='irr', name='Iran Rial'))
-        cls.session.add(Cryptocurrency(symbol='btc', name='Bitcoin', wallet_id=1))
-        cls.session.add(Fiat(symbol='usd', name='USA Dollar'))
-        cls.session.add(Cryptocurrency(symbol='ltc', name='Litecoin', wallet_id=2))
+        cls.session.add(Fiat(symbol='IRR', name='Iran Rial'))
+        cls.session.add(Cryptocurrency(symbol='BTC', name='Bitcoin', wallet_id=1))
+        cls.session.add(Fiat(symbol='USD', name='USA Dollar'))
+        cls.session.add(Cryptocurrency(symbol='LTC', name='Litecoin', wallet_id=2))
 
         invitation1 = Invitation()
         invitation1.code = 'test-code-1'

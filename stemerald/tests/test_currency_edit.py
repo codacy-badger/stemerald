@@ -17,8 +17,8 @@ class CurrencyEditTestCase(WebTestCase):
         admin1.is_active = True
         cls.session.add(admin1)
 
-        cls.session.add(Fiat(symbol='usd', name='USA Dollar'))
-        cls.session.add(Cryptocurrency(symbol='btc', name='Bitcoin', wallet_id=1))
+        cls.session.add(Fiat(symbol='USD', name='USA Dollar'))
+        cls.session.add(Cryptocurrency(symbol='BTC', name='Bitcoin', wallet_id=1))
 
         cls.session.commit()
 
@@ -26,7 +26,7 @@ class CurrencyEditTestCase(WebTestCase):
         self.login('admin1@test.com', '123456')
 
         response, ___ = self.request(
-            As.admin, 'EDIT', f'{self.url}/btc',
+            As.admin, 'EDIT', f'{self.url}/BTC',
             params=[
                 FormParameter('withdrawMin', 100),
                 FormParameter('withdrawMax', 0),
