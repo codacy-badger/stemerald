@@ -8,7 +8,14 @@ class Currency(OrderingMixin, FilteringMixin, DeclarativeBase):
 
     symbol = Field(Unicode(10), min_length=1, max_length=10, pattern=r'^[A-Z0-9]{1,10}$', primary_key=True)
     name = Field(Unicode(25), min_length=1, max_length=25)
+
+    divide_by_ten = Field(Integer(), default=0)
+
     type = Field(Enum('fiat', 'cryptocurrency', name='currency_type'))
+
+    @property
+    def divide_by(self):
+        return 10 ** self.divide_by_ten
 
     __mapper_args__ = {
         'polymorphic_identity': __tablename__,

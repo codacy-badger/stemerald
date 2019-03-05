@@ -18,13 +18,13 @@ def insert():  # pragma: no cover
     insert_territories()
     # 1. Currencies
     # Fiat
-    irr = Fiat(code='IRR', name='Iran Rial')
+    # irr = Fiat(code='IRR', name='Iran Rial')
     # usd = Currency(code='usd', name='USA Dollar', type='fiat')
     # eur = Currency(code='eur', name='Euro', type='fiat')
     # rur = Currency(code='rur', name='Russian Ruble', type='fiat')
 
     # Cryptocurrency
-    btc = Cryptocurrency(code='BTC', name='Bitcoin')
+    # btc = Cryptocurrency(code='BTC', name='Bitcoin')
     # ltc = Cryptocurrency(code='ltc', name='Litecoin', type='crypto')
     # nmc = Cryptocurrency(code='nmc', name='Namecoin', type='crypto')
     # nvc = Cryptocurrency(code='nvc', name='Novacoin', type='crypto')
@@ -41,11 +41,11 @@ def insert():  # pragma: no cover
     # for currency in [irr, usd, eur, rur, btc, ltc, nmc, nvc, ppc, dsh, eth, bch, zec, wm, pm]:
     #     DBSession.add(currency)
 
-    DBSession.add(irr)
-    DBSession.add(btc)
+    # DBSession.add(irr)
+    # DBSession.add(btc)
 
     # 2. Markets
-    btc_irr = Market(base_currency=btc, quote_currency=irr, price_latest=10000)
+    # btc_irr = Market(base_currency=btc, quote_currency=irr, price_latest=10000)
     # btc_usd = Market(base_currency=btc, quote_currency=usd, min_trading_size=10)
     # btc_rur = Market(base_currency=btc, quote_currency=rur, min_trading_size=10)
     # btc_eur = Market(base_currency=btc, quote_currency=eur, min_trading_size=10)
@@ -89,4 +89,4 @@ def insert():  # pragma: no cover
     #  bch_eth, bch_dsh, zec_btc, zec_usd]:
     #     DBSession.add(currency)
 
-    DBSession.add(btc_irr)
+    # DBSession.add(btc_irr)

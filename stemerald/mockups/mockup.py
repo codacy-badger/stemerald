@@ -89,6 +89,18 @@ def insert():  # pragma: no cover
     DBSession.add(tirr_teth)
     DBSession.add(tbtc_teth)
 
+    # Payment Gateways
+    shaparak = PaymentGateway()
+    shaparak.name = "tshaparak"
+    shaparak.fiat_symbol = "TIRR"
+    shaparak.cashin_min = 10000,
+    shaparak.cashin_max = 0,
+    shaparak.cashin_static_commission = 0,
+    shaparak.cashin_permille_commission = 0,
+    shaparak.cashin_max_commission = 0,
+
+    DBSession.add(shaparak)
+
     DBSession.flush()
 
     # Funds
