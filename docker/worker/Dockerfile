@@ -2,16 +2,26 @@ FROM python:3.7
 
 ENV LOG_DIR /var/log/stemerald
 
-COPY ../../alembic.ini ../../wsgi.py ../../migration ../../stemerald/*.py ../../stemerald/controllers ../../stemerald/models ../../stemerald/models/templates ./
+WORKDIR /root
 
-COPY ../config.yml /etc/stemerald/
-RUN sudo apt-get update -y && sudo apt-get install -y apt-utils build-essential
+COPY setup.py stemerald/
+COPY alembic.ini stemerald/
+COPY wsgi.py stemerald/
+COPY migration/*.py stemerald/migration/
+COPY migration/*.mako stemerald/migration/
+COPY stemerald/*.py stemerald/stemerald/
+COPY stemerald/controllers/*.py stemerald/stemerald/controllers/
+COPY stemerald/models/*.py stemerald/stemerald/models/
+COPY stemerald/templates/*.mako stemerald/stemerald/templates/
 
-RUN pip install . && mkdir -p $LOG_DIR
+COPY docker/config.yml /etc/stemerald/
+RUN apt-get update -y && apt-get install -y apt-utils build-essential
+
+RUN pip install -e stemerald/ && mkdir -p $LOG_DIR
 
 CMD ["stemerald", "worker", "cleanup"]
 
 VOLUME ["/var/log/"]
 
-COPY entrypoint.sh /docker-entrypoint.sh
+COPY docker/service/entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
