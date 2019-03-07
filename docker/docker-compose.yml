@@ -46,7 +46,7 @@ services:
       stemerald_net:
         ipv4_address: 192.168.19.46
     volumes:
-      - stemerald_logs/server:/var/log/stemerald
+      - stemerald_logs_server:/var/log/stemerald
       - stemerald_config:/etc/stemerald
 
   worker:
@@ -63,7 +63,7 @@ services:
       stemerald_net:
         ipv4_address: 192.168.19.47
     volumes:
-      - stemerald_logs/worker:/var/log/stemerald
+      - stemerald_logs_worker:/var/log/stemerald
       - stemerald_config:/etc/stemerald
 
 
@@ -91,10 +91,15 @@ networks:
 volumes:
   stemerald_config:
 
-  stemerald_logs:
+  stemerald_logs_server:
     driver: local-persist
     driver_opts:
-      mountpoint: /mnt/logs
+      mountpoint: /mnt/logs/server
+
+  stemerald_logs_worker:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /mnt/logs/worker
 
   stemerald_db:
     driver: local-persist
