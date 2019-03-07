@@ -17,8 +17,8 @@ services:
         ipv4_address: 192.168.19.44
     ports:
       - 65432:5432
-    volumes:
-      - stemerald_db:/var/lib/postgresql/data
+#    volumes:
+#      - stemerald_db:/var/lib/postgresql/data
 
   redis:
     container_name: redis_main
@@ -45,9 +45,9 @@ services:
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.46
-    volumes:
-      - stemerald_logs_server:/var/log/stemerald
-      - stemerald_config:/etc/stemerald
+#    volumes:
+#      - stemerald_logs_server:/var/log/stemerald
+#      - stemerald_config:/etc/stemerald
 
   worker:
     container_name: worker_main
@@ -62,9 +62,9 @@ services:
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.47
-    volumes:
-      - stemerald_logs_worker:/var/log/stemerald
-      - stemerald_config:/etc/stemerald
+#    volumes:
+#      - stemerald_logs_worker:/var/log/stemerald
+#      - stemerald_config:/etc/stemerald
 
 
   cli:
@@ -91,17 +91,17 @@ networks:
 volumes:
   stemerald_config:
 
-  stemerald_logs_server:
-    driver: local-persist
-    driver_opts:
-      mountpoint: /mnt/logs/server
-
-  stemerald_logs_worker:
-    driver: local-persist
-    driver_opts:
-      mountpoint: /mnt/logs/worker
-
-  stemerald_db:
-    driver: local-persist
-    driver_opts:
-      mountpoint: /mnt/database
+#  stemerald_logs_server:
+#    driver: local-persist
+#    driver_opts:
+#      mountpoint: /mnt/logs/server
+#
+#  stemerald_logs_worker:
+#    driver: local-persist
+#    driver_opts:
+#      mountpoint: /mnt/logs/worker
+#
+#  stemerald_db:
+#    driver: local-persist
+#    driver_opts:
+#      mountpoint: /mnt/database
