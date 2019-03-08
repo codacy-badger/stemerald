@@ -5,7 +5,7 @@ services:
 
   postgresql:
     container_name: postgresql_main
-    image: stexchange/postgresql
+    image: stemerald/postgresql
     build: postgresql
     restart: always
     environment:
@@ -22,7 +22,7 @@ services:
 
   redis:
     container_name: redis_main
-    image: stexchange/redis
+    image: stemerald/redis
     build: redis
     restart: always
     networks:
@@ -74,11 +74,11 @@ services:
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.48
-    volumes:
-      - /var/stexchange/postgresql/master/data
-      - /var/stexchange/redis/master/lib
-      - /var/stexchange/service/log
-      - /var/stexchange/worker/log
+#    volumes:
+#      - /var/stemerald/postgresql/master/data
+#      - /var/stemerald/redis/master/lib
+#      - /var/stemerald/service/log
+#      - /var/stemerald/worker/log
 
 networks:
   stemerald_net:
