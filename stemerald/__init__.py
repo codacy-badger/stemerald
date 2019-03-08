@@ -144,7 +144,7 @@ class Application(BaseApplication):
     def configure(self, files=None, context=None, **kwargs):
         super().configure(files, context, **kwargs)
         stexchange_client.initialize(server_url=settings.stexchange.rpc_url, force=True)
-        stawallet_client.initialize(server_url=settings.stawallet.rpc_url, force=True)
+        stawallet_client.initialize(server_url=settings.stawallet.rest_url, force=True)
 
     def initialize_models(self, session=None):
         StoreManager.register(
