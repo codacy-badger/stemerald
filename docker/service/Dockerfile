@@ -26,6 +26,7 @@ CMD ["stemerald", "-c $STEMERALD_CONFIG_FILE", "admin", "create-db", "--base-dat
 CMD ["stemerald", "-c $STEMERALD_CONFIG_FILE", "migrate", "upgrade", "head"]
 
 VOLUME ["/var/log/"]
+EXPOSE 8080
 
 COPY docker/service/entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
