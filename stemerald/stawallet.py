@@ -19,8 +19,8 @@ class StawalletClient:
         self.headers = {'content-type': 'application/x-www-form-urlencoded'}
         self.headers.update(headers or {})
 
-    def _execute(self, method, url, query_string: map = None, body: map = None):
-        url = '/'.join([self.server_url, url]) + '&'.join(f'{k}={v}' for k, v in query_string.items)
+    def _execute(self, method, url, query_string: dict = None, body: dict = None):
+        url = '/'.join([self.server_url, url]) + '&'.join(f'{k}={v}' for k, v in query_string.items())
 
         logger.debug(f"Requesting {method} over {url} with body: {body}")
 

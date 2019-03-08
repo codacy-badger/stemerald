@@ -9,6 +9,7 @@ def insert_territories():  # pragma: no cover
     tehran_state = State(name='Tehran', country=iran)
     tehran_city = City(name='Tehran', state=tehran_state)
 
+
     DBSession.add(tehran_city)
     DBSession.flush()
 
