@@ -831,3 +831,5 @@ def stexchange_http_exception_handler(e):
 
     if isinstance(e, RepeatUpdateException):
         return HttpBadRequest(e.message, reason="repeat-update")
+
+    return HttpInternalServerError(e.message)
