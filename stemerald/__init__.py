@@ -6,7 +6,7 @@ from restfulpy.application import Application as BaseApplication
 from restfulpy.orm import DBSession
 from sqlalchemy_media import StoreManager, FileSystemStore
 
-from stemerald import basedata, mockups
+from stemerald import basedata
 from stemerald.authentication import Authenticator
 from stemerald.controllers.root import Root
 from stemerald.stawallet import stawallet_client
