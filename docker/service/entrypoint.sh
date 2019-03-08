@@ -1,3 +1,3 @@
 #!/bin/sh
 
-gunicorn -w 4 --bind localhost:8080 'wsgi:app'
+gunicorn -w 4 --bind 0.0.0.0:8080 'wsgi:app'
