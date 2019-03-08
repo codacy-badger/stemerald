@@ -7,7 +7,6 @@ from restfulpy.orm import DBSession
 from sqlalchemy_media import StoreManager, FileSystemStore
 
 from stemerald import basedata, mockups
-from stemerald.mockups import mockup
 from stemerald.authentication import Authenticator
 from stemerald.controllers.root import Root
 from stemerald.stawallet import stawallet_client
@@ -118,6 +117,7 @@ class Application(BaseApplication):
 
     # noinspection PyArgumentList
     def insert_mockup(self):
+        from stemerald.mockups import mockup
         mockup.insert()
         DBSession.commit()
 

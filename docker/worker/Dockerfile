@@ -13,7 +13,6 @@ COPY stemerald/*.py stemerald/stemerald/
 COPY stemerald/controllers/*.py stemerald/stemerald/controllers/
 COPY stemerald/models/*.py stemerald/stemerald/models/
 COPY stemerald/templates/*.mako stemerald/stemerald/templates/
-COPY stemerald/mockups/*.py stemerald/stemerald/mockups/
 
 COPY docker/config.yml /etc/stemerald/
 RUN apt-get update -y && apt-get install -y apt-utils build-essential
