@@ -10,6 +10,7 @@ from stemerald import basedata, mockups
 from stemerald.mockups import mockup
 from stemerald.authentication import Authenticator
 from stemerald.controllers.root import Root
+from stemerald.stawallet import stawallet_client
 from stemerald.stexchange import stexchange_client
 
 __version__ = '2.0.1'
@@ -143,6 +144,7 @@ class Application(BaseApplication):
     def configure(self, files=None, context=None, **kwargs):
         super().configure(files, context, **kwargs)
         stexchange_client.initialize(server_url=settings.stexchange.rpc_url, force=True)
+        stawallet_client.initialize(server_url=settings.stawallet.rpc_url, force=True)
 
     def initialize_models(self, session=None):
         StoreManager.register(
