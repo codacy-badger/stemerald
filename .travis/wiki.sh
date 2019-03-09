@@ -6,7 +6,7 @@ set -e # Exit with nonzero exit code if anything fails
 SHA=`git rev-parse --verify HEAD`
 
 rm -rf wiki
-git clone git@github.com:mahdi13/emerald.wiki.git wiki
+git clone git@github.com:mahdi13/stemerald.wiki.git wiki
 GIT="git -C wiki"
 $GIT pull origin master
 $GIT rm apiv*.md --ignore-unmatch
