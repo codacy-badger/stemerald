@@ -28,7 +28,7 @@ services:
         ipv4_address: 192.168.19.45
     command: ["redis-server", "--appendonly", "yes"]
     expose:
-      - 6379:6379
+      - "6379"
 
 
   server:
