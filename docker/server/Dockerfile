@@ -15,11 +15,10 @@ COPY stemerald/controllers/*.py stemerald/stemerald/controllers/
 COPY stemerald/models/*.py stemerald/stemerald/models/
 COPY stemerald/templates/*.mako stemerald/stemerald/templates/
 
-COPY docker/config.yml /etc/stemerald/
+COPY docker/config.yml /etc/stemerald/config.template
+RUN envsubst < /etc/stemerald/config.template > /etc/stemerald/config.yml
 RUN apt-get update -y && apt-get install -y apt-utils build-essential
 
-RUN ls -la
-RUN ls -la stemerald
 RUN pip install -e stemerald/ && mkdir -p $LOG_DIR
 
 CMD ["stemerald", "-c $STEMERALD_CONFIG_FILE", "admin", "create-db", "--base-data"]
