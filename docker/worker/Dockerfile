@@ -20,7 +20,6 @@ COPY docker/config.yml /etc/stemerald/config.template
 
 RUN pip install -e stemerald/ && mkdir -p $LOG_DIR
 
-CMD ["envsubst < /etc/stemerald/config.template > $STEMERALD_CONFIG_FILE"]
 CMD ["stemerald", "-c $STEMERALD_CONFIG_FILE", "worker", "cleanup"]
 
 VOLUME ["/var/log/"]

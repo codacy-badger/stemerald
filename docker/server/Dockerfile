@@ -20,12 +20,6 @@ COPY docker/config.yml /etc/stemerald/config.template
 
 RUN pip install -e stemerald/ && mkdir -p $LOG_DIR
 
-CMD "envsubst < /etc/stemerald/config.template > $STEMERALD_CONFIG_FILE"
-CMD ["ls", "-la", "/etc/stemerald/"]
-
-CMD ["stemerald", "-c $STEMERALD_CONFIG_FILE", "admin", "create-db", "--base-data"]
-CMD ["stemerald", "-c $STEMERALD_CONFIG_FILE", "migrate", "upgrade", "head"]
-
 VOLUME ["/var/log/"]
 EXPOSE 8080
 
