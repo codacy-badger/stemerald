@@ -3,6 +3,8 @@ FROM python:3.7
 ENV LOG_DIR /var/log/stemerald
 ENV STEMERALD_CONFIG_FILE /etc/stemerald/config.yml
 
+ARG entrypointfile
+
 WORKDIR /root
 
 COPY setup.py stemerald/
@@ -24,10 +26,8 @@ RUN pip install -e stemerald/ && mkdir -p $LOG_DIR
 
 #CMD ["stemerald", "-c $STEMERALD_CONFIG_FILE", "worker", "cleanup"]
 
-#COPY .docker/*.sh /
-
 #VOLUME ["/var/log/"]
 #EXPOSE 8080
 
-#COPY docker/server/entrypoint.sh /docker-entrypoint.sh
-#ENTRYPOINT [ "/docker-entrypoint.sh" ]
+COPY .docker/$entrypointfile /docker-entrypoint.sh
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
