@@ -5,18 +5,17 @@ services:
 
   postgresql:
     container_name: postgresql_main
-    image: stemerald/postgresql
-    build: postgresql
+    image: postgres:9
     restart: always
     environment:
-      DB_NAME: stemerald_db
-      DB_USERNAME: stemerald
-      DB_PASSWORD: stemerald
+      POSTGRES_DB: stemerald_db
+      POSTGRES_USER: stemerald
+      POSTGRES_PASSWORD: stemerald
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.44
     ports:
-      - 65432:5432
+      - 5432:5432
 #    volumes:
 #      - stemerald_db:/var/lib/postgresql/data
 
@@ -42,6 +41,10 @@ services:
     depends_on:
       - postgresql
       - redis
+    environment:
+      DB_USERNAME: stemerald
+      DB_PASSWORD: stemerald
+      DB_NAME: postgresql_main
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.46
