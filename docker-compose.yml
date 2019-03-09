@@ -10,9 +10,9 @@ services:
       POSTGRES_DB: stemerald_db
       POSTGRES_USER: stemerald
       POSTGRES_PASSWORD: stemerald
-    networks:
-      stemerald_net:
-        ipv4_address: 192.168.19.44
+#    networks:
+#      stemerald_net:
+#        ipv4_address: 192.168.19.44
     ports:
       - 5432:5432
 #    volumes:
@@ -22,9 +22,9 @@ services:
     container_name: redis_main
     image: redis:latest
     restart: always
-    networks:
-      stemerald_net:
-        ipv4_address: 192.168.19.45
+#    networks:
+#      stemerald_net:
+#        ipv4_address: 192.168.19.45
     command: ["redis-server", "--appendonly", "yes"]
     expose:
       - "6379"
@@ -48,9 +48,9 @@ services:
       DB_PASSWORD: stemerald
       DB_NAME: stemerald_db
       REDIS_DB: 0
-    networks:
-      stemerald_net:
-        ipv4_address: 192.168.19.46
+#    networks:
+#      stemerald_net:
+#        ipv4_address: 192.168.19.46
     ports:
       - "8080:8080"
 #    volumes:
@@ -77,9 +77,9 @@ services:
       DB_PASSWORD: stemerald
       DB_NAME: stemerald_db
       REDIS_DB: 0
-    networks:
-      stemerald_net:
-        ipv4_address: 192.168.19.47
+#    networks:
+#      stemerald_net:
+#        ipv4_address: 192.168.19.47
 #    volumes:
 #      - stemerald_logs_worker:/var/log/stemerald
 #      - stemerald_config:/etc/stemerald
@@ -98,22 +98,22 @@ services:
       - redis
       - wsgi
       - worker
-    networks:
-      stemerald_net:
-        ipv4_address: 192.168.19.48
+#    networks:
+#      stemerald_net:
+#        ipv4_address: 192.168.19.48
 #    volumes:
 #      - /var/stemerald/postgresql/master/data
 #      - /var/stemerald/redis/master/lib
 #      - /var/stemerald/service/log
 #      - /var/stemerald/worker/log
 
-networks:
-  stemerald_net:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.19.0/24
+#networks:
+#  stemerald_net:
+#    driver: bridge
+#    ipam:
+#      driver: default
+#      config:
+#        - subnet: 192.168.19.0/24
 
 volumes:
   stemerald_config:
