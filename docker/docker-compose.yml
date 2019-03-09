@@ -14,6 +14,7 @@ services:
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.44
+
     ports:
       - 5432:5432
 #    volumes:
@@ -27,6 +28,11 @@ services:
       stemerald_net:
         ipv4_address: 192.168.19.45
     command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 30
     expose:
       - "6379"
 
@@ -41,8 +47,10 @@ services:
       - postgresql:pgdb
 #      - redis:redisdb
     depends_on:
-      - postgresql
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       DB_USERNAME: stemerald
       DB_PASSWORD: stemerald
@@ -67,9 +75,10 @@ services:
       - postgresql:pgdb
 #      - redis:redisdb
     depends_on:
-      - postgresql
-      - redis
-      - server
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       DB_USERNAME: stemerald
       DB_PASSWORD: stemerald
