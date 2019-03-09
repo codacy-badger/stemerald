@@ -38,6 +38,8 @@ services:
       context: ..
       dockerfile: docker/service/Dockerfile
     restart: always
+    links:
+      - postgresql_main
     depends_on:
       - postgresql
       - redis
@@ -61,6 +63,8 @@ services:
       context: ..
       dockerfile: docker/worker/Dockerfile
     restart: always
+    links:
+      - postgresql_main
     depends_on:
       - postgresql
       - redis
