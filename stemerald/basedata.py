@@ -1,22 +1,87 @@
 from restfulpy.orm import DBSession
+from sqlalchemy_media import store_manager
 
 from stemerald.models import *
 
 
+# FIXME: It is not base-data, this is mock-data. Fix it!
+
 # noinspection PyArgumentList
-def insert_territories():  # pragma: no cover
+@store_manager(DBSession)
+def insert():  # pragma: no cover
+
+    # Currencies
+    tirr = Fiat(symbol='TIRR', name='Iran Rial', divide_by_ten=-8)
+    tbtc = Cryptocurrency(symbol='TBTC', name='Bitcoin', wallet_id=1)
+    teth = Cryptocurrency(symbol='TETH', name='Ethereum', wallet_id=2, divide_by_ten=-1)
+    ttry = Cryptocurrency(symbol='TTRY', name='Turkish Lita', divide_by_ten=-4)
+
+    # Markets
+    tirr_tbtc = Market(name='TIRR_TBTC', base_currency=tbtc, quote_currency=tirr)
+    tirr_teth = Market(name='TIRR_TETH', base_currency=teth, quote_currency=tirr)
+    tbtc_teth = Market(name='TBTC_TETH', base_currency=teth, quote_currency=tbtc)
+    ttry_tbtc = Market(name='TTRY_TBTC', base_currency=tbtc, quote_currency=ttry)
+    DBSession.add(tirr_tbtc)
+    DBSession.add(tirr_teth)
+    DBSession.add(tbtc_teth)
+    DBSession.add(ttry_tbtc)
+
+    # Territories
     iran = Country(name='Iran', code='ir', phone_prefix=98)
     tehran_state = State(name='Tehran', country=iran)
     tehran_city = City(name='Tehran', state=tehran_state)
-
-
+    turkey = Country(name='Turkey', code='tr', phone_prefix=90)
+    ankara_state = State(name='Ankara', country=turkey)
+    istanbul_state = State(name='Istanbul', country=turkey)
+    istanbul_avrupa_city = City(name='Istanbul (Avrupa)', state=istanbul_state)
+    istanbul_asia_city = City(name='Istanbul (Asia)', state=istanbul_state)
+    ankara_city = City(name='Tehran', state=ankara_state)
     DBSession.add(tehran_city)
+    DBSession.add(istanbul_avrupa_city)
+    DBSession.add(istanbul_asia_city)
+    DBSession.add(ankara_city)
     DBSession.flush()
 
+    # Payment Gateways
+    shaparak = PaymentGateway()
+    shaparak.name = "tshaparak"
+    shaparak.fiat_symbol = "TIRR"
+    shaparak.cashin_min = 10000,
+    shaparak.cashin_max = 0,
+    shaparak.cashin_static_commission = 0,
+    shaparak.cashin_permille_commission = 0,
+    shaparak.cashin_max_commission = 0,
+    DBSession.add(shaparak)
+    DBSession.flush()
 
-# noinspection PyArgumentList
-def insert():  # pragma: no cover
-    insert_territories()
+    # Members
+    admin1 = Admin()
+    admin1.email = 'admin1@test.com'
+    admin1.password = '123456'
+    admin1.is_active = True
+    DBSession.add(admin1)
+    client1 = Client()
+    client1.email = 'client1@test.com'
+    client1.password = '123456'
+    client1.is_active = True
+    DBSession.add(client1)
+    DBSession.flush()
+
+    # Ticketing Departments
+    verification_department = TicketDepartment()
+    verification_department.title = 'Verification'
+    DBSession.add(verification_department)
+    financial_department = TicketDepartment()
+    financial_department.title = 'Financial'
+    DBSession.add(financial_department)
+    technical_department = TicketDepartment()
+    technical_department.title = 'Technical'
+    DBSession.add(technical_department)
+    general_department = TicketDepartment()
+    general_department.title = 'General'
+    DBSession.add(general_department)
+    DBSession.flush()
+
     # 1. Currencies
     # Fiat
     # irr = Fiat(code='IRR', name='Iran Rial')

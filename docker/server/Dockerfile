@@ -17,7 +17,6 @@ COPY stemerald/templates/*.mako stemerald/stemerald/templates/
 
 RUN apt-get update -y && apt-get install -y apt-utils build-essential gettext-base
 COPY docker/config.yml /etc/stemerald/config.template
-RUN envsubst < /etc/stemerald/config.template > /etc/stemerald/config.yml
 
 RUN pip install -e stemerald/ && mkdir -p $LOG_DIR
 
