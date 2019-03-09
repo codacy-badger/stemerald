@@ -1,4 +1,5 @@
 db:
+  administrative_url: postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres/${DB_NAME}
   url: postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres/${DB_NAME}
   echo: false
 
