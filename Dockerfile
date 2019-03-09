@@ -24,7 +24,7 @@ RUN pip install -e stemerald/ && mkdir -p $LOG_DIR
 
 #CMD ["stemerald", "-c $STEMERALD_CONFIG_FILE", "worker", "cleanup"]
 
-COPY .docker/*.sh /
+#COPY .docker/*.sh /
 
 #VOLUME ["/var/log/"]
 #EXPOSE 8080
