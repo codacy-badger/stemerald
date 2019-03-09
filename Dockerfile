@@ -26,8 +26,8 @@ RUN pip install -e stemerald/ && mkdir -p $LOG_DIR
 
 COPY .docker/*.sh /
 
-VOLUME ["/var/log/"]
-EXPOSE 8080
+#VOLUME ["/var/log/"]
+#EXPOSE 8080
 
 #COPY docker/server/entrypoint.sh /docker-entrypoint.sh
 #ENTRYPOINT [ "/docker-entrypoint.sh" ]
