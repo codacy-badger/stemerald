@@ -39,7 +39,7 @@ services:
       dockerfile: docker/server/Dockerfile
     restart: always
     links:
-      - postgresql_main
+      - postgresql
     depends_on:
       - postgresql
       - redis
@@ -47,7 +47,7 @@ services:
       DB_USERNAME: stemerald
       DB_PASSWORD: stemerald
       DB_NAME: stemerald_db
-      DB_HOST: postgresql_main
+      DB_HOST: postgresql
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.46
