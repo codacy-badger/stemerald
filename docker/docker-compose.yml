@@ -21,15 +21,14 @@ services:
 
   redis:
     container_name: redis_main
-    image: stemerald/redis
-    build: redis
+    image: redis:latest
     restart: always
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.45
     command: ["redis-server", "--appendonly", "yes"]
     expose:
-      - 6379
+      - 6379:6379
 
 
   server:
@@ -48,6 +47,7 @@ services:
       DB_PASSWORD: stemerald
       DB_NAME: stemerald_db
       DB_HOST: postgresql
+      REDIS_HOST: redis
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.46
@@ -74,6 +74,7 @@ services:
       DB_PASSWORD: stemerald
       DB_NAME: stemerald_db
       DB_HOST: postgresql
+      REDIS_HOST: redis
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.47
