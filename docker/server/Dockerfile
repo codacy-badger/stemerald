@@ -10,8 +10,7 @@ COPY alembic.ini stemerald/
 COPY wsgi.py stemerald/
 COPY migration/*.py stemerald/migration/
 COPY migration/*.mako stemerald/migration/
-COPY migration/*.mako stemerald/migration/
-COPY stemerald/versions/*.py stemerald/stemerald/versions/
+COPY migration/versions/*.py stemerald/migration/versions/
 COPY stemerald/controllers/*.py stemerald/stemerald/controllers/
 COPY stemerald/models/*.py stemerald/stemerald/models/
 COPY stemerald/templates/*.mako stemerald/stemerald/templates/
