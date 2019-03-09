@@ -1,5 +1,5 @@
 db:
-  url: postgresql://${DB_USERNAME}:${DB_PASSWORD}@localhost/${DB_NAME}
+  url: postgresql://${DB_USERNAME}:${DB_PASSWORD}@{DB_HOST}/${DB_NAME}
   echo: false
 
 redis:
