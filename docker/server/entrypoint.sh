@@ -1,5 +1,8 @@
 #!/bin/sh
 
+
+sleep 60
+
 envsubst < /etc/stemerald/config.template > ${STEMERALD_CONFIG_FILE}
 stemerald -c ${STEMERALD_CONFIG_FILE} admin create-db --basedata
 stemerald -c ${STEMERALD_CONFIG_FILE} migrate upgrade head
