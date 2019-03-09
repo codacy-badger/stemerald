@@ -41,7 +41,8 @@ services:
     depends_on:
       - postgresql
       - redis
-    entrypoint: .docker/wsgi-entrypoint.sh
+    entrypoint:
+      - wsgi-entrypoint.sh
     environment:
       DB_USERNAME: stemerald
       DB_PASSWORD: stemerald
@@ -69,7 +70,8 @@ services:
       - postgresql
       - redis
       - wsgi
-    entrypoint: .docker/worker-entrypoint.sh
+    entrypoint:
+      - worker-entrypoint.sh
     environment:
       DB_USERNAME: stemerald
       DB_PASSWORD: stemerald
@@ -94,7 +96,8 @@ services:
       - redis
       - wsgi
       - worker
-    entrypoint: .docker/cli-entrypoint.sh
+    entrypoint:
+      - cli-entrypoint.sh
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.48
