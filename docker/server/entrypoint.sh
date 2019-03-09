@@ -1,9 +1,9 @@
 #!/bin/sh
 
-
-sleep 60
-
 envsubst < /etc/stemerald/config.template > ${STEMERALD_CONFIG_FILE}
+
+while !</dev/tcp/db/5432; do sleep 1; done;
+
 stemerald -c ${STEMERALD_CONFIG_FILE} admin create-db --basedata
 stemerald -c ${STEMERALD_CONFIG_FILE} migrate upgrade head
 
