@@ -2,8 +2,8 @@ version: '3.6'
 
 services:
 
-  postgresql:
-    container_name: postgresql_main
+  postgres:
+    container_name: postgres_main
     image: postgres:9
     restart: always
     environment:
@@ -16,7 +16,7 @@ services:
     ports:
       - 5432:5432
 #    volumes:
-#      - stemerald_db:/var/lib/postgresql/data
+#      - stemerald_db:/var/lib/postgres/data
 
   redis:
     container_name: redis_main
@@ -38,10 +38,10 @@ services:
         entrypointfile: wsgi-entrypoint.sh
     restart: always
     links:
-      - postgresql:pgdb
+      - postgres:pgdb
       - redis:redisdb
     depends_on:
-      - postgresql
+      - postgres
       - redis
     environment:
       DB_USERNAME: stemerald
@@ -66,10 +66,10 @@ services:
         entrypointfile: worker-entrypoint.sh
     restart: always
     links:
-      - postgresql:pgdb
+      - postgres:pgdb
       - redis:redisdb
     depends_on:
-      - postgresql
+      - postgres
       - redis
       - wsgi
     environment:
@@ -94,7 +94,7 @@ services:
         entrypointfile: cli-entrypoint.sh
     restart: always
     depends_on:
-      - postgresql
+      - postgres
       - redis
       - wsgi
       - worker
@@ -102,7 +102,7 @@ services:
 #      stemerald_net:
 #        ipv4_address: 192.168.19.48
 #    volumes:
-#      - /var/stemerald/postgresql/master/data
+#      - /var/stemerald/postgres/master/data
 #      - /var/stemerald/redis/master/lib
 #      - /var/stemerald/service/log
 #      - /var/stemerald/worker/log
