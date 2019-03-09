@@ -39,7 +39,7 @@ services:
     restart: always
     links:
       - postgresql:pgdb
-      - redis:redisdb
+#      - redis:redisdb
     depends_on:
       - postgresql
       - redis
@@ -47,8 +47,7 @@ services:
       DB_USERNAME: stemerald
       DB_PASSWORD: stemerald
       DB_NAME: stemerald_db
-      DB_HOST: postgresql
-      REDIS_HOST: redis
+      REDIS_DB: 0
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.46
@@ -66,7 +65,7 @@ services:
     restart: always
     links:
       - postgresql:pgdb
-      - redis:redisdb
+#      - redis:redisdb
     depends_on:
       - postgresql
       - redis
@@ -75,8 +74,7 @@ services:
       DB_USERNAME: stemerald
       DB_PASSWORD: stemerald
       DB_NAME: stemerald_db
-      DB_HOST: postgresql
-      REDIS_HOST: redis
+      REDIS_DB: 0
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.47
