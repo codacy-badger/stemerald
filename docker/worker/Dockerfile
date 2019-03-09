@@ -23,5 +23,5 @@ CMD ["stemerald", "worker", "cleanup"]
 
 VOLUME ["/var/log/"]
 
-COPY docker/service/entrypoint.sh /docker-entrypoint.sh
+COPY docker/server/entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT [ "/docker-entrypoint.sh" ]

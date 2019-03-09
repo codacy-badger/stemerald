@@ -32,11 +32,11 @@ services:
       - 6379
 
 
-  service:
-    container_name: service_main
+  server:
+    container_name: server_main
     build:
       context: ..
-      dockerfile: docker/service/Dockerfile
+      dockerfile: docker/server/Dockerfile
     restart: always
     links:
       - postgresql_main
@@ -64,16 +64,16 @@ services:
       dockerfile: docker/worker/Dockerfile
     restart: always
     links:
-      - postgresql_main
+      - postgresql
     depends_on:
       - postgresql
       - redis
-      - service
+      - server
     environment:
       DB_USERNAME: stemerald
       DB_PASSWORD: stemerald
       DB_NAME: stemerald_db
-      DB_HOST: postgresql_main
+      DB_HOST: postgresql
     networks:
       stemerald_net:
         ipv4_address: 192.168.19.47
