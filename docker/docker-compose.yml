@@ -38,7 +38,8 @@ services:
       dockerfile: docker/server/Dockerfile
     restart: always
     links:
-      - postgresql
+      - postgresql:pgdb
+      - redis:redisdb
     depends_on:
       - postgresql
       - redis
@@ -64,7 +65,8 @@ services:
       dockerfile: docker/worker/Dockerfile
     restart: always
     links:
-      - postgresql
+      - postgresql:pgdb
+      - redis:redisdb
     depends_on:
       - postgresql
       - redis

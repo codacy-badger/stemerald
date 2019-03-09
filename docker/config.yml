@@ -1,12 +1,12 @@
 db:
-  url: postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}
+  url: postgresql://${DB_USERNAME}:${DB_PASSWORD}@pgdb/${DB_NAME}
   echo: false
 
 redis:
-  host: localhost
+  host: redisdb
   port: 6379
   password:
-  db: ${REDIS_DB}
+  db: 0
 
 media_storage:
   file_system_dir: %(root_path)s/data/media-storage
