@@ -25,7 +25,7 @@ services:
 
   wsgi:
     container_name: wsgi_main
-    image: stacrypt/bstawallet:latest
+    image: stacrypt/bstemerald:latest
     command: wsgi
     restart: always
     links:
@@ -47,7 +47,7 @@ services:
 
   worker:
     container_name: worker_main
-    image: stacrypt/bstawallet:latest
+    image: stacrypt/bstemerald:latest
     command: worker
     restart: always
     links:
@@ -69,7 +69,7 @@ services:
 
   cli:
     container_name: cli
-    image: stacrypt/bstawallet:latest
+    image: stacrypt/bstemerald:latest
     command: cli
     restart: always
     depends_on:
