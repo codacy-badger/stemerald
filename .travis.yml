@@ -45,6 +45,6 @@ before_deploy:
   - docker tag $REPO:$COMMIT $REPO:$TAG
 deploy:
   provider: script
-  script: docker push $REPO && scp docker-compose.production.yml "$SSH_USER@$SSH_HOST:~/stemerald/docker-compose.yml" && ssh $SSH_USER@$SSH_HOST "cd stemerald/ && docker-compose up --force-recreate --build" && .travis/wiki.sh
+  script: docker push $REPO && scp docker-compose.production.yml "$SSH_USER@$SSH_HOST:~/stemerald/docker-compose.yml" && ssh $SSH_USER@$SSH_HOST "cd stemerald/ && docker-compose up --force-recreate --build -d" && .travis/wiki.sh
   on:
     branch: master
