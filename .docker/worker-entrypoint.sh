@@ -8,4 +8,4 @@ wait-for-it redisdb:6379 -- echo "Redis is ready"
 
 envsubst < /etc/stemerald/config.template.yml > ${STEMERALD_CONFIG_FILE}
 
-stemerald worker start -c ${STEMERALD_CONFIG_FILE}
+stemerald -c ${STEMERALD_CONFIG_FILE} worker start
