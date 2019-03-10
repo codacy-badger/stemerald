@@ -26,11 +26,12 @@ addons:
   postgresql: 9.5
   ssh_known_hosts: 116.203.119.119
 services:
+  - docker
   - redis-server
 install: ".travis/install.sh"
 script: coverage run --source emerald $(which nosetests)
 after_success:
-  - if [[ $TRAVIS_BRANCH == 'develop' ]]; then .travis/wiki.sh ; fi
+  - if [[ $TRAVIS_BRANCH == 'master' ]]; then .travis/wiki.sh ; fi
 before_deploy:
   - openssl aes-256-cbc -K encrypted_05c658a95df7_key -iv encrypted_05c658a95df7_iv
     -in deploy_rsa.enc -out /tmp/deploy_rsa -d
