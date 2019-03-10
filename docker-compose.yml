@@ -34,8 +34,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        entrypointfile: wsgi-entrypoint.sh
+    command: wsgi
     restart: always
     links:
       - postgres:pgdb
@@ -62,8 +61,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        entrypointfile: worker-entrypoint.sh
+    command: worker
     restart: always
     links:
       - postgres:pgdb
@@ -90,8 +88,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        entrypointfile: cli-entrypoint.sh
+    command: cli
     restart: always
     depends_on:
       - postgres
