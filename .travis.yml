@@ -40,6 +40,16 @@ before_deploy:
   - eval "$(ssh-agent -s)"
   - chmod 600 /tmp/deploy_rsa
   - ssh-add /tmp/deploy_rsa
+  - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
+  - docker build -t <my.container.registry.io>/<my_app>:<my_tag> .
+  - docker push <my.container.registry.io>/<my_app>:<my_tag>
+
+deploy:
+  provider: script
+  script: bash docker_push
+  on:
+    branch: master
+
 
 #deploy:
 #  provider: script
