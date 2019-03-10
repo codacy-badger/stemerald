@@ -43,7 +43,6 @@ before_deploy:
     ; fi`
   - docker build -f Dockerfile -t $REPO:$COMMIT .
   - docker tag $REPO:$COMMIT $REPO:$TAG
-  - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
 deploy:
   provider: script
   script: docker push $REPO && scp docker-compose.production.yml "$SSH_USER@$SSH_HOST:~/stemerald/docker-compose.yml" && ssh $SSH_USER@$SSH_HOST "cd stemerald/ && docker-compose up --force-recreate --build"
