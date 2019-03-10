@@ -1,0 +1,102 @@
+version: '3.6'
+
+services:
+
+  postgres:
+    container_name: postgres_main
+    image: postgres:9
+    restart: always
+    environment:
+      POSTGRES_DB: stemerald_db
+      POSTGRES_USER: stemerald
+      POSTGRES_PASSWORD: stemerald
+    ports:
+      - 5432:5432
+    volumes:
+      - stemerald_db:/var/lib/postgres/data
+
+  redis:
+    container_name: redis_main
+    image: redis:latest
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    expose:
+      - "6379"
+
+  wsgi:
+    container_name: wsgi_main
+    image: stacrypt/bstawallet:latest
+    command: wsgi
+    restart: always
+    links:
+      - postgres:pgdb
+      - redis:redisdb
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DB_USERNAME: stemerald
+      DB_PASSWORD: stemerald
+      DB_NAME: stemerald_db
+      REDIS_DB: 0
+    ports:
+      - "8080:8080"
+    volumes:
+      - stemerald_logs_server:/var/log/stemerald
+      - stemerald_config:/etc/stemerald
+
+  worker:
+    container_name: worker_main
+    image: stacrypt/bstawallet:latest
+    command: worker
+    restart: always
+    links:
+      - postgres:pgdb
+      - redis:redisdb
+    depends_on:
+      - postgres
+      - redis
+      - wsgi
+    environment:
+      DB_USERNAME: stemerald
+      DB_PASSWORD: stemerald
+      DB_NAME: stemerald_db
+      REDIS_DB: 0
+    volumes:
+      - stemerald_logs_worker:/var/log/stemerald
+      - stemerald_config:/etc/stemerald
+
+
+  cli:
+    container_name: cli
+    image: stacrypt/bstawallet:latest
+    command: cli
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+      - wsgi
+      - worker
+#    volumes:
+#      - /var/stemerald/postgres/master/data
+#      - /var/stemerald/redis/master/lib
+#      - /var/stemerald/service/log
+#      - /var/stemerald/worker/log
+
+volumes:
+  stemerald_config:
+
+  stemerald_logs_server:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /mnt/logs/server
+
+  stemerald_logs_worker:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /mnt/logs/worker
+
+  stemerald_db:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /mnt/database
