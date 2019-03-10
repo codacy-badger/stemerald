@@ -8,7 +8,8 @@ wait-for-it redisdb:6379 -- echo "Redis is ready"
 
 envsubst < /etc/stemerald/config.template.yml > ${STEMERALD_CONFIG_FILE}
 
-stemerald -c ${STEMERALD_CONFIG_FILE} admin create-db --basedata
+stemerald -c ${STEMERALD_CONFIG_FILE} admin setup-db
 stemerald -c ${STEMERALD_CONFIG_FILE} migrate upgrade head
+stemerald -c ${STEMERALD_CONFIG_FILE} admin base-data
 
 gunicorn -w 4 --bind 0.0.0.0:8080 'wsgi:app'
