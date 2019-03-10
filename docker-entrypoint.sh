@@ -1,5 +1,15 @@
 #!/bin/bash
 
+echo ${STEMERALD_CONFIG_FILE}
+echo ${STEMERALD_CONFIG_FILE}
+echo ${STEMERALD_CONFIG_FILE}
+echo ${STEMERALD_CONFIG_FILE}
+echo ${STEMERALD_CONFIG_FILE}
+echo ${STEMERALD_CONFIG_FILE}
+echo ${STEMERALD_CONFIG_FILE}
+echo ${STEMERALD_CONFIG_FILE}
+echo ${STEMERALD_CONFIG_FILE}
+
 help () {
 	echo "Available daemons are: "
 	echo "  wsgi"
@@ -28,7 +38,7 @@ waitfordeps () {
 }
 
 case $SERVICE in
-	wsgi)
+	cli)
 	    initconfig
 	    waitfordeps
         tail -f /dev/null
@@ -38,7 +48,7 @@ case $SERVICE in
 		waitfordeps
         stemerald -c ${STEMERALD_CONFIG_FILE} worker start
 		;;
-	cli)
+	wsgi)
 		initconfig
 		waitfordeps
         stemerald -c ${STEMERALD_CONFIG_FILE} admin setup-db
