@@ -1,14 +1,4 @@
-#!/bin/bash
-
-echo ${STEMERALD_CONFIG_FILE}
-echo ${STEMERALD_CONFIG_FILE}
-echo ${STEMERALD_CONFIG_FILE}
-echo ${STEMERALD_CONFIG_FILE}
-echo ${STEMERALD_CONFIG_FILE}
-echo ${STEMERALD_CONFIG_FILE}
-echo ${STEMERALD_CONFIG_FILE}
-echo ${STEMERALD_CONFIG_FILE}
-echo ${STEMERALD_CONFIG_FILE}
+#!/usr/bin/env bash
 
 help () {
 	echo "Available daemons are: "
