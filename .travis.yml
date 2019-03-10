@@ -37,8 +37,8 @@ before_deploy:
   - eval "$(ssh-agent -s)"
   - chmod 600 /tmp/deploy_rsa
   - ssh-add /tmp/deploy_rsa
-  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-  - export REPO=stacrypt/stemerald
+  - docker login -u $DOCKER_USER -p $DOCKER_PASS
+  - export REPO=stacrypt/bstemerald
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
     ; fi`
   - docker build -f Dockerfile -t $REPO:$COMMIT .
@@ -46,6 +46,6 @@ before_deploy:
   - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
 deploy:
   provider: script
-  script: docker push $REPO
+  script: docker push $REPO && scp docker-compose.production.yml "$SSH_USER@$SSH_HOST:~/stemerald/docker-compose.yml" && ssh $SSH_USER@$SSH_HOST "cd stemerald/ && docker-compose up --force-recreate --build"
   on:
     branch: master
