@@ -45,7 +45,7 @@ deploy:
   provider: script
   skip_cleanup: true
   script: docker push $REPO && scp docker-compose.production.yml "$SSH_USER@$SSH_HOST:~/stemerald/docker-compose.yml"
-    && ssh $SSH_USER@$SSH_HOST "cd stemerald/ && docker-compose up --force-recreate
+    && ssh $SSH_USER@$SSH_HOST "cd stemerald/ && docker-compose pull && docker-compose up --force-recreate
     --build -d" && .travis/wiki.sh
   on:
     branch: master
