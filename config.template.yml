@@ -74,6 +74,13 @@ membership:
   invitation_code_required: false
   second_factor_seed: A3D9F98B8FF98B68F56AAA2A28B68F56AAA268F593D9F98B68FF98B68F56AAA2
 
+stexchange:
+  rpc_url: "http://116.203.31.26:8080"
+
+stawallet:
+  rest_url: "http://116.203.118.177:8080"
+
+
 logging:
 
   loggers:
