@@ -43,7 +43,6 @@ services:
       - "8080:8080"
     volumes:
       - stemerald_logs_server:/var/log/stemerald
-      - stemerald_config:/etc/stemerald
 
   worker:
     container_name: worker_main
@@ -64,7 +63,6 @@ services:
       REDIS_DB: 0
     volumes:
       - stemerald_logs_worker:/var/log/stemerald
-      - stemerald_config:/etc/stemerald
 
 
   cli:
@@ -84,8 +82,6 @@ services:
 #      - /var/stemerald/worker/log
 
 volumes:
-  stemerald_config:
-
   stemerald_logs_server:
     driver: local-persist
     driver_opts:
