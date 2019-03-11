@@ -8,7 +8,9 @@ redis:
   port: 6379
   password:
   db: ${REDIS_DB}
-  authentication:
+
+authentication:
+  redis:
     host: redis
     port: 6379
     password:
