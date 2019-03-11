@@ -1,6 +1,6 @@
 import ujson
 
-from stemerald.models import Admin
+from stemerald.models import Admin, Cryptocurrency
 from stemerald.stexchange import StexchangeClient, stexchange_client
 from stemerald.tests.helpers import WebTestCase, As
 
@@ -16,6 +16,11 @@ class AssetTestCase(WebTestCase):
         admin1.password = '123456'
         admin1.is_active = True
         cls.session.add(admin1)
+
+        testnet = Cryptocurrency(symbol='TESTNET3', name='TESTNET3', wallet_id=1)
+        rinkeby = Cryptocurrency(symbol='RINKEBY', name='RINKEBY', wallet_id=2)
+        cls.session.add(testnet)
+        cls.session.add(rinkeby)
 
         cls.session.commit()
 

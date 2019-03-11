@@ -1,7 +1,8 @@
-from nanohttp import RestController, context, json
+from nanohttp import RestController, context, json, HttpBadRequest
 from restfulpy.authorization import authorize
 from restfulpy.validation import validate_form, prevent_form
 
+from stemerald.models import Currency
 from stemerald.stexchange import stexchange_client, StexchangeException, stexchange_http_exception_handler
 
 
@@ -9,11 +10,12 @@ class AssetsController(RestController):
 
     @json
     def list(self):
+        supporting_assets = Currency.query.all()
         try:
             return [{
                 'name': x['name'],
                 'prec': x['prec'],
-            } for x in stexchange_client.asset_list()]
+            } for x in stexchange_client.asset_list() if any(x['name'] == sm.symbol for sm in supporting_assets)]
 
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
@@ -42,15 +44,17 @@ class BalancesController(RestController):
     @authorize("client")
     @prevent_form
     def overview(self):
+        supporting_assets = Currency.query.all()
         asset_names = [x['name'] for x in stexchange_client.asset_list()]
         result = []
         try:
             for key, value in stexchange_client.balance_query(context.identity.id, *asset_names).items():
-                result.append({
-                    'name': key,
-                    'available': value['available'],
-                    'freeze': value['freeze'],
-                })
+                if any(key == sm.symbol for sm in supporting_assets):
+                    result.append({
+                        'name': key,
+                        'available': value['available'],
+                        'freeze': value['freeze'],
+                    })
 
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
@@ -63,6 +67,9 @@ class BalancesController(RestController):
         exact=['asset', 'page'], types={'page': int}
     )
     def history(self):
+        asset = Currency.query.filter(Currency.symbol == context.query_string.get('asset', None)).one_or_none()
+        if asset is None:
+            raise HttpBadRequest('Asset not found', 'market-not-found')
         try:
             return [
                 {
