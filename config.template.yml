@@ -17,13 +17,14 @@ authentication:
     db: ${REDIS_DB}
 
 smtp:
-  host: smtp-relay.gmail.com
+  host: smtp.gmail.com
   port: 587
   local_hostname: stacrypt.io
   username: ${SMTP_USERNAME}
   password: ${SMTP_PASSWORD}
   tls: true
   auth: true
+  ssl: false
 
 media_storage:
   file_system_dir: %(root_path)s/data/media-storage

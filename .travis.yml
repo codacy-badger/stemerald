@@ -1,49 +1,51 @@
 env:
   global:
-    - COMMIT_AUTHOR_EMAIL: dev@stacrypt.io
-    - COMMIT=${TRAVIS_COMMIT::8}
-    - secure: ZbVgVTgYg8sX+RZMBZ/c77gp8Gi/bxKow3XlhafT+2d9Do3ddj1mORk+OiG0voCb1B+WHkw7JSCBSgB3LQvUraoEQmioANCvUbl0IvgH25JSFBhhEgxooqwOI8qlR0gfmucNlR1TwnrdDDpwTDOnvL5U317yTDqSRcOXCJda2JBKiwdnXC1/F2Q4FDJrvZevgtlOGaTDi7AVAVA26HbTnrxzE4CD6oW3syKn9BSAsA4KC02CAEDV9Fz1tmTYclGS+NDnVQyEH2L5UAGGz9iU9OM5h5lUmWIJ8CjwPVNcc+ZUN7XOn6HbLC2axcRp8AEMBTSVkdEhCMxAVsMI5ooxCiWtQZnuwfRZGGt+f1UEJZKxR0nH0r0PuS4yZthmoH58FqvvYb3cNHBcgpZxwLtzSKa58UYCHwkGqiLecECHqgHRR3+pWkPU2jndn0saabpPv8Pew3BkUjbUQ1KiYKhO0ZsFmT25g5Fk1pLjEIC22AM+xy1dLl0cQtQOoK1suDK/HG58SDo2ulkbCSD1twEQZJak3nGHQBUNQ/+AmbzmYn3fwNDpDMe2cq7APi4F3mysl/qdTpVjlwgrf+M9yKgLSklEiXMsieyWZOlnH3JZc5SJ6DMhP6+J6vcCwlioqyhXqh7xqWgaLYZwDpF3zPUZ4ZXJdfrUrYtJgX4sRfDa82U=
-    - secure: ZBdPJIysTFabkJGk18xoBivH5IvB/bYJb+MSthl+X9k05yZtWMJcsTf1Aorpbgr6WMemUw+QqYF8ZdmFELobnKhvk2wuoP9n/RjaYT72SJ7BedHtY/bDHMHdYhDvdH/5rl+DXw9v9LjKeAWK++W0iyuKzsKTN9cy47TJr4JYkqM6ZBJ2pT89u5AQEI9PcOuTt60NyNJe014TwazRQhAg6AXyGxQkDYn+No0J4e1PXU7TXt3RNAGuSGcZiBz8tnznUqzGLu5T2HUGUfACGuLuRNChy/dE2Y6rgzVpCBAXQyC+I+SppqKpkwMcWsid3Ncmpb0T7oSuD/o3EvXUqw70QB7VKbMDSktzTcaMOqpltaNnIhQxLuSvSJEJkHja//UsO5RUlyX0kGCktiuPzBVM4rABjC6XOk+2CTFv0iZLZW6tNgJ3GjE7xGwZPEACsWgx5xeKUNtiZo9anZUHDFcq6EYYWJiLXo940hBcxVAKboc31LRq2ZSb+mXxnQOHa/rhHcyQDdidUkVWAKGatE7/PI79BAIMMvh19pQ0D8rjJ8cc8kYO3YuygxKqDp1LSbGNlvsf6os/ZRPoWlqJGUbLw8hsxn+EYntxWd88SW4j6bZROmbPH+FWrrwG5OKg8EzcMD7Y3eVR+qdGNJmnRyANdei85pZd0+bCw8p9VsBAA40=
-    - secure: BM15F/btGrn+7R1aa17OQ29PXOJbOXe/gJr08Fc9FujOTxmyWPsk+mGn0Tmdgs/Y3Wb66yjTJcG+dgZZNziWbK/Efh6Mo2ktzxqSaDlobECewjO64yml6eMEbb6+HtACcdoLuKjaINoOXmtsMf+g0AUERLYWMIQShmK8kl/tmdrrnC/GjC0bmhJDrDBLLkkuLEOWA0ARxxfTO0JI3FLyPy4rO1MpWWECo6I9VgHZw02PgD8ohpxjgrSBmy/9URHRSP/QxRDVauoyxw74/gRwm4JQjkJEp4IPXWcBo2EhrKVrf/i6hrJqH3SQm+g5jSxnlcAAwkEXeGjJRgU62txnORlhZimQCL7uL1rXZdR2gSdqfALc4tzcP0SNxY386T+peVoHqZ8YA8y3svTgshhSWTybtPfmyZCk33cKkvW6YfEkjr+Er6VwoLY/WIlS0gJd4mhl2HHGYicouz8qhmX37cETv3jsB/NR+GNos3DfB3TdG53L1lzHCmiTC4vObzGUw4MDGJ+gqz0tIegT7TXiqLqy7SHpMi2zo4Iqt0saGEaHyHcoWNdlgOliQQgmesPIrKdFDmMMtcrYCFW2iFkyaOKrgdiHRTji6BFcYa+3XTOgtRxWMkcJCNeeNNdtKKE9/nlYr0dfS5x/Fhzuzs5uB2k4JBHeHj3FszRpVPQxwU4=
-    - secure: zOIV//IPWv/ilWTtC9kRG7ZBE6i+Hw0eP9Ubxk5XEkNQFXxj5b0vth6x/KxwIfX4BJ+hYzNGm9gEK/FYM4zE6YvWdUZVdNfnxPaDUUyFlKmmYHp+4Gaacq8uH4msU6m1gTa/V2yawlXNq5iWJHnOuu4psj0iAP9giaBpnl9UoTYxGWFuXgD5y6LB9N5IefTBzRWgQXVpLtVFwRfxqEVj8H800K4/neEhYtMwFqmC2sX4Bm0XFajEZUY8kKP29D5RHLfx7fVbOVLvSH4YsX0klEzvFwnKR0I6HiE1ZyuAERA79fpIOts9TGYoc1nTN07a0Lv+oR3tLf4In7KsKABQK1kXtFPMJqhNdxgv6225vsyopPrdWMlUM58IUtNAky71e7gspkX+OztubO/6EJCHOjRLJwjqSLjYlUYYNilNHV+tFxcce4KVquXBdcAjyo/zB5dWrGiqvPmvGWsmzY0FRekf4JKy6vwIqjMyKIU/VHULEIjbc2z3zInnKuI1a4wcd3wmMFKaiiPWHOjjX3N1FhKYnnmHTW/591DUrOAaSFAA5d42L8LD8MzNpe6re1gUQ7OTgx9D1Tf1QpNeeVhcPnL0h0Kfsd5B6j+XIufrRz8IfTou87IRjtphgMMoa+Duw8HWi8dwDB/HlGg6usSe2bvyNZzAsL7vMN+25I9iVpY=
-    - secure: 1RG4r121KDUBNNlfV2xZxVL2x7ZHt0wVt50L9Ekmp9BTj6RZD+ysqMrTjkqWVF1ilMI6eevusJ9J3iEJMgnYio2u9WJvewMsVYjDZjLHUQjTKaj1XoE8gmE9joZ9BzxpQBg0OhWaEeAPr6tJyCpT80jKjpXrQsJRKqi0OBEWgmTXWipOMpFTIGucDpwJ7+9ormoKF+pJrd/muiYXYGkUgt6o8oKBmuTzGOpi/Zwhm2ZTkIEe2PPCmIuoowRst7wIgYbc5/wXAxow5J2En20+mux1cvKdNn44XsN6TuXYYXzx0xoVNzVATHl/N31xyaUueyr/3akbJotq8OstahKLZ3qrLBmGEs89HygWgwHQ4XFeLSJ1yOVwU5QDn5u4VY/du1BVeA7qmpXnejoohs1xp7krFAr4YDiYTZG/ETbL0PEGymfNmwGrHue6asymSANibzW5quPu0rq8q8eVNfwL1WKm/s4r7LMiEUfSWmj/C5voDO36iMqjsQApYefI9hKlxwwlxNRVS+ilukKJGa+B/lcqA51JnnKdJzZqjaqDEeJhe4QOsGLeULzPvyi1VwJhXuNYisTBuuvpokJakKE3KDqqkGLFB0IAtsuzgAOoTLewoXgPRmlQIRcMAkcugVZ+fHku31WOOB5OjQy65jxHTMDN0F56Ecy7jMXqeElTtGQ=
+  - COMMIT_AUTHOR_EMAIL: dev@stacrypt.io
+  - COMMIT=${TRAVIS_COMMIT::8}
+  - secure: ZbVgVTgYg8sX+RZMBZ/c77gp8Gi/bxKow3XlhafT+2d9Do3ddj1mORk+OiG0voCb1B+WHkw7JSCBSgB3LQvUraoEQmioANCvUbl0IvgH25JSFBhhEgxooqwOI8qlR0gfmucNlR1TwnrdDDpwTDOnvL5U317yTDqSRcOXCJda2JBKiwdnXC1/F2Q4FDJrvZevgtlOGaTDi7AVAVA26HbTnrxzE4CD6oW3syKn9BSAsA4KC02CAEDV9Fz1tmTYclGS+NDnVQyEH2L5UAGGz9iU9OM5h5lUmWIJ8CjwPVNcc+ZUN7XOn6HbLC2axcRp8AEMBTSVkdEhCMxAVsMI5ooxCiWtQZnuwfRZGGt+f1UEJZKxR0nH0r0PuS4yZthmoH58FqvvYb3cNHBcgpZxwLtzSKa58UYCHwkGqiLecECHqgHRR3+pWkPU2jndn0saabpPv8Pew3BkUjbUQ1KiYKhO0ZsFmT25g5Fk1pLjEIC22AM+xy1dLl0cQtQOoK1suDK/HG58SDo2ulkbCSD1twEQZJak3nGHQBUNQ/+AmbzmYn3fwNDpDMe2cq7APi4F3mysl/qdTpVjlwgrf+M9yKgLSklEiXMsieyWZOlnH3JZc5SJ6DMhP6+J6vcCwlioqyhXqh7xqWgaLYZwDpF3zPUZ4ZXJdfrUrYtJgX4sRfDa82U=
+  - secure: ZBdPJIysTFabkJGk18xoBivH5IvB/bYJb+MSthl+X9k05yZtWMJcsTf1Aorpbgr6WMemUw+QqYF8ZdmFELobnKhvk2wuoP9n/RjaYT72SJ7BedHtY/bDHMHdYhDvdH/5rl+DXw9v9LjKeAWK++W0iyuKzsKTN9cy47TJr4JYkqM6ZBJ2pT89u5AQEI9PcOuTt60NyNJe014TwazRQhAg6AXyGxQkDYn+No0J4e1PXU7TXt3RNAGuSGcZiBz8tnznUqzGLu5T2HUGUfACGuLuRNChy/dE2Y6rgzVpCBAXQyC+I+SppqKpkwMcWsid3Ncmpb0T7oSuD/o3EvXUqw70QB7VKbMDSktzTcaMOqpltaNnIhQxLuSvSJEJkHja//UsO5RUlyX0kGCktiuPzBVM4rABjC6XOk+2CTFv0iZLZW6tNgJ3GjE7xGwZPEACsWgx5xeKUNtiZo9anZUHDFcq6EYYWJiLXo940hBcxVAKboc31LRq2ZSb+mXxnQOHa/rhHcyQDdidUkVWAKGatE7/PI79BAIMMvh19pQ0D8rjJ8cc8kYO3YuygxKqDp1LSbGNlvsf6os/ZRPoWlqJGUbLw8hsxn+EYntxWd88SW4j6bZROmbPH+FWrrwG5OKg8EzcMD7Y3eVR+qdGNJmnRyANdei85pZd0+bCw8p9VsBAA40=
+  - secure: BM15F/btGrn+7R1aa17OQ29PXOJbOXe/gJr08Fc9FujOTxmyWPsk+mGn0Tmdgs/Y3Wb66yjTJcG+dgZZNziWbK/Efh6Mo2ktzxqSaDlobECewjO64yml6eMEbb6+HtACcdoLuKjaINoOXmtsMf+g0AUERLYWMIQShmK8kl/tmdrrnC/GjC0bmhJDrDBLLkkuLEOWA0ARxxfTO0JI3FLyPy4rO1MpWWECo6I9VgHZw02PgD8ohpxjgrSBmy/9URHRSP/QxRDVauoyxw74/gRwm4JQjkJEp4IPXWcBo2EhrKVrf/i6hrJqH3SQm+g5jSxnlcAAwkEXeGjJRgU62txnORlhZimQCL7uL1rXZdR2gSdqfALc4tzcP0SNxY386T+peVoHqZ8YA8y3svTgshhSWTybtPfmyZCk33cKkvW6YfEkjr+Er6VwoLY/WIlS0gJd4mhl2HHGYicouz8qhmX37cETv3jsB/NR+GNos3DfB3TdG53L1lzHCmiTC4vObzGUw4MDGJ+gqz0tIegT7TXiqLqy7SHpMi2zo4Iqt0saGEaHyHcoWNdlgOliQQgmesPIrKdFDmMMtcrYCFW2iFkyaOKrgdiHRTji6BFcYa+3XTOgtRxWMkcJCNeeNNdtKKE9/nlYr0dfS5x/Fhzuzs5uB2k4JBHeHj3FszRpVPQxwU4=
+  - secure: zOIV//IPWv/ilWTtC9kRG7ZBE6i+Hw0eP9Ubxk5XEkNQFXxj5b0vth6x/KxwIfX4BJ+hYzNGm9gEK/FYM4zE6YvWdUZVdNfnxPaDUUyFlKmmYHp+4Gaacq8uH4msU6m1gTa/V2yawlXNq5iWJHnOuu4psj0iAP9giaBpnl9UoTYxGWFuXgD5y6LB9N5IefTBzRWgQXVpLtVFwRfxqEVj8H800K4/neEhYtMwFqmC2sX4Bm0XFajEZUY8kKP29D5RHLfx7fVbOVLvSH4YsX0klEzvFwnKR0I6HiE1ZyuAERA79fpIOts9TGYoc1nTN07a0Lv+oR3tLf4In7KsKABQK1kXtFPMJqhNdxgv6225vsyopPrdWMlUM58IUtNAky71e7gspkX+OztubO/6EJCHOjRLJwjqSLjYlUYYNilNHV+tFxcce4KVquXBdcAjyo/zB5dWrGiqvPmvGWsmzY0FRekf4JKy6vwIqjMyKIU/VHULEIjbc2z3zInnKuI1a4wcd3wmMFKaiiPWHOjjX3N1FhKYnnmHTW/591DUrOAaSFAA5d42L8LD8MzNpe6re1gUQ7OTgx9D1Tf1QpNeeVhcPnL0h0Kfsd5B6j+XIufrRz8IfTou87IRjtphgMMoa+Duw8HWi8dwDB/HlGg6usSe2bvyNZzAsL7vMN+25I9iVpY=
+  - secure: 1RG4r121KDUBNNlfV2xZxVL2x7ZHt0wVt50L9Ekmp9BTj6RZD+ysqMrTjkqWVF1ilMI6eevusJ9J3iEJMgnYio2u9WJvewMsVYjDZjLHUQjTKaj1XoE8gmE9joZ9BzxpQBg0OhWaEeAPr6tJyCpT80jKjpXrQsJRKqi0OBEWgmTXWipOMpFTIGucDpwJ7+9ormoKF+pJrd/muiYXYGkUgt6o8oKBmuTzGOpi/Zwhm2ZTkIEe2PPCmIuoowRst7wIgYbc5/wXAxow5J2En20+mux1cvKdNn44XsN6TuXYYXzx0xoVNzVATHl/N31xyaUueyr/3akbJotq8OstahKLZ3qrLBmGEs89HygWgwHQ4XFeLSJ1yOVwU5QDn5u4VY/du1BVeA7qmpXnejoohs1xp7krFAr4YDiYTZG/ETbL0PEGymfNmwGrHue6asymSANibzW5quPu0rq8q8eVNfwL1WKm/s4r7LMiEUfSWmj/C5voDO36iMqjsQApYefI9hKlxwwlxNRVS+ilukKJGa+B/lcqA51JnnKdJzZqjaqDEeJhe4QOsGLeULzPvyi1VwJhXuNYisTBuuvpokJakKE3KDqqkGLFB0IAtsuzgAOoTLewoXgPRmlQIRcMAkcugVZ+fHku31WOOB5OjQy65jxHTMDN0F56Ecy7jMXqeElTtGQ=
+  - secure: 7OXLTE/29m/alU3/m2Lza/OVjTpZMzWMK+581UJh+fZbXrcigvqqJF8bqDKUl4YVoQdyn8jRpgVZV05jGNFH6hEf9k0gZ66A9bdQKYd1PXuGFlIkxF/pGwOCKkz1N8yoRw8AwWktr4wJGrYeWJP4pygCV+PIhDZInDlKlXMe6RYYp4CO7bMvrAItD0Fa4W0d+U6sBmFIatJjPjdo44hsSfTHo2p6mhj2FLDwjZVF/7arZJMSpHUmn4+0WAvXCd2cDsGOIaR/xUi7TrmQbbuS7RHe094jHNURwMrXiLHlv83FXbSpAZTF0ibRpTzwc+QdVrfSw/9kr4QAkePo+tjlS8T6ba8+B48repgtToAmXckEiTVzmTrkTnaA1syCQc/pXszV04BeLOeBRd/St0+k85uwlHRjt722fcvjf1ewH3WyCCH1xMCf37eYi3l98/txsiCz7gFls0N+AKZIimQfw1gIdSnMpyFOCb0ApyRkBwHDRc28d+lz6mjpNbCGgL3BsqjumRxSNRD7l8qU/I+ncu2fnGJjRCYK5wY4ajzIDAfo+8064FumfXOQ8EYJqJQ63skW0PRag1NCarVDqN3BUrB/Q/fzlrr1r7cG0VWl+8tqQqWa9wdAhfn5J69Vp39L6H6rAG1SpBVJk2pr6hSO8hMukxos+IZfDEvviad5Fek=
+  - secure: Yiap4CDkJfwntniQhvVWgOGZgkFAq93ZxghtQ4DFg1aMgZHlmLqFvM0U/dF9ckL/4gj4WgoEXKejE1HWQ8RiX0LQCF+kr1Rns+izR3tVfVJdlNwTPGXsYj8q1O5FiJqvGnVKmgcTA+RdAZawlRQ3S68cRfuoYyG6Bxe8S8AJkFZvHFYQFSm8wfzSG83z7rAVrxTnKvHXsseuoWOccffg8h0trQsKhz37xYkyfsUAUa7DII5/AoI/TlSAQp+OUx5jZ3ZU4cvO5fDU44lecPqzqJSX4Cb2qpMrMHx4pqfdokqKg6pQnCcOj7JKhZr7E+iKGrflJynokRyYhrGjRpfXCN/mC3+mKzQucL0o+cxoiekw+EIovgs56EFm07m/6gGBub+1sID/rszm7lPPnjutuCp3aUDEhRZrkOl585Q1JHvSNSaGKOaxgT05tGuQyfc1tv06FQ/hxDLWvyUQhohlyHTkbz0p0D4TnWTK1+fYSjJCsQjYNlhM2hnc3Y50M9uxyqNoFIIMs0L9z0KHCrvsahqJy53eVH8KAasj5lhIt1QCHn2iEK/U3hVyZPx9NuSAx3Rthri1Damtd69K42YbAQARup3axYp6b7hxuHwZpcE+VqkcKo5FAj7/NAgIRXjx8uvvcfgKPY+CXtky9BxcH8zBJjyIygkAwK8xq/2Pgnc=
 dist: trusty
 language: python
 python: '3.6'
 branches:
   only:
-    - master
-    - hotfix
-    - develop
-    - "/^v.*beta.*$/"
-    - "/^v.*alpha.*$/"
+  - master
+  - hotfix
+  - develop
+  - "/^v.*beta.*$/"
+  - "/^v.*alpha.*$/"
 addons:
   apt:
     sources:
-      - precise-pgdg-9.5
+    - precise-pgdg-9.5
     packages:
-      - postgresql-9.5
-      - postgresql-contrib-9.5
-      - libpq-dev
+    - postgresql-9.5
+    - postgresql-contrib-9.5
+    - libpq-dev
   postgresql: 9.5
   ssh_known_hosts: 116.203.119.119
 services:
-  - docker
-  - redis-server
+- docker
+- redis-server
 install: ".travis/install.sh"
 script: coverage run --source emerald $(which nosetests)
 before_deploy:
-  - openssl aes-256-cbc -K $encrypted_05c658a95df7_key -iv $encrypted_05c658a95df7_iv
-    -in deploy_rsa.enc -out /tmp/deploy_rsa -d
-  - eval "$(ssh-agent -s)"
-  - chmod 600 /tmp/deploy_rsa
-  - ssh-add /tmp/deploy_rsa
-  - docker login -u $DOCKER_USER -p $DOCKER_PASS
-  - export REPO=stacrypt/bstemerald
-  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
-    ; fi`
-  - docker build -f Dockerfile -t $REPO:$COMMIT .
-  - docker tag $REPO:$COMMIT $REPO:$TAG
+- openssl aes-256-cbc -K $encrypted_05c658a95df7_key -iv $encrypted_05c658a95df7_iv
+  -in deploy_rsa.enc -out /tmp/deploy_rsa -d
+- eval "$(ssh-agent -s)"
+- chmod 600 /tmp/deploy_rsa
+- ssh-add /tmp/deploy_rsa
+- docker login -u $DOCKER_USER -p $DOCKER_PASS
+- export REPO=stacrypt/bstemerald
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
+  ; fi`
+- docker build -f Dockerfile -t $REPO:$COMMIT .
+- docker tag $REPO:$COMMIT $REPO:$TAG
 deploy:
   provider: script
   skip_cleanup: true
