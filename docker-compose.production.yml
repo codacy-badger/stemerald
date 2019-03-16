@@ -40,7 +40,7 @@ services:
       DB_NAME: stemerald_db
       REDIS_DB: 0
     ports:
-      - "8080:8080"
+      - "80:8080"
     volumes:
       - stemerald_logs_server:/var/log/stemerald
 
