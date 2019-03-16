@@ -16,6 +16,15 @@ authentication:
     password:
     db: ${REDIS_DB}
 
+smtp:
+  host: smtp-relay.gmail.com
+  port: 587
+  local_hostname: stacrypt.io
+  username: ${SMTP_USERNAME}
+  password: ${SMTP_PASSWORD}
+  tls: true
+  auth: true
+
 media_storage:
   file_system_dir: %(root_path)s/data/media-storage
   base_url: http://localhost:8081/media
@@ -40,7 +49,7 @@ shaparak:
   provider: stemerald.shaparak.PayIrProvider
 
   pay_ir:
-    api_key: 2bf8727eb3772b28ce4a0707bf4ee456
+    api_key: ${PAY_IR_API_KEY}
     gateway_url: https://pay.ir/payment/gateway/{transactionId}
     post_redirect_url: https://stacrypt.io/apiv1/transactions/shaparak-ins/pay-irs
     result_redirect_url: https://stacrypt.io/payment_redirect
@@ -49,7 +58,7 @@ sms:
   provider: stemerald.sms.KavenegarSmsProvider
 
   kavenegar:
-    verification_code_url: https://api.kavenegar.com/v1/3277760553034736E260553055303470553034736E2356413D3D/verify/lookup.json
+    verification_code_url: https://api.kavenegar.com/v1/${KAVEHNEGAR_API_KEY}/verify/lookup.json
 
 oath:
   window: 3
@@ -58,35 +67,25 @@ oath:
 
 mobile_phone_verification:
   template: mobile
-  seed: B35F868F5F868F59A3D9F98B68F56AAA215F868F59A39F98B215F868F59A39F9
+  seed: ${PHONE_VERIFICATION_SEED}
 
 fixed_phone_verification:
   template: fixed
-  seed: 68F59A3D9F98B68FF98B68F56AAA2A28B68F56AAA268F59A3D9F98B68F56AAA2
+  seed: ${PHONE_VERIFICATION_SEED}
 
 trader:
   price_threshold_permille: 50
   gap: 3 # Seconds
 
-btc:
-  operator: stemerald.operators.BtcOperator
-  testnet: true
-
-watcher:
-  gap: 30
-  retry_limit: 5
-  sleep_between_retries: 1
-
 membership:
   invitation_code_required: false
-  second_factor_seed: A3D9F98B8FF98B68F56AAA2A28B68F56AAA268F593D9F98B68FF98B68F56AAA2
+  second_factor_seed: ${SECOND_FACTOR_SEED}
 
 stexchange:
   rpc_url: "http://116.203.31.26:8080"
 
 stawallet:
   rest_url: "http://116.203.118.177:8080"
-
 
 logging:
 

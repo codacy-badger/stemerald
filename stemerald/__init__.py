@@ -81,11 +81,6 @@ class Application(BaseApplication):
       price_threshold_permille: 50
       gap: 3 # Seconds
 
-    watcher:
-      gap: 30
-      retry_limit: 5
-      sleep_between_retries: 1
-      
     membership:
       invitation_code_required: false
       second_factor_seed: A3D9F98B8FF98B68F56AAA2A28B68F56AAA268F593D9F98B68FF98B68F56AAA2
