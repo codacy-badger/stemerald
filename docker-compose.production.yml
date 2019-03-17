@@ -35,10 +35,13 @@ services:
       - postgres
       - redis
     environment:
-      DB_USERNAME: stemerald
-      DB_PASSWORD: stemerald
-      DB_NAME: stemerald_db
-      REDIS_DB: 0
+      - DB_USERNAME=stemerald
+      - DB_PASSWORD=stemerald
+      - DB_NAME=stemerald_db
+      - REDIS_DB=0
+      - PAY_IR_API_KEY
+      - PHONE_VERIFICATION_SEED
+      - SECOND_FACTOR_SEED
     ports:
       - "80:8080"
     volumes:
@@ -57,10 +60,13 @@ services:
       - redis
       - wsgi
     environment:
-      DB_USERNAME: stemerald
-      DB_PASSWORD: stemerald
-      DB_NAME: stemerald_db
-      REDIS_DB: 0
+      - DB_USERNAME=stemerald
+      - DB_PASSWORD=stemerald
+      - DB_NAME=stemerald_db
+      - REDIS_DB=0
+      - SMTP_USERNAME
+      - SMTP_PASSWORD
+      - KAVEHNEGAR_API_KEY
     volumes:
       - stemerald_logs_worker:/var/log/stemerald
 
