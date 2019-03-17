@@ -20,8 +20,8 @@ smtp:
   host: smtp.gmail.com
   port: 587
   local_hostname: stacrypt.io
-  username: "${SMTP_USERNAME}"
-  password: "${SMTP_PASSWORD}"
+  username: ${SMTP_USERNAME}
+  password: ${SMTP_PASSWORD}
   tls: true
   auth: true
   ssl: false
