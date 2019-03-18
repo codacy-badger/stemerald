@@ -86,7 +86,7 @@ stexchange:
   rpc_url: "http://116.203.31.26:8080"
 
 stawallet:
-  rest_url: "http://116.203.118.177:8080"
+  rest_url: "http://116.203.118.177:80"
 
 logging:
 
