@@ -22,6 +22,7 @@ dependencies = [
     'qrcode',
     'Pillow',
     'json-rpc',
+    'pycurl',
 
     # deployment
     'alembic',
