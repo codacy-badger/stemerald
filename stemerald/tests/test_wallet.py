@@ -50,6 +50,36 @@ class WalletTestCase(WebTestCase):
 
         cls.mockup_client_1_id = client1.id
 
+        class MockStexchangeClient(StexchangeClient):
+            def __init__(self, headers=None):
+                super().__init__("", headers)
+                self.mock_balance = [0, 0]
+
+            def asset_list(self):
+                return ujson.loads('[{"name": "BTC", "prec": 8}]')
+
+            def balance_update(self, user_id, asset, business, business_id, change, detail):
+                if user_id == cls.mockup_client_1_id and business == 'withdraw' and asset == 'BTC':
+                    self.mock_balance[0] += int(change)
+                return ujson.loads(
+                    '{"BTC": {"available": "' +
+                    str(self.mock_balance[0]) +
+                    '", "freeze": "' +
+                    str(self.mock_balance[1]) +
+                    '"}}'
+                )
+
+            def balance_query(self, *args, **kwargs):
+                return ujson.loads(
+                    '{"BTC": {"available": "' +
+                    str(self.mock_balance[0]) +
+                    '", "freeze": "' +
+                    str(self.mock_balance[1]) +
+                    '"}}'
+                )
+
+        stexchange_client._set_instance(MockStexchangeClient())
+
         class MockStawalletClient(StawalletClient):
             def __init__(self, headers=None):
                 super().__init__("", headers)
