@@ -37,7 +37,7 @@ class WalletTestCase(WebTestCase):
         btc = Cryptocurrency(
             symbol='BTC',
             name='Bitcoin',
-            wallet_id=1,
+            wallet_id='BTC',
             withdraw_min=withdraw_min,
             withdraw_max=withdraw_max,
             withdraw_static_commission=withdraw_static_commission,
@@ -94,7 +94,7 @@ class WalletTestCase(WebTestCase):
             #     }]
 
             def get_invoice(self, wallet_id, invoice_id):
-                if wallet_id == 1 and invoice_id == 1:
+                if wallet_id == 'BTC' and invoice_id == 1:
                     return ujson.loads("""
                                         {
                                           "id" : 1,
@@ -114,7 +114,7 @@ class WalletTestCase(WebTestCase):
                                        )
 
             def get_invoices(self, wallet_id, user_id):
-                if wallet_id == 1 and user_id == 1:
+                if wallet_id == 'BTC' and user_id == 1:
                     return ujson.loads("""
                                     [ 
                                         {
@@ -136,7 +136,7 @@ class WalletTestCase(WebTestCase):
                                        )
 
             def post_invoice(self, wallet_id, user_id, force=False):
-                if wallet_id == 1 and user_id == 1:
+                if wallet_id == 'BTC' and user_id == 1:
                     if mock_address_usage['1D6CqUvHtQRXU4TZrrj5j1iofo8f4oXyLj']:
                         return ujson.loads("""
                                     [ 
@@ -161,7 +161,7 @@ class WalletTestCase(WebTestCase):
                         raise StawalletHttpException(409, {})
 
             def get_deposits(self, wallet_id, user_id, page=0):
-                if wallet_id == 1 and user_id == 1:
+                if wallet_id == 'BTC' and user_id == 1:
                     if mock_address_usage['1D6CqUvHtQRXU4TZrrj5j1iofo8f4oXyLj']:
                         return ujson.loads("""
                                         [{
@@ -201,7 +201,7 @@ class WalletTestCase(WebTestCase):
                         return ujson.loads("[]")
 
             def get_deposit(self, wallet_id, deposit_id):
-                if wallet_id == 1 and deposit_id == 1:
+                if wallet_id == 'BTC' and deposit_id == 1:
                     if mock_address_usage['1D6CqUvHtQRXU4TZrrj5j1iofo8f4oXyLj']:
                         return ujson.loads("""
                                         {

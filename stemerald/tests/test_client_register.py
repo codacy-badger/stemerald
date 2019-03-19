@@ -13,9 +13,9 @@ class ClientRegisterTestCase(WebTestCase):
     @classmethod
     def mockup(cls):
         cls.session.add(Fiat(symbol='IRR', name='Iran Rial'))
-        cls.session.add(Cryptocurrency(symbol='BTC', name='Bitcoin', wallet_id=1))
+        cls.session.add(Cryptocurrency(symbol='BTC', name='Bitcoin', wallet_id='BTC'))
         cls.session.add(Fiat(symbol='USD', name='USA Dollar'))
-        cls.session.add(Cryptocurrency(symbol='LTC', name='Litecoin', wallet_id=2))
+        cls.session.add(Cryptocurrency(symbol='LTC', name='Litecoin', wallet_id='LTC'))
 
         invitation1 = Invitation()
         invitation1.code = 'test-code-1'

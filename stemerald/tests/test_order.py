@@ -23,7 +23,7 @@
 #         cls.session.add(client1)
 #
 #         usd = Fiat(symbol='USD', name='USA Dollar')
-#         btc = Cryptocurrency(symbol='BTC', name='Bitcoin', wallet_id=1)
+#         btc = Cryptocurrency(symbol='BTC', name='Bitcoin', wallet_id='BTC')
 #         btc_usd = Market(
 #             name="USD_BTC",
 #             base_currency=btc,

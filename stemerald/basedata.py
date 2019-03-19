@@ -12,8 +12,8 @@ def insert():  # pragma: no cover
 
     # Currencies
     tirr = Fiat(symbol='TIRR', name='Iran Rial', divide_by_ten=-8)
-    tbtc = Cryptocurrency(symbol='TBTC', name='Bitcoin', wallet_id=1)
-    teth = Cryptocurrency(symbol='TETH', name='Ethereum', wallet_id=2, divide_by_ten=-1)
+    tbtc = Cryptocurrency(symbol='TBTC', name='Bitcoin', wallet_id="TBTC")
+    teth = Cryptocurrency(symbol='TETH', name='Ethereum', wallet_id="TETH", divide_by_ten=-1)
     ttry = Fiat(symbol='TTRY', name='Turkish Lita', divide_by_ten=-4)
 
     # Markets

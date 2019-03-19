@@ -17,8 +17,8 @@ class MarketGetTestCase(WebTestCase):
         client1.is_active = True
         cls.session.add(client1)
 
-        testnet = Cryptocurrency(symbol='TESTNET3', name='TESTNET3', wallet_id=1)
-        rinkeby = Cryptocurrency(symbol='RINKEBY', name='RINKEBY', wallet_id=2)
+        testnet = Cryptocurrency(symbol='TESTNET3', name='TESTNET3', wallet_id='TESTNET3')
+        rinkeby = Cryptocurrency(symbol='RINKEBY', name='RINKEBY', wallet_id='RINKEBY')
         rinkeby_testnet = Market(
             name="TESTNET3_RINKEBY",
             base_currency=rinkeby,

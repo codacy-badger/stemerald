@@ -23,8 +23,8 @@ class BalanceTestCase(WebTestCase):
         client1.is_active = True
         cls.session.add(client1)
 
-        testnet = Cryptocurrency(symbol='TESTNET3', name='TESTNET3', wallet_id=1)
-        rinkeby = Cryptocurrency(symbol='RINKEBY', name='RINKEBY', wallet_id=2)
+        testnet = Cryptocurrency(symbol='TESTNET3', name='TESTNET3', wallet_id='TESTNET3')
+        rinkeby = Cryptocurrency(symbol='RINKEBY', name='RINKEBY', wallet_id='RINKEBY')
         cls.session.add(testnet)
         cls.session.add(rinkeby)
 

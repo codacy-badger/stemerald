@@ -22,13 +22,11 @@ class StawalletClient:
     def _execute(self, method, url, query_string: dict = None, body: dict = None):
         url = '/'.join([self.server_url, url])
 
-        if len(query_string.items()) > 0:
-            url = f'{url}?{"&".join(f"{k}={v}" for k, v in query_string.items())}'
-
-        logger.debug(f"Requesting {method} over {url} with body: {body}")
+        logger.debug(f"Requesting {method} over {url} with query: {body} with body: {body}")
 
         try:
             response = requests.request(
+                params=query_string,
                 method=method,
                 url=url,
                 data=body,
@@ -122,7 +120,7 @@ class StawalletException(BaseException):
         :param message: error message
         """
         self.message = message
-        logger.error(f"Stemerald RPC Error: {message}")
+        logger.error(f"Stawallet REST Error: {message}")
 
 
 class StawalletHttpException(StawalletException):

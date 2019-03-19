@@ -9,7 +9,7 @@
 #     # noinspection PyArgumentList
 #     @classmethod
 #     def mockup(cls):
-#         cls.session.add(Cryptocurrency(symbol='BTC', name='Bitcoin', wallet_id=1))
+#         cls.session.add(Cryptocurrency(symbol='BTC', name='Bitcoin', wallet_id='BTC'))
 #         cls.session.add(Fiat(symbol='IRR', name='Iran Rial'))
 #
 #         cls.session.flush()
