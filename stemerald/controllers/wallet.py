@@ -3,16 +3,17 @@ from restfulpy.authorization import authorize
 from restfulpy.validation import validate_form
 
 from stemerald.models import Cryptocurrency
-from stemerald.stawallet import stawallet_client, StawalletException
+from stemerald.stawallet import stawallet_client, StawalletException, StawalletHttpException
 
 
 def deposit_to_dict(deposit):
     return {
-        'id': deposit['businessUid'],
-        'user': deposit['user'],
-        'isConfirmed': deposit['isConfirmed'],
+        'id': deposit['id'],
+        'user': deposit['invoice']['user'],
+        'isConfirmed': deposit['confirmed'],
         'netAmount': deposit['netAmount'],
         'grossAmount': deposit['grossAmount'],
+        'toAddress': deposit['invoice']['address'],
         'status': deposit['status'],
         'txHash': deposit['proof']['txHash'],
         'blockHeight': deposit['proof']['blockHeight'],
@@ -71,7 +72,7 @@ class DepositController(RestController):
         cryptocurrency = self.__fetch_cryptocurrency()
         try:
             deposit = stawallet_client.get_deposit(wallet_id=cryptocurrency.wallet_id, deposit_id=int(deposit_id))
-            if deposit['user'] != context.identity.id:
+            if int(deposit['invoice']['user']) != context.identity.id:
                 raise HttpNotFound()
 
             return deposit_to_dict(deposit)
@@ -104,6 +105,11 @@ class DepositController(RestController):
                 user_id=context.identity.id,
                 force=False
             )[-1])
+        except StawalletHttpException as e:
+            if e.http_status_code == 409:
+                raise HttpBadRequest('Address has not been used', 'address-not-used')
+            else:
+                raise HttpInternalServerError("Wallet access error")
         except StawalletException as e:
             raise HttpInternalServerError("Wallet access error")
 
