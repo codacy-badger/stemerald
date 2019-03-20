@@ -4,6 +4,7 @@ from restfulpy.validation import validate_form
 
 from stemerald.models import Cryptocurrency
 from stemerald.stawallet import stawallet_client, StawalletException, StawalletHttpException
+from stemerald.stexchange import StexchangeException, stexchange_client
 
 
 def deposit_to_dict(deposit):
@@ -186,10 +187,25 @@ class WithdrawController(RestController):
     @authorize('semitrusted_client', 'trusted_client')
     @validate_form(exact=['cryptocurrencySymbol', 'amount', 'address', 'businessUid'], types={'amount': int})
     def schedule(self):
+        amount = context.form.get("amount")
+        if amount < 0:
+            raise HttpBadRequest("Amount should be greater than zero")
+
+
         cryptocurrency = self.__fetch_cryptocurrency()
         estimated_network_fee = 0  # FIXME: Estimate it # TODO: Compare it with the user input
         withdrawal_fee = 0  # FIXME: Calculate it # TODO: Compare it with the user input
+        cryptocurrency.calculate_withdraw_commission()
         try:
+            stexchange_client.balance_update(
+                user_id=context.identity.id,
+                asset=cryptocurrency.wallet_id,  # FIXME
+                business='withdraw',
+                business_id=context.form.get('businessUid'), # FIXME Do not get this from user directly
+                change=f'-{amount},
+                detail=shaparak_out.to_dict(),
+            )
+
             withdraw = stawallet_client.schedule_withdraw(
                 wallet_id=cryptocurrency.wallet.id,
                 user_id=context.identity.id,
@@ -204,4 +220,23 @@ class WithdrawController(RestController):
             return withdraw_to_dict(withdraw)
 
         except StawalletException as e:
+            # (Usually) balance not enough:
+
+
+        except StexchangeException as e:
+            try:
+                # Cash back (without commission) FIXME: Really without commission?
+                stexchange_client.balance_update(
+                    user_id=shaparak_out.member_id,
+                    asset=shaparak_out.payment_gateway.fiat_symbol,  # FIXME
+                    business='cashback',  # FIXME
+                    business_id=shaparak_out.id,
+                    change=shaparak_out.amount,
+                    detail=shaparak_out.to_dict(),
+                )
+                # FIXME: Important !!!! : rollback the updated balance if
+                #  DBSession.commit() was not successful
+            except StexchangeException as e:
+                raise stexchange_http_exception_handler(e)
+
             raise HttpInternalServerError("Wallet access error")
