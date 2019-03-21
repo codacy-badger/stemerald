@@ -61,9 +61,13 @@ class StawalletClient:
         body = {'user': user_id}
         return self._execute('post', url, query_string=query_string, body=body)
 
-    def get_deposits(self, wallet_id, user_id, page=0):
+    def get_deposits(self, wallet_id, user_id, page=0, asc=None, after=None):
         url = f'{WALLETS_URL}/{wallet_id}/{DEPOSITS_URL}'
         query_string = {'user': user_id, 'page': page}
+        if asc is not None:
+            query_string['asc'] = asc
+        if after is not None:
+            query_string['after'] = after
         return self._execute('get', url, query_string=query_string)
 
     def get_deposit(self, wallet_id, deposit_id):

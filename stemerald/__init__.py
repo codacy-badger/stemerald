@@ -9,6 +9,7 @@ from sqlalchemy_media import StoreManager, FileSystemStore
 from stemerald import basedata
 from stemerald.authentication import Authenticator
 from stemerald.controllers.root import Root
+from stemerald.launchers import WalletSyncLauncher
 from stemerald.stawallet import stawallet_client
 from stemerald.stexchange import stexchange_client
 
@@ -94,6 +95,7 @@ class Application(BaseApplication):
 
     stawallet: 
       rest_url: "http://localhost:8080"
+      sync_gap: 3 # seconds
 
     """
 
@@ -152,6 +154,9 @@ class Application(BaseApplication):
             default=True
         )
         super().initialize_models(session=session)
+
+    def register_cli_launchers(self, subparsers):
+        WalletSyncLauncher.register(subparsers)
 
 
 stemerald = Application()

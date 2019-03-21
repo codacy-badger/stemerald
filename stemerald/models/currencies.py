@@ -40,6 +40,7 @@ class Cryptocurrency(Currency):
 
     # A reference to an external cryptocurrency wallet
     wallet_id = Field(Unicode(32))
+    wallet_latest_sync = Field(Integer(), default=0)
 
     withdraw_min = Field(Integer(), default=0)
     withdraw_max = Field(Integer(), default=0)
