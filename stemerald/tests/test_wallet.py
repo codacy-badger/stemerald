@@ -4,7 +4,7 @@ from restfulpy.testing import FormParameter
 
 from stemerald.models import Client, Cryptocurrency
 from stemerald.stawallet import StawalletClient, stawallet_client, StawalletHttpException
-from stemerald.stexchange import StexchangeClient, stexchange_client
+from stemerald.stexchange import StexchangeClient, stexchange_client, BalanceNotEnoughException
 from stemerald.tests.helpers import WebTestCase, As
 
 current_balance = 3001
@@ -16,6 +16,7 @@ withdraw_permille_commission = 23
 withdraw_max_commission = 746
 
 mock_address_usage = {'1D6CqUvHtQRXU4TZrrj5j1iofo8f4oXyLj': False}
+mock_business_uid_usage = {'abc-def-gh': False}
 
 
 class WalletTestCase(WebTestCase):
@@ -53,12 +54,15 @@ class WalletTestCase(WebTestCase):
         class MockStexchangeClient(StexchangeClient):
             def __init__(self, headers=None):
                 super().__init__("", headers)
-                self.mock_balance = [0, 0]
+                self.mock_balance = [2200, 0]
 
             def asset_list(self):
                 return ujson.loads('[{"name": "BTC", "prec": 8}]')
 
             def balance_update(self, user_id, asset, business, business_id, change, detail):
+                if int(change) < 0 and self.mock_balance[0] + int(change) < 0:
+                    raise BalanceNotEnoughException(1)
+
                 if user_id == cls.mockup_client_1_id and business == 'withdraw' and asset == 'BTC':
                     self.mock_balance[0] += int(change)
                 return ujson.loads(
@@ -268,10 +272,10 @@ class WalletTestCase(WebTestCase):
                     """
                     {
                       "id" : 1,
-                      "businessUid" : "c0d9c0a7-6eb4-4e03-a324-f53a8be1b789",
+                      "businessUid" : "abc-def-gh",
                       "wallet" : "test-btc-wallet",
                       "user" : "1",
-                      "target" : "1Mwz1i3MK7AruNFwF3X84FK4qMmpooLtZG",
+                      "target" : "2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV",
                       "netAmount" : 65020000,
                       "grossAmount" : 65740000,
                       "estimatedNetworkFee" : 50000,
@@ -299,15 +303,16 @@ class WalletTestCase(WebTestCase):
                     estimated_network_fee,
                     is_decharge=False
             ):
+                mock_business_uid_usage['abc-def-gh'] = True
                 return ujson.loads("""{
                       "id" : 2,
-                      "businessUid" : "1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F",
+                      "businessUid" : "abc-def-gh",
                       "wallet" : "test-btc-wallet",
                       "user" : "1",
-                      "target" : "1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F",
-                      "netAmount" : 93511223,
-                      "grossAmount" : 93583223,
-                      "estimatedNetworkFee" : 485385,
+                      "target" : "2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV",
+                      "netAmount" : 2000,
+                      "grossAmount" : 2175,
+                      "estimatedNetworkFee" : 0,
                       "finalNetworkFee" : null,
                       "type" : "withdraw",
                       "status" : "queued",
@@ -324,10 +329,10 @@ class WalletTestCase(WebTestCase):
                     """
                     {
                       "id" : 2,
-                      "businessUid" : "1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F",
+                      "businessUid" : "abc-def-gh",
                       "wallet" : "test-btc-wallet",
                       "user" : "1",
-                      "target" : "1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F",
+                      "target" : "2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV",
                       "netAmount" : 93511223,
                       "grossAmount" : 93583223,
                       "estimatedNetworkFee" : 485385,
@@ -348,10 +353,10 @@ class WalletTestCase(WebTestCase):
                     """
                     {
                       "id" : 2,
-                      "businessUid" : "1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F",
+                      "businessUid" : "abc-def-gh",
                       "wallet" : "test-btc-wallet",
                       "user" : "1",
-                      "target" : "1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F",
+                      "target" : "2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV",
                       "netAmount" : 93511223,
                       "grossAmount" : 93583223,
                       "estimatedNetworkFee" : 485385,
@@ -375,11 +380,11 @@ class WalletTestCase(WebTestCase):
                   "estimatedSendingTime" : 0,
                   "estimatedReceivingTime" : 0,
                   "errors" : [ ],
-                  "addressValid" : true,
-                  "businessUidDuplicated" : false,
+                  "addressValid" : """ + str(len(destination_address) >= 30).lower() + """,
                   "networkUp" : true,
                   "sendingManually" : false,
                   "userEligible" : true,
+                  "businessUidDuplicated" : """ + str(mock_business_uid_usage['abc-def-gh']).lower() + """,
                   "businessUidValid" : true,
                   "amountValid" : true
                 }"""
@@ -495,7 +500,7 @@ class WalletTestCase(WebTestCase):
         result, ___ = self.request(
             As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
             params=[
-                FormParameter('cryptocurrencyCode', 'BTC'),
+                FormParameter('cryptocurrencySymbol', 'BTC'),
                 FormParameter('amount', 2000),
                 FormParameter('address', '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV'),
                 FormParameter('businessUid', 'abc-def-gh'),
@@ -504,25 +509,27 @@ class WalletTestCase(WebTestCase):
 
         self.assertIn('id', result)
 
-        self.assertEqual(result['amount'], 2000)
-        self.assertEqual(result['commission'], 175)
-        self.assertEqual(result['address'], '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV')
+        self.assertEqual(result['netAmount'], 2000)
+        self.assertEqual(result['grossAmount'], 2000 + 175)
+        self.assertEqual(result['toAddress'], '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV')
 
-        self.assertIsNone(result['cryptotxId'])
+        self.assertIsNone(result['txid'])
         self.assertIsNone(result['error'])
 
         # Check balance
         balance = stexchange_client.balance_query(self.mockup_client_1_id, 'BTC').get('BTC')
-        self.assertEqual(int(balance['available']), 826)
+        self.assertEqual(int(balance['available']), 25)
         self.assertEqual(int(balance['freeze']), 0)
 
         # 4. Schedule a withdraw (duplicated businessUid)
-        result, ___ = self.request(
+        self.request(
             As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
             params=[
-                FormParameter('cryptocurrencyCode', 'BTC'),
+                FormParameter('cryptocurrencySymbol', 'BTC'),
                 FormParameter('amount', 2000),
                 FormParameter('address', '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV'),
                 FormParameter('businessUid', 'abc-def-gh'),
             ],
+            expected_status=400,
+            expected_headers={'x-reason': 'already-submitted'}
         )

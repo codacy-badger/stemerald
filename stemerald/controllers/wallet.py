@@ -38,7 +38,6 @@ def invoice_to_dict(invoice):
         'address': invoice['address']['address'],
     }
 
-
 class DepositController(RestController):
 
     def __fetch_cryptocurrency(self):
@@ -120,13 +119,13 @@ def withdraw_to_dict(withdraw):
     return {
         'id': withdraw['businessUid'],
         'user': withdraw['user'],
-        'target': withdraw['target'],
+        'toAddress': withdraw['target'],
         'netAmount': withdraw['netAmount'],
         'grossAmount': withdraw['grossAmount'],
         'estimatedNetworkFee': withdraw['estimatedNetworkFee'],
         'finalNetworkFee': withdraw['finalNetworkFee'],
         'type': withdraw['type'],
-        'isManual': withdraw['isManual'],
+        'isManual': withdraw['manual'],
         'status': withdraw['status'],
         'txid': withdraw['txid'],
         'issuedAt': withdraw['issuedAt'],
@@ -145,7 +144,7 @@ class WithdrawController(RestController):
 
     def __fetch_cryptocurrency(self):
         cryptocurrency = Cryptocurrency.query \
-            .filter(Cryptocurrency.symbol == context.query_string.get("cryptocurrencySymbol")) \
+            .filter(Cryptocurrency.symbol == context.form.get("cryptocurrencySymbol")) \
             .one_or_none()
 
         if cryptocurrency is None:
@@ -194,17 +193,16 @@ class WithdrawController(RestController):
 
         cryptocurrency = self.__fetch_cryptocurrency()
         estimated_network_fee = 0  # FIXME: Estimate it # TODO: Compare it with the user input
-        withdrawal_fee = 0  # FIXME: Calculate it # TODO: Compare it with the user input
-        cryptocurrency.calculate_withdraw_commission()
+        withdrawal_fee = cryptocurrency.calculate_withdraw_commission(amount)  # TODO: Compare it with the user input:
 
         # 1. First we inquire the possibility of doing transaction by our wallet provider (stawallet):
         try:
             withdraw_quote = stawallet_client.quote_withdraw(
-                wallet_id=cryptocurrency.wallet.id,
+                wallet_id=cryptocurrency.wallet_id,
                 user_id=context.identity.id,
                 business_uid=context.form.get('businessUid'),  # FIXME Do not get this from user directly
                 destination_address=context.form.get('address'),
-                amount=context.form.get('amount') - withdrawal_fee,
+                amount=context.form.get('amount'),
             )
         except StawalletException as e:
             raise HttpInternalServerError("Wallet access error", 'wallet-access-error')
@@ -218,7 +216,7 @@ class WithdrawController(RestController):
         if not withdraw_quote['businessUidValid']:
             raise HttpBadRequest('Bad businessUid', 'bad-business-uid')
 
-        if not withdraw_quote['businessUidDuplicated']:
+        if withdraw_quote['businessUidDuplicated']:
             raise HttpBadRequest('BusinessUid already exists', 'already-submitted')
 
         # Now, it seem's we won't have any problem to with this request
@@ -231,12 +229,12 @@ class WithdrawController(RestController):
                 asset=cryptocurrency.wallet_id,  # FIXME
                 business='withdraw',
                 business_id=context.form.get('businessUid'),  # FIXME Do not get this from user directly
-                change=f'-{amount}',
-                detail=withdraw_quote.to_dict(),  # FIXME
+                change=f'-{amount + withdrawal_fee}',
+                detail=withdraw_quote,  # FIXME
             )
 
         except BalanceNotEnoughException as e:
-            raise HttpBadRequest('Balance not enough', 'balance-not-enough')
+            raise HttpBadRequest('Balance not enough', 'not-enough-balance')
 
         except RepeatUpdateException as e:
             # This money has been already reduced from the users balance.
@@ -253,7 +251,7 @@ class WithdrawController(RestController):
 
         try:
             withdraw = stawallet_client.schedule_withdraw(
-                wallet_id=cryptocurrency.wallet.id,
+                wallet_id=cryptocurrency.wallet_id,
                 user_id=context.identity.id,
                 business_uid=context.form.get('businessUid'),  # FIXME Do not get this from user directly
                 is_manual=False,  # TODO Check the amount
@@ -279,9 +277,11 @@ class WithdrawController(RestController):
             #  DBSession.commit() was not successful
             # except StexchangeException as e:
             #     raise stexchange_http_exception_handler(e)
-            # TODO: Client should be retry in case of the below excepion to prevent client's money loss
+            # TODO: Client should be retry in case of the below exception to prevent client's money loss
 
             raise HttpInternalServerError("Wallet access error. Contact administrator.", 'wallet-access-error')
 
         # FIXME: This scenario has some blind spots and risks. Review it and warn the support team about possible errors
         #  and cases.
+
+        # TODO: Think about concurrency and review the scenario
