@@ -28,7 +28,7 @@ def stawallet_sync_looper():
                 page = 0
 
                 while True:
-                    new_sync_time = datetime.now()
+                    new_sync_time = int(time.time())
                     new_deposits = stawallet_client.get_deposits(
                         wallet_id=cryptocurrency.wallet_id,
                         user_id="*",
