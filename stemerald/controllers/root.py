@@ -3,9 +3,9 @@ from restfulpy.orm import commit
 from restfulpy.validation import validate_form
 
 from stemerald.controllers.assets import AssetsController, BalancesController
+from stemerald.controllers.banking import BankingController, BankAccountController, BankCardController
 from stemerald.controllers.territories import TerritoryController
-from stemerald.controllers.transactions import TransactionController, BankCardController, BankAccountController, \
-    BankingController
+from stemerald.controllers.transactions import TransactionController
 from nanohttp import Controller, json, HttpNotFound
 from restfulpy.controllers import RootController, ModelRestController
 
