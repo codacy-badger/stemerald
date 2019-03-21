@@ -38,6 +38,7 @@ def invoice_to_dict(invoice):
         'address': invoice['address']['address'],
     }
 
+
 class DepositController(RestController):
 
     def __fetch_cryptocurrency(self):
@@ -144,7 +145,8 @@ class WithdrawController(RestController):
 
     def __fetch_cryptocurrency(self):
         cryptocurrency = Cryptocurrency.query \
-            .filter(Cryptocurrency.symbol == context.form.get("cryptocurrencySymbol")) \
+            .filter(Cryptocurrency.symbol ==
+                    context.form.get("cryptocurrencySymbol", context.query_string.get("cryptocurrencySymbol"))) \
             .one_or_none()
 
         if cryptocurrency is None:
@@ -175,7 +177,7 @@ class WithdrawController(RestController):
         cryptocurrency = self.__fetch_cryptocurrency()
         try:
             withdraw = stawallet_client.get_withdraw(wallet_id=cryptocurrency.wallet_id, withdraw_id=int(withdraw_id))
-            if withdraw['user'] != context.identity.id:
+            if withdraw['user'] != str(context.identity.id):
                 raise HttpNotFound()
 
             return withdraw_to_dict(withdraw)

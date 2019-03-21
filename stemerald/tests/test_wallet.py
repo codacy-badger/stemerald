@@ -244,28 +244,27 @@ class WalletTestCase(WebTestCase):
 
             def get_withdraws(self, wallet_id, user_id, page=0):
                 if wallet_id == 'BTC' and user_id == 1:
-                    if mock_address_usage['1D6CqUvHtQRXU4TZrrj5j1iofo8f4oXyLj']:
-                        return ujson.loads("""
-                            [ {
-                              "id" : 1,
-                              "businessUid" : "c0d9c0a7-6eb4-4e03-a324-f53a8be1b789",
-                              "wallet" : "test-btc-wallet",
-                              "user" : "1",
-                              "target" : "1Mwz1i3MK7AruNFwF3X84FK4qMmpooLtZG",
-                              "netAmount" : 65020000,
-                              "grossAmount" : 65740000,
-                              "estimatedNetworkFee" : 50000,
-                              "finalNetworkFee" : null,
-                              "type" : "withdraw",
-                              "status" : "queued",
-                              "txid" : null,
-                              "proof" : null,
-                              "issuedAt" : "2019-03-20T12:55:46.390+03:00",
-                              "paidAt" : null,
-                              "trace" : null,
-                              "manual" : true
-                            } ]"""
-                                           )
+                    return ujson.loads("""
+                        [ {
+                          "id" : 1,
+                          "businessUid" : "abc-def-gh",
+                          "wallet" : "test-btc-wallet",
+                          "user" : "1",
+                          "target" : "1Mwz1i3MK7AruNFwF3X84FK4qMmpooLtZG",
+                          "netAmount" : 65020000,
+                          "grossAmount" : 65740000,
+                          "estimatedNetworkFee" : 50000,
+                          "finalNetworkFee" : null,
+                          "type" : "withdraw",
+                          "status" : "queued",
+                          "txid" : null,
+                          "proof" : null,
+                          "issuedAt" : "2019-03-20T12:55:46.390+03:00",
+                          "paidAt" : null,
+                          "trace" : null,
+                          "manual" : true
+                        } ]"""
+                                       )
 
             def get_withdraw(self, wallet_id, withdraw_id):
                 return ujson.loads(
@@ -467,7 +466,43 @@ class WalletTestCase(WebTestCase):
         self.assertEqual('1', response['user'])
         self.assertEqual('1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F', response['address'])  # Another address
 
-    def test_withdraw(self):
+    def test_get_withdraw(self):
+        self.login('client1@test.com', '123456')
+
+        response, ___ = self.request(
+            As.semitrusted_client, 'GET', f'{self.withdraw_url}/1',
+            query_string={'cryptocurrencySymbol': 'BTC'}
+        )
+
+        self.assertEqual('abc-def-gh', response['id'])
+        self.assertEqual('1', response['user'])
+        self.assertIsNotNone(response['netAmount'])
+        self.assertIn('grossAmount', response)
+        self.assertIn('estimatedNetworkFee', response)
+        self.assertIn('finalNetworkFee', response)
+        self.assertIn('type', response)
+        self.assertIn('isManual', response)
+        self.assertIn('status', response)
+        self.assertIn('txid', response)
+        self.assertIn('txHash', response)
+        self.assertIn('issuedAt', response)
+        self.assertIn('paidAt', response)
+        self.assertIn('blockHeight', response)
+        self.assertIn('blockHash', response)
+        self.assertIn('link', response)
+        self.assertIn('confirmationsLeft', response)
+        self.assertIn('toAddress', response)
+        self.assertIn('error', response)
+
+        response, ___ = self.request(
+            As.semitrusted_client, 'LIST', self.withdraw_url,
+            query_string={'cryptocurrencySymbol': 'BTC', 'page': 0}
+        )
+
+        self.assertEqual(len(response), 1)
+        self.assertEqual('abc-def-gh', response[0]['id'])
+
+    def test_schedule_withdraw(self):
         self.login('client1@test.com', '123456')
 
         # 1. Schedule a withdraw (not enough credit)
