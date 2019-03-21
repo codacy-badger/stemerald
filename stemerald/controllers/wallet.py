@@ -4,7 +4,8 @@ from restfulpy.validation import validate_form
 
 from stemerald.models import Cryptocurrency
 from stemerald.stawallet import stawallet_client, StawalletException, StawalletHttpException
-from stemerald.stexchange import StexchangeException, stexchange_client
+from stemerald.stexchange import StexchangeException, stexchange_client, BalanceNotEnoughException, \
+    RepeatUpdateException
 
 
 def deposit_to_dict(deposit):
@@ -191,21 +192,66 @@ class WithdrawController(RestController):
         if amount < 0:
             raise HttpBadRequest("Amount should be greater than zero")
 
-
         cryptocurrency = self.__fetch_cryptocurrency()
         estimated_network_fee = 0  # FIXME: Estimate it # TODO: Compare it with the user input
         withdrawal_fee = 0  # FIXME: Calculate it # TODO: Compare it with the user input
         cryptocurrency.calculate_withdraw_commission()
+
+        # 1. First we inquire the possibility of doing transaction by our wallet provider (stawallet):
+        try:
+            withdraw_quote = stawallet_client.quote_withdraw(
+                wallet_id=cryptocurrency.wallet.id,
+                user_id=context.identity.id,
+                business_uid=context.form.get('businessUid'),  # FIXME Do not get this from user directly
+                destination_address=context.form.get('address'),
+                amount=context.form.get('amount') - withdrawal_fee,
+            )
+        except StawalletException as e:
+            raise HttpInternalServerError("Wallet access error", 'wallet-access-error')
+
+        if not withdraw_quote['amountValid']:
+            raise HttpBadRequest('Bad amount', 'bad-amount')
+
+        if not withdraw_quote['addressValid']:
+            raise HttpBadRequest('Bad address', 'bad-address')
+
+        if not withdraw_quote['businessUidValid']:
+            raise HttpBadRequest('Bad businessUid', 'bad-business-uid')
+
+        if not withdraw_quote['businessUidDuplicated']:
+            raise HttpBadRequest('BusinessUid already exists', 'already-submitted')
+
+        # Now, it seem's we won't have any problem to with this request
+
+        # 2. Lets reduce the user's balance (and also find out whether it's balance is enough or not):
+
         try:
             stexchange_client.balance_update(
                 user_id=context.identity.id,
                 asset=cryptocurrency.wallet_id,  # FIXME
                 business='withdraw',
-                business_id=context.form.get('businessUid'), # FIXME Do not get this from user directly
-                change=f'-{amount},
-                detail=shaparak_out.to_dict(),
+                business_id=context.form.get('businessUid'),  # FIXME Do not get this from user directly
+                change=f'-{amount}',
+                detail=withdraw_quote.to_dict(),  # FIXME
             )
 
+        except BalanceNotEnoughException as e:
+            raise HttpBadRequest('Balance not enough', 'balance-not-enough')
+
+        except RepeatUpdateException as e:
+            # This money has been already reduced from the users balance.
+            # Why? Maybe because of a recent corrupted request
+            # TODO: Handle it properly, might be a security risk
+            # No need to raise an exception # TODO: Can be dangerous
+            # TODO: Log
+            pass
+
+        except StexchangeException as e:
+            raise HttpInternalServerError("Wallet access error. Contact administrator.", 'wallet-access-error')
+
+        # 3: No let's really submit a withdraw request to our wallets
+
+        try:
             withdraw = stawallet_client.schedule_withdraw(
                 wallet_id=cryptocurrency.wallet.id,
                 user_id=context.identity.id,
@@ -219,24 +265,23 @@ class WithdrawController(RestController):
             )
             return withdraw_to_dict(withdraw)
 
-        except StawalletException as e:
-            # (Usually) balance not enough:
-
-
         except StexchangeException as e:
-            try:
-                # Cash back (without commission) FIXME: Really without commission?
-                stexchange_client.balance_update(
-                    user_id=shaparak_out.member_id,
-                    asset=shaparak_out.payment_gateway.fiat_symbol,  # FIXME
-                    business='cashback',  # FIXME
-                    business_id=shaparak_out.id,
-                    change=shaparak_out.amount,
-                    detail=shaparak_out.to_dict(),
-                )
-                # FIXME: Important !!!! : rollback the updated balance if
-                #  DBSession.commit() was not successful
-            except StexchangeException as e:
-                raise stexchange_http_exception_handler(e)
+            # try:
+            # stexchange_client.balance_update(
+            #     user_id=shaparak_out.member_id,
+            #     asset=shaparak_out.payment_gateway.fiat_symbol,  # FIXME
+            #     business='cashback',  # FIXME
+            #     business_id=shaparak_out.id,
+            #     change=shaparak_out.amount,
+            #     detail=shaparak_out.to_dict(),
+            # )
+            # FIXME: Important !!!! : rollback the updated balance if
+            #  DBSession.commit() was not successful
+            # except StexchangeException as e:
+            #     raise stexchange_http_exception_handler(e)
+            # TODO: Client should be retry in case of the below excepion to prevent client's money loss
 
-            raise HttpInternalServerError("Wallet access error")
+            raise HttpInternalServerError("Wallet access error. Contact administrator.", 'wallet-access-error')
+
+        # FIXME: This scenario has some blind spots and risks. Review it and warn the support team about possible errors
+        #  and cases.

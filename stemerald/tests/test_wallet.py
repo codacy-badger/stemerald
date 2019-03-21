@@ -238,50 +238,152 @@ class WalletTestCase(WebTestCase):
                                         }"""
                                            )
 
-            # def get_withdraws(self, wallet_id, user_id, page=0):
-            #     url = f'{WALLETS_URL}/{wallet_id}/{WITHDRAWS_URL}'
-            #     query_string = {'user': user_id, 'page': page}
-            #     return self._execute('get', url, query_string=query_string)
-            #
-            # def get_withdraw(self, wallet_id, withdraw_id):
-            #     url = f'{WALLETS_URL}/{wallet_id}/{WITHDRAWS_URL}/${withdraw_id}'
-            #     return self._execute('get', url)
-            #
-            # def schedule_withdraw(
-            #         self,
-            #         wallet_id,
-            #         user_id,
-            #         business_uid,
-            #         is_manual: bool,
-            #         destination_address,
-            #         amount_to_be_withdrawed,
-            #         withdrawal_fee,
-            #         estimated_network_fee,
-            #         is_decharge=False
-            # ):
-            #     url = f'{WALLETS_URL}/{wallet_id}/{WITHDRAWS_URL}'
-            #     body = {
-            #         'user': user_id,
-            #         'businessUid': business_uid,
-            #         'isManual': is_manual,
-            #         'target': destination_address,
-            #         'netAmount': amount_to_be_withdrawed,
-            #         'grossAmount': amount_to_be_withdrawed + withdrawal_fee,
-            #         'estimatedNetworkFee': estimated_network_fee,
-            #         'type': "decharge" if is_decharge else "withdraw",
-            #     }
-            #     return self._execute('post', url, body=body)
-            #
-            # def edit_withdraw(self, wallet_id, withdraw_id, is_manual: bool):
-            #     url = f'{WALLETS_URL}/{wallet_id}/{WITHDRAWS_URL}/{withdraw_id}'
-            #     body = {'isManual': is_manual}
-            #     return self._execute('put', url, body=body)
-            #
-            # def resolve_withdraw(self, wallet_id, withdraw_id, final_network_fee, transaction_hash: str):
-            #     url = f'{WALLETS_URL}/{wallet_id}/{WITHDRAWS_URL}/{withdraw_id}'
-            #     body = {'finalNetworkFee': final_network_fee, 'txid': transaction_hash}
-            #     return self._execute('put', url, body=body)
-            #
+            def get_withdraws(self, wallet_id, user_id, page=0):
+                if wallet_id == 'BTC' and user_id == 1:
+                    if mock_address_usage['1D6CqUvHtQRXU4TZrrj5j1iofo8f4oXyLj']:
+                        return ujson.loads("""
+                            [ {
+                              "id" : 1,
+                              "businessUid" : "c0d9c0a7-6eb4-4e03-a324-f53a8be1b789",
+                              "wallet" : "test-btc-wallet",
+                              "user" : "1",
+                              "target" : "1Mwz1i3MK7AruNFwF3X84FK4qMmpooLtZG",
+                              "netAmount" : 65020000,
+                              "grossAmount" : 65740000,
+                              "estimatedNetworkFee" : 50000,
+                              "finalNetworkFee" : null,
+                              "type" : "withdraw",
+                              "status" : "queued",
+                              "txid" : null,
+                              "proof" : null,
+                              "issuedAt" : "2019-03-20T12:55:46.390+03:00",
+                              "paidAt" : null,
+                              "trace" : null,
+                              "manual" : true
+                            } ]"""
+                                           )
+
+            def get_withdraw(self, wallet_id, withdraw_id):
+                return ujson.loads(
+                    """
+                    {
+                      "id" : 1,
+                      "businessUid" : "c0d9c0a7-6eb4-4e03-a324-f53a8be1b789",
+                      "wallet" : "test-btc-wallet",
+                      "user" : "1",
+                      "target" : "1Mwz1i3MK7AruNFwF3X84FK4qMmpooLtZG",
+                      "netAmount" : 65020000,
+                      "grossAmount" : 65740000,
+                      "estimatedNetworkFee" : 50000,
+                      "finalNetworkFee" : null,
+                      "type" : "withdraw",
+                      "status" : "queued",
+                      "txid" : null,
+                      "proof" : null,
+                      "issuedAt" : "2019-03-20T12:54:44.009+03:00",
+                      "paidAt" : null,
+                      "trace" : null,
+                      "manual" : true
+                    }"""
+                )
+
+            def schedule_withdraw(
+                    self,
+                    wallet_id,
+                    user_id,
+                    business_uid,
+                    is_manual: bool,
+                    destination_address,
+                    amount_to_be_withdrawed,
+                    withdrawal_fee,
+                    estimated_network_fee,
+                    is_decharge=False
+            ):
+                return ujson.loads("""{
+                      "id" : 2,
+                      "businessUid" : "1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F",
+                      "wallet" : "test-btc-wallet",
+                      "user" : "1",
+                      "target" : "1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F",
+                      "netAmount" : 93511223,
+                      "grossAmount" : 93583223,
+                      "estimatedNetworkFee" : 485385,
+                      "finalNetworkFee" : null,
+                      "type" : "withdraw",
+                      "status" : "queued",
+                      "txid" : null,
+                      "proof" : null,
+                      "issuedAt" : "2019-03-20T12:52:26.948+03:00",
+                      "paidAt" : null,
+                      "trace" : "2019-03-20T12:52:38.228+03:00 : Issued (automatic)",
+                      "manual" : true
+                    }""")
+
+            def edit_withdraw(self, wallet_id, withdraw_id, is_manual: bool):
+                return ujson.loads(
+                    """
+                    {
+                      "id" : 2,
+                      "businessUid" : "1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F",
+                      "wallet" : "test-btc-wallet",
+                      "user" : "1",
+                      "target" : "1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F",
+                      "netAmount" : 93511223,
+                      "grossAmount" : 93583223,
+                      "estimatedNetworkFee" : 485385,
+                      "finalNetworkFee" : null,
+                      "type" : "withdraw",
+                      "status" : "waiting_manual",
+                      "txid" : null,
+                      "proof" : null,
+                      "issuedAt" : "2019-03-20T12:52:26.948+03:00",
+                      "paidAt" : null,
+                      "trace" : "2019-03-20T12:52:38.228+03:00 : Issued (automatic)\n2019-03-20T12:53:28.001+03:00 : Change to manual",
+                      "manual" : true
+                    }"""
+                )
+
+            def resolve_withdraw(self, wallet_id, withdraw_id, final_network_fee, transaction_hash: str):
+                return ujson.loads(
+                    """
+                    {
+                      "id" : 2,
+                      "businessUid" : "1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F",
+                      "wallet" : "test-btc-wallet",
+                      "user" : "1",
+                      "target" : "1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F",
+                      "netAmount" : 93511223,
+                      "grossAmount" : 93583223,
+                      "estimatedNetworkFee" : 485385,
+                      "finalNetworkFee" : 485385,
+                      "type" : "withdraw",
+                      "status" : "pushed",
+                      "txid" : "b6f6991d03df0e2e04dafffcd6bc418aac66049e2cd74b80f14ac86db1e3f0da",
+                      "proof" : null,
+                      "issuedAt" : "2019-03-20T12:52:26.948+03:00",
+                      "paidAt" : "2019-03-20T12:54:08.547+03:00",
+                      "trace" : "2019-03-20T12:52:38.228+03:00 : Issued (automatic)\n2019-03-20T12:53:28.001+03:00 : Change to manual\n2019-03-20T12:54:08.547+03:00 : Submit manual withdrawal info",
+                      "manual" : null
+                    }"""
+                )
+
+            def quote_withdraw(self, wallet_id, user_id, business_uid, destination_address, amount):
+                return ujson.loads("""
+                {
+                  "estimatedNetworkFee" : 0,
+                  "hasSufficientWalletBalance" : true,
+                  "estimatedSendingTime" : 0,
+                  "estimatedReceivingTime" : 0,
+                  "errors" : [ ],
+                  "addressValid" : true,
+                  "businessUidDuplicated" : false,
+                  "networkUp" : true,
+                  "sendingManually" : false,
+                  "userEligible" : true,
+                  "businessUidValid" : true,
+                  "amountValid" : true
+                }"""
+                                   )
 
         stawallet_client._set_instance(MockStawalletClient())
 
@@ -360,52 +462,67 @@ class WalletTestCase(WebTestCase):
         self.assertEqual('1', response['user'])
         self.assertEqual('1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F', response['address'])  # Another address
 
-    # def test_withdraw(self):
-    #     self.login('client1@test.com', '123456')
-    #
-    #     # 1. Schedule a withdraw (not enough credit)
-    #     self.request(
-    #         As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
-    #         params=[
-    #             FormParameter('cryptocurrencySymbol', 'BTC'),
-    #             FormParameter('amount', 599000),
-    #             FormParameter('address', '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV'),
-    #         ],
-    #         expected_status=400
-    #     )
-    #
-    #     # 2. Schedule a withdraw (bad address)
-    #     self.request(
-    #         As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
-    #         params=[
-    #             FormParameter('cryptocurrencySymbol', 'BTC'),
-    #             FormParameter('amount', 2000),
-    #             FormParameter('address', 'bad-address'),
-    #         ],
-    #         expected_status=400,
-    #         expected_headers={'x-reason': 'bad-address'}
-    #     )
-    #
-    #     # 3. Schedule a withdraw
-    #     result, ___ = self.request(
-    #         As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
-    #         params=[
-    #             FormParameter('cryptocurrencyCode', 'BTC'),
-    #             FormParameter('amount', 2000),
-    #             FormParameter('address', '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV'),
-    #         ],
-    #     )
-    #
-    #     self.assertIn('id', result)
-    #
-    #     self.assertEqual(result['amount'], 2000)
-    #     self.assertEqual(result['commission'], 175)
-    #     self.assertEqual(result['address'], '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV')
-    #
-    #     self.assertIsNone(result['cryptotxId'])
-    #     self.assertIsNone(result['error'])
-    #
-    #     # Check balance
-    #     balance = stexchange_client.balance_query(self.mockup_client_1_id, 'BTC').get('BTC')
-    #     self.assertEqual(int(balance['available']), 826)
-    #     self.assertEqual(int(balance['freeze']), 0)
+    def test_withdraw(self):
+        self.login('client1@test.com', '123456')
+
+        # 1. Schedule a withdraw (not enough credit)
+        self.request(
+            As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
+            params=[
+                FormParameter('cryptocurrencySymbol', 'BTC'),
+                FormParameter('amount', 599000),
+                FormParameter('address', '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV'),
+                FormParameter('businessUid', 'abc-def-gh'),
+            ],
+            expected_status=400,
+            expected_headers={'x-reason': 'not-enough-balance'}
+        )
+
+        # 2. Schedule a withdraw (bad address)
+        self.request(
+            As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
+            params=[
+                FormParameter('cryptocurrencySymbol', 'BTC'),
+                FormParameter('amount', 2000),
+                FormParameter('address', 'bad-address'),
+                FormParameter('businessUid', 'abc-def-gh'),
+            ],
+            expected_status=400,
+            expected_headers={'x-reason': 'bad-address'}
+        )
+
+        # 3. Schedule a withdraw
+        result, ___ = self.request(
+            As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
+            params=[
+                FormParameter('cryptocurrencyCode', 'BTC'),
+                FormParameter('amount', 2000),
+                FormParameter('address', '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV'),
+                FormParameter('businessUid', 'abc-def-gh'),
+            ],
+        )
+
+        self.assertIn('id', result)
+
+        self.assertEqual(result['amount'], 2000)
+        self.assertEqual(result['commission'], 175)
+        self.assertEqual(result['address'], '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV')
+
+        self.assertIsNone(result['cryptotxId'])
+        self.assertIsNone(result['error'])
+
+        # Check balance
+        balance = stexchange_client.balance_query(self.mockup_client_1_id, 'BTC').get('BTC')
+        self.assertEqual(int(balance['available']), 826)
+        self.assertEqual(int(balance['freeze']), 0)
+
+        # 4. Schedule a withdraw (duplicated businessUid)
+        result, ___ = self.request(
+            As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
+            params=[
+                FormParameter('cryptocurrencyCode', 'BTC'),
+                FormParameter('amount', 2000),
+                FormParameter('address', '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV'),
+                FormParameter('businessUid', 'abc-def-gh'),
+            ],
+        )
