@@ -70,6 +70,25 @@ services:
     volumes:
       - stemerald_logs_worker:/var/log/stemerald
 
+  stawallet_sync_looper:
+    container_name: stawallet_sync_looper
+    image: stacrypt/bstemerald:latest
+    command: syncwallet
+    restart: always
+    links:
+      - postgres:pgdb
+      - redis:redisdb
+    depends_on:
+      - postgres
+      - redis
+      - wsgi
+    environment:
+      - DB_USERNAME=stemerald
+      - DB_PASSWORD=stemerald
+      - DB_NAME=stemerald_db
+      - REDIS_DB=0
+    volumes:
+      - stemerald_logs_worker:/var/log/stemerald
 
   cli:
     container_name: cli
