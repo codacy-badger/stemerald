@@ -10,6 +10,7 @@ WALLETS_URL = "wallets"
 INVOICES_URL = "invoices"
 DEPOSITS_URL = "deposits"
 WITHDRAWS_URL = "whitdraws"
+QUOTES_URL = "quotes"
 
 
 class StawalletClient:
@@ -112,6 +113,22 @@ class StawalletClient:
         url = f'{WALLETS_URL}/{wallet_id}/{WITHDRAWS_URL}/{withdraw_id}'
         body = {'finalNetworkFee': final_network_fee, 'txid': transaction_hash}
         return self._execute('put', url, body=body)
+
+    def quote_withdraw(self,
+                       wallet_id,
+                       user_id,
+                       business_uid,
+                       destination_address,
+                       amount,
+                       ):
+        url = f'{WALLETS_URL}/{wallet_id}/{QUOTES_URL}/{WITHDRAWS_URL}'
+        query_string = {
+            'user': user_id,
+            'businessUid': business_uid,
+            'target': destination_address,
+            'amount': amount,
+        }
+        return self._execute('get', url, query_string=query_string)
 
 
 class StawalletException(BaseException):
