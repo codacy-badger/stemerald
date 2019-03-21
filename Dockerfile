@@ -22,6 +22,8 @@ COPY config.template.yml /etc/stemerald/config.template.yml
 
 RUN pip install -e stemerald/ && mkdir -p $LOG_DIR
 
+WORKDIR /root/stemerald
+
 #CMD ["stemerald", "-c $STEMERALD_CONFIG_FILE", "worker", "cleanup"]
 
 #VOLUME ["/var/log/"]
