@@ -87,6 +87,7 @@ stexchange:
 
 stawallet:
   rest_url: "http://116.203.118.177:80"
+  sync_gap: 3 # Seconds
 
 logging:
 

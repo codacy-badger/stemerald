@@ -4,6 +4,7 @@ help () {
 	echo "Available daemons are: "
 	echo "  wsgi"
 	echo "  worker"
+	echo "  syncwallet"
 	echo "  cli"
 }
 
@@ -37,6 +38,11 @@ case $SERVICE in
 		initconfig
 		waitfordeps
         stemerald -c ${STEMERALD_CONFIG_FILE} worker start
+		;;
+	syncwallet)
+		initconfig
+		waitfordeps
+        stemerald -c ${STEMERALD_CONFIG_FILE} syncwallet
 		;;
 	wsgi)
 		initconfig
