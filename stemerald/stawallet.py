@@ -23,7 +23,7 @@ class StawalletClient:
     def _execute(self, method, url, query_string: dict = None, body: dict = None):
         url = '/'.join([self.server_url, url])
 
-        logger.debug(f"Requesting {method} over {url} with query: {body} with body: {body}")
+        logger.debug(f"Requesting {method} over {url} with query: {query_string} with body: {body}")
 
         try:
             response = requests.request(
@@ -34,6 +34,8 @@ class StawalletClient:
                 headers=self.headers
             )
 
+            print(response.url)
+            print(response.text)
             if response.status_code == 200:
                 return response.json()
 
