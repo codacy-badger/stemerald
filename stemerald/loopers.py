@@ -58,12 +58,12 @@ def stawallet_sync_looper():
                                 if deposit['isConfirmed'] is True and deposit['error'] is None:
                                     # TODO: Check whether the user is admin (charge) or user (deposit)?
                                     wallet_update_respones = stexchange_client.balance_update(
-                                        user_id=deposit['user'],
+                                        user_id=int(deposit['user']),
                                         asset=cryptocurrency.wallet_id,
                                         business='deposit',  # TODO: Are you sure?
-                                        business_id=deposit['id'],  # TODO: Are you sure?
-                                        change=deposit['netAmount'],  # TODO: Make sure is greater than 0
-                                        detail=''  # TODO
+                                        business_id=int(deposit['id']),  # TODO: Are you sure?
+                                        change=str(deposit['netAmount']),  # TODO: Make sure is greater than 0
+                                        detail='{}'  # TODO
                                     )
                                 else:
                                     # TODO: Notify the user
