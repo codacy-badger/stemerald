@@ -1,11 +1,12 @@
 from datetime import datetime
 
-from restfulpy.orm import OrderingMixin, FilteringMixin, DeclarativeBase, Field, TimestampMixin, SoftDeleteMixin
+from restfulpy.orm import OrderingMixin, FilteringMixin, DeclarativeBase, Field, TimestampMixin, SoftDeleteMixin, \
+    PaginationMixin
 from sqlalchemy import DateTime, Integer, ForeignKey, Unicode, JSON
 from sqlalchemy.ext.hybrid import hybrid_property
 
 
-class Notification(SoftDeleteMixin, TimestampMixin, OrderingMixin, FilteringMixin, DeclarativeBase):
+class Notification(SoftDeleteMixin, TimestampMixin, PaginationMixin, OrderingMixin, FilteringMixin, DeclarativeBase):
     """
     Note: This table is experimental!
     """
