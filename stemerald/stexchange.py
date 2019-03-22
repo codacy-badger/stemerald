@@ -107,7 +107,9 @@ class StexchangeClient:
         return self._execute(
             "balance.update",
             [user_id, asset, business, business_id, change, detail],
-            {10: RepeatUpdateException, 11: BalanceNotEnoughException}
+            # {10: RepeatUpdateException, 11: BalanceNotEnoughException}
+            # FIXME: The above code is related to the documentation. Below code is experimental. Make sure this is a issue from developers
+            {10: BalanceNotEnoughException, 11: RepeatUpdateException}
         )
 
     def balance_history(self, user_id, asset=None, business=None, start_time=0, end_time=0, offset=0, limit=0):

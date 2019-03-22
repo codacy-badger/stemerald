@@ -1,5 +1,6 @@
 import time
 from datetime import datetime
+from decimal import getcontext, Decimal
 
 from nanohttp import settings
 from restfulpy.logging_ import get_logger
@@ -55,6 +56,8 @@ def stawallet_sync_looper():
 
                             try:
 
+                                getcontext().prec = 8
+
                                 if deposit['isConfirmed'] is True and deposit['error'] is None:
                                     # TODO: Check whether the user is admin (charge) or user (deposit)?
                                     wallet_update_respones = stexchange_client.balance_update(
@@ -62,7 +65,8 @@ def stawallet_sync_looper():
                                         asset=cryptocurrency.wallet_id,
                                         business='deposit',  # TODO: Are you sure?
                                         business_id=int(deposit['id']),  # TODO: Are you sure?
-                                        change=str(deposit['netAmount']),  # TODO: Make sure is greater than 0
+                                        change=str(Decimal(deposit['netAmount']) * Decimal('0.00000001')),
+                                        # TODO: Make sure is greater than 0
                                         detail={}  # TODO
                                     )
                                 else:
