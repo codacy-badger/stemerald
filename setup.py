@@ -23,6 +23,7 @@ dependencies = [
     'Pillow',
     'json-rpc',
     'pycurl',
+    'firebase-admin',
 
     # deployment
     'alembic',
