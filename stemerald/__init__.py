@@ -98,6 +98,9 @@ class Application(BaseApplication):
       rest_url: "http://localhost:8080"
       sync_gap: 3 # seconds
 
+    firebase:
+      service_account_key: "/var/stemerald/stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json"
+
     """
 
     def __init__(self):
