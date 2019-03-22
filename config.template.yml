@@ -90,7 +90,8 @@ stawallet:
   sync_gap: 3 # Seconds
 
 firebase:
-  service_account_key: "stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json"
+  server_key: ${FIREBASE_SERVER_KEY}
+  service_account_key: "/var/stemerald/stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json"
 
 logging:
 
