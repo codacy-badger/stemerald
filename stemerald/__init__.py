@@ -146,7 +146,6 @@ class Application(BaseApplication):
         super().configure(files, context, **kwargs)
         stexchange_client.initialize(server_url=settings.stexchange.rpc_url, force=True)
         stawallet_client.initialize(server_url=settings.stawallet.rest_url, force=True)
-        firebase_client.initialize(init_firebase())
 
     def initialize_models(self, session=None):
         StoreManager.register(

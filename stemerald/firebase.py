@@ -9,18 +9,27 @@ from restfulpy.logging_ import get_logger
 
 from stemerald.helpers import DeferredObject
 
+
 # logger = get_logger('CLIENT')
 
 
-def init_firebase():
-    import firebase_admin
-    from firebase_admin import credentials
+class FirebaseClient:
+    @staticmethod
+    def init_firebase():
+        import firebase_admin
+        from firebase_admin import credentials
 
-    cred = credentials.Certificate('stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json')
-    return firebase_admin.initialize_app(cred)
+        cred = credentials.Certificate('stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json')
+        return firebase_admin.initialize_app(cred)
 
+    _firebase_client = None
 
-firebase_client: App = DeferredObject(App)
+    @property
+    def instance(self):
+        if FirebaseClient._firebase_client is None:
+            FirebaseClient._firebase_client = FirebaseClient.init_firebase()
+        return self._firebase_client
+
 
 """Server Side FCM sample.
 Firebase Cloud Messaging (FCM) can be used to send messages to clients on iOS,
@@ -130,6 +139,8 @@ def main():
     #     _send_fcm_message(override_message)
     # else:
     #     print('''Invalid command. Please use one of the following commands:
+
+
 # python messaging.py --message=common-message
 # python messaging.py --message=override-message''')
 
