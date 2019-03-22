@@ -7,7 +7,7 @@ from restfulpy.orm import session_factory
 
 from stemerald import stawallet_client, stexchange_client
 from stemerald.controllers.wallet import deposit_to_dict
-from stemerald.models import Cryptocurrency
+from stemerald.models import Cryptocurrency, Notification
 from stemerald.stexchange import RepeatUpdateException
 
 logger = get_logger('looper')
@@ -63,11 +63,17 @@ def stawallet_sync_looper():
                                         business='deposit',  # TODO: Are you sure?
                                         business_id=int(deposit['id']),  # TODO: Are you sure?
                                         change=str(deposit['netAmount']),  # TODO: Make sure is greater than 0
-                                        detail='{}'  # TODO
+                                        detail={}  # TODO
                                     )
                                 else:
                                     # TODO: Notify the user
-                                    pass
+                                    isolated_session.add(Notification(
+                                        member_id=int(deposit['user']),
+                                        title='New deposit in the way ...',
+                                        description=f'Your new deposit has just got it\'s first confirmation. '
+                                        f'You will have full access to it as soon as it receives '
+                                        f'{deposit["confirmationsLeft"]} more confirmations',
+                                    ))
 
                             except RepeatUpdateException as e:
                                 # TODO: Log

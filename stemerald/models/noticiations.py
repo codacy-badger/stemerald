@@ -55,7 +55,7 @@ class Notification(SoftDeleteMixin, TimestampMixin, PaginationMixin, OrderingMix
     
     """
 
-    topic = Field(Unicode(64), nullable=False)  # TODO
+    topic = Field(Unicode(64), nullable=True)  # TODO
     """
     Optional. e.g.: security, ...
     """
