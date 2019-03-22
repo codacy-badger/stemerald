@@ -9,6 +9,7 @@ from sqlalchemy_media import StoreManager, FileSystemStore
 from stemerald import basedata
 from stemerald.authentication import Authenticator
 from stemerald.controllers.root import Root
+from stemerald.firebase import init_firebase, firebase_client
 from stemerald.launchers import WalletSyncLauncher
 from stemerald.stawallet import stawallet_client
 from stemerald.stexchange import stexchange_client
@@ -142,6 +143,7 @@ class Application(BaseApplication):
         super().configure(files, context, **kwargs)
         stexchange_client.initialize(server_url=settings.stexchange.rpc_url, force=True)
         stawallet_client.initialize(server_url=settings.stawallet.rest_url, force=True)
+        firebase_client.initialize(init_firebase())
 
     def initialize_models(self, session=None):
         StoreManager.register(

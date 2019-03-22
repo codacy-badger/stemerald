@@ -89,6 +89,9 @@ stawallet:
   rest_url: "http://116.203.118.177:80"
   sync_gap: 3 # Seconds
 
+firebase:
+  service_account_key: "stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json"
+
 logging:
 
   loggers:

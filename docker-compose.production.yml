@@ -45,6 +45,7 @@ services:
     ports:
       - "80:8080"
     volumes:
+      - ./stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json:/var/stemerald/stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json:ro
       - stemerald_logs_server:/var/log/stemerald
 
   worker:
@@ -68,6 +69,7 @@ services:
       - SMTP_PASSWORD
       - KAVEHNEGAR_API_KEY
     volumes:
+      - ./stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json:/var/stemerald/stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json:ro
       - stemerald_logs_worker:/var/log/stemerald
 
   stawallet_sync_looper:
@@ -88,6 +90,7 @@ services:
       - DB_NAME=stemerald_db
       - REDIS_DB=0
     volumes:
+      - ./stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json:/var/stemerald/stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json:ro
       - stemerald_logs_worker:/var/log/stemerald
 
   cli:
