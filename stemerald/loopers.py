@@ -21,7 +21,7 @@ def stawallet_sync_looper():
     while True:
 
         logger.info("Trying to sync wallet, Counter: %s" % context['counter'])
-        cryptocurrencies = Cryptocurrency.query.all()
+        cryptocurrencies = isolated_session.query(Cryptocurrency).all()
         for cryptocurrency in cryptocurrencies:
             # Get latest synced deposit update time
             try:
@@ -69,15 +69,15 @@ def stawallet_sync_looper():
                                         # TODO: Make sure is greater than 0
                                         detail={}  # TODO
                                     )
-                                else:
-                                    # TODO: Notify the user
-                                    notification = Notification()
-                                    notification.title = 'New deposit in the way'
-                                    notification.description = f'Your new deposit has just got it\'s first ' \
-                                        f'confirmation. You will have full access to it as soon as it receives ' \
-                                        f'{deposit["confirmationsLeft"]} more confirmations '
-                                    notification.member_id = int(deposit['user'])
-                                    isolated_session.add(notification)
+
+                                # TODO: Notify the user
+                                notification = Notification()
+                                notification.title = 'New deposit in the way'
+                                notification.description = f'Your new deposit has just got it\'s first ' \
+                                    f'confirmation. You will have full access to it as soon as it receives ' \
+                                    f'{deposit["confirmationsLeft"]} more confirmations '
+                                notification.member_id = int(deposit['user'])
+                                isolated_session.add(notification)
 
                             except RepeatUpdateException as e:
                                 # TODO: Log
