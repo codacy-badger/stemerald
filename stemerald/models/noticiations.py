@@ -53,10 +53,10 @@ class Notification(SoftDeleteMixin, PaginationMixin, OrderingMixin, FilteringMix
             try:
                 response = messaging.send(m)
                 logger.info(f'Successfully sent to device: {m.token}')
+                # Response is a message ID string.
+                logger.info(f'Successfully sent message: {response} to member_id: {self.member_id}')
             except:
                 logger.info(f'Error while sending to device: {m.token}')
-            # Response is a message ID string.
-            logger.info(f'Successfully sent message: {response} to member_id: {self.member_id}')
 
     __tablename__ = 'notification'
     __mapper_args__ = {
