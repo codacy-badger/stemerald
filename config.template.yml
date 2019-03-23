@@ -16,6 +16,17 @@ authentication:
     password:
     db: ${REDIS_DB}
 
+jwt:
+  secret: JWT-SECRET
+  algorithm: HS256
+  max_age: 86400  # 24 Hours
+  refresh_token:
+    secret: JWT-REFRESH-SECRET
+    algorithm: HS256
+    max_age: 2678400  # 30 Days
+    secure: false # FIXME
+    httponly: false
+
 smtp:
   host: smtp.gmail.com
   port: 587
