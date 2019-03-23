@@ -136,7 +136,7 @@ class Application(BaseApplication):
             context.response_headers.add_header(
                 'Access-Control-Expose-Headers',
                 'Content-Type, Content-Length, X-Pagination-Count, X-Pagination-Skip, X-Pagination-Take, '
-                'X-New-JWT-Token, ETag, X-Reason'
+                'X-New-JWT-Token, ETag, X-Reason, X-Firebase-Token'
             )
             context.response_headers.add_header('Access-Control-Allow-Credentials', 'true')
             # context.response_headers.add_header('Access-Control-Allow-Origin', 'http://localhost:3000')
