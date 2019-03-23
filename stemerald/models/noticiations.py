@@ -8,7 +8,6 @@ from restfulpy.taskqueue import Task
 from sqlalchemy import DateTime, Integer, ForeignKey, Unicode, JSON
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from stemerald import stemerald
 from stemerald.firebase import FirebaseClient
 from stemerald.models import Member
 
@@ -21,6 +20,8 @@ class Notification(SoftDeleteMixin, PaginationMixin, OrderingMixin, FilteringMix
     """
 
     def do_(self, context):  # pragma: no cove
+        from stemerald import stemerald
+
         app = FirebaseClient().instance
 
         # TODO: Retrieve notifications policy of the user
@@ -30,7 +31,8 @@ class Notification(SoftDeleteMixin, PaginationMixin, OrderingMixin, FilteringMix
 
         member = Member.query.filter(Member.id == self.member_id).one()
         sessions = stemerald.__authenticator__.get_member_sessions_info(member.id)
-        firebase_tokens = [(s['firebaseToken'] if 'firebaseToken' in s else '') for s in sessions]
+        # firebase_tokens = [(s['firebaseToken'] if 'firebaseToken' in s else '') for s in sessions]
+        firebase_tokens = ['a', 'b', 'c']
         firebase_tokens = list(set(filter(lambda x: (x is not None) and (len(x) > 0), firebase_tokens)))
 
         messages = [
