@@ -34,6 +34,7 @@ class Notification(SoftDeleteMixin, PaginationMixin, OrderingMixin, FilteringMix
         firebase_tokens = [(s['firebaseToken'] if 'firebaseToken' in s else '') for s in sessions]
         firebase_tokens = list(set(filter(lambda x: (x is not None) and (len(x) > 0), firebase_tokens)))
 
+        logger.info(f'Founded sessions for this member: {len(sessions)}')
         messages = [
             messaging.Message(
                 notification=messaging.Notification(
@@ -43,7 +44,7 @@ class Notification(SoftDeleteMixin, PaginationMixin, OrderingMixin, FilteringMix
                 token=t,
             ) for t in firebase_tokens
         ]
-        logger.info(f'Founded devices for this member: {len(messages)}')
+        logger.info(f'Founded devices (which contains valid firebase token) for this member: {len(messages)}')
 
         # Send a message to the device corresponding to the provided
         # registration token.
