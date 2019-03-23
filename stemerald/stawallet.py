@@ -39,7 +39,7 @@ class StawalletClient:
             if response.status_code == 200:
                 return response.json()
 
-            raise StawalletHttpException(response.status_code, response.json())
+            raise StawalletHttpException(response.status_code, response.text)
 
         except Exception as e:
             raise StawalletUnknownException(f"Request error: {str(e)}")
