@@ -7,10 +7,7 @@ import requests
 from oauth2client.service_account import ServiceAccountCredentials
 from restfulpy.logging_ import get_logger
 
-from stemerald.helpers import DeferredObject
-
-
-# logger = get_logger('CLIENT')
+logger = get_logger('FIREBASE')
 
 
 class FirebaseClient:
@@ -19,7 +16,8 @@ class FirebaseClient:
         import firebase_admin
         from firebase_admin import credentials
 
-        cred = credentials.Certificate('stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json')
+        # cred = credentials.Certificate('stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json')
+        cred = credentials.Certificate(settings.firebase.service_account_key)
         return firebase_admin.initialize_app(cred)
 
     _firebase_client = None
@@ -52,7 +50,8 @@ def _get_access_token():
     :return: Access token.
     """
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        'stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json', SCOPES)
+        # 'stacrypt-1c4dc-firebase-adminsdk-hy7hb-ad49502f48.json', SCOPES)
+        settings.firebase.service_account_key, SCOPES)
     access_token_info = credentials.get_access_token()
     return access_token_info.access_token
 

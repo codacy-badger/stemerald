@@ -1,19 +1,60 @@
 from datetime import datetime
 
-from restfulpy.orm import OrderingMixin, FilteringMixin, DeclarativeBase, Field, TimestampMixin, SoftDeleteMixin, \
+from firebase_admin import messaging
+from restfulpy.logging_ import get_logger
+from restfulpy.orm import OrderingMixin, FilteringMixin, Field, SoftDeleteMixin, \
     PaginationMixin
+from restfulpy.taskqueue import Task
 from sqlalchemy import DateTime, Integer, ForeignKey, Unicode, JSON
 from sqlalchemy.ext.hybrid import hybrid_property
 
+from stemerald.firebase import FirebaseClient
+from stemerald.models import Member
 
-class Notification(SoftDeleteMixin, TimestampMixin, PaginationMixin, OrderingMixin, FilteringMixin, DeclarativeBase):
+logger = get_logger('NOTIFICATION')
+
+
+class Notification(SoftDeleteMixin, PaginationMixin, OrderingMixin, FilteringMixin, Task):
     """
     Note: This table is experimental!
     """
 
-    __tablename__ = 'notification'
+    def do_(self, context):  # pragma: no cove
+        app = FirebaseClient().instance
 
-    id = Field(Integer(), primary_key=True)
+        # TODO: Retrieve notifications policy of the user
+        # See documentation on defining a message payload.
+
+        # TODO: Retrieve all registered tokens about all user's connected devices
+
+        sessions = Member.query(Member.id == self.member_id).sessions()
+        firebase_tokens = [(s['firebaseToken'] if 'firebaseToken' in s else '') for s in sessions]
+        firebase_tokens = list(set(filter(lambda x: (x is not None) and (len(x) > 0), firebase_tokens)))
+
+        messages = [
+            messaging.Message(
+                notification=messaging.Notification(
+                    title=self.title,
+                    body=self.description,
+                ),
+                token=t,
+            ) for t in firebase_tokens
+        ]
+
+        # Send a message to the device corresponding to the provided
+        # registration token.
+        logger.info(f'Sending notification to {self.member_id}\'s devices')
+        for m in messages:
+            response = messaging.send(m)
+            # Response is a message ID string.
+            logger.info(f'Successfully sent message: {response} to member_id: {self.member_id}')
+
+    __tablename__ = 'notification'
+    __mapper_args__ = {
+        'polymorphic_identity': __tablename__
+    }
+
+    id = Field(Integer, ForeignKey('task.id'), primary_key=True, json='id')
     member_id = Field(Integer(), ForeignKey('member.id'))
 
     read_at = Field(DateTime(), nullable=True)
@@ -60,7 +101,7 @@ class Notification(SoftDeleteMixin, TimestampMixin, PaginationMixin, OrderingMix
     Optional. e.g.: security, ...
     """
 
-    type = Field(Unicode(50), nullable=True)  # TODO
+    content_type = Field(Unicode(50), nullable=True, json='contentType')  # TODO
     """
     Use it whatever you want
     e.g. text, html, image, ...

@@ -71,13 +71,13 @@ def stawallet_sync_looper():
                                     )
                                 else:
                                     # TODO: Notify the user
-                                    isolated_session.add(Notification(
-                                        member_id=int(deposit['user']),
-                                        title='New deposit in the way ...',
-                                        description=f'Your new deposit has just got it\'s first confirmation. '
-                                        f'You will have full access to it as soon as it receives '
-                                        f'{deposit["confirmationsLeft"]} more confirmations',
-                                    ))
+                                    notification = Notification()
+                                    notification.title = 'New deposit in the way'
+                                    notification.description = f'Your new deposit has just got it\'s first ' \
+                                        f'confirmation. You will have full access to it as soon as it receives ' \
+                                        f'{deposit["confirmationsLeft"]} more confirmations '
+                                    notification.member_id = int(deposit['user'])
+                                    isolated_session.add(notification)
 
                             except RepeatUpdateException as e:
                                 # TODO: Log

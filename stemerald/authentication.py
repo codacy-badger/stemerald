@@ -16,6 +16,8 @@ class Authenticator(StatefulAuthenticator):
     BE CAREFUL WHILE EDITING THIS CLASS, IT IS NOT KID GAME !!!
     """
 
+    firebase_token_request_header = 'X-FIREBASE-TOKEN'
+
     @store_manager(DBSession)
     def create_principal(self, member_id=None, session_id=None):
         member = Member.query.filter(Member.id == member_id).one()
@@ -70,6 +72,8 @@ class Authenticator(StatefulAuthenticator):
         if remote_address_key in context.environ and context.environ[remote_address_key]:
             remote_address = context.environ[remote_address_key]
         result['remoteAddress'] = remote_address or 'NA'
+
+        result['firebaseToken'] = context.environ[self.firebase_token_request_header] or ''
 
         return result
 
