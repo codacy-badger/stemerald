@@ -27,7 +27,7 @@ class Notification(SoftDeleteMixin, PaginationMixin, OrderingMixin, FilteringMix
 
         # TODO: Retrieve all registered tokens about all user's connected devices
 
-        sessions = Member.query.find(Member.id == self.member_id).sessions()
+        sessions = Member.query.filter(Member.id == self.member_id).one().sessions()
         firebase_tokens = [(s['firebaseToken'] if 'firebaseToken' in s else '') for s in sessions]
         firebase_tokens = list(set(filter(lambda x: (x is not None) and (len(x) > 0), firebase_tokens)))
 

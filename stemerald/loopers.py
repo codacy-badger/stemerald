@@ -92,6 +92,10 @@ def stawallet_sync_looper():
                 logger.exception(f'Wallet {cryptocurrency.wallet_id} synced successfully.')
             except:
                 logger.exception(f'Error syncing {cryptocurrency.wallet_id} wallet.')
+                try:
+                    isolated_session.rollback()
+                except:
+                    logger.exception(f'Error rolling back the iteration\'s session.')
 
         context['counter'] += 1
         time.sleep(settings.stawallet.sync_gap)
