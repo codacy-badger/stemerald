@@ -43,12 +43,17 @@ class Notification(SoftDeleteMixin, PaginationMixin, OrderingMixin, FilteringMix
                 token=t,
             ) for t in firebase_tokens
         ]
+        logger.info(f'Founded devices for this member: {len(messages)}')
 
         # Send a message to the device corresponding to the provided
         # registration token.
         logger.info(f'Sending notification to {self.member_id}\'s devices')
         for m in messages:
-            response = messaging.send(m)
+            try:
+                response = messaging.send(m)
+                logger.info(f'Successfully sent to device: {m.token}')
+            except:
+                logger.info(f'Error while sending to device: {m.token}')
             # Response is a message ID string.
             logger.info(f'Successfully sent message: {response} to member_id: {self.member_id}')
 
