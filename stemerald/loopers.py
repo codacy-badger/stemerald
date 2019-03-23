@@ -26,7 +26,7 @@ def stawallet_sync_looper():
             # Get latest synced deposit update time
             try:
 
-                page = 1
+                page = 0
 
                 while True:
                     new_sync_time = int(time.time())
