@@ -1,5 +1,6 @@
 from nanohttp import RestController, json, context, HttpNotFound, HttpBadRequest, HttpInternalServerError
 from restfulpy.authorization import authorize
+from restfulpy.logging_ import get_logger
 from restfulpy.validation import validate_form
 
 from stemerald.models import Cryptocurrency
@@ -7,6 +8,7 @@ from stemerald.stawallet import stawallet_client, StawalletException, StawalletH
 from stemerald.stexchange import StexchangeException, stexchange_client, BalanceNotEnoughException, \
     RepeatUpdateException
 
+logger = get_logger('WALLET')
 
 def deposit_to_dict(deposit):
     return {
@@ -65,6 +67,7 @@ class DepositController(RestController):
             return [deposit_to_dict(deposit) for deposit in results]
 
         except StawalletException as e:
+            logger.info('Wallet access error: ' + e.message)
             raise HttpInternalServerError("Wallet access error")
 
     @json
@@ -80,6 +83,7 @@ class DepositController(RestController):
             return deposit_to_dict(deposit)
 
         except StawalletException as e:
+            logger.info('Wallet access error: ' + e.message)
             raise HttpInternalServerError("Wallet access error")
 
     @json
@@ -94,6 +98,7 @@ class DepositController(RestController):
             )[0])
 
         except StawalletException as e:
+            logger.info('Wallet access error: ' + e.message)
             raise HttpInternalServerError("Wallet access error")
 
     @json
@@ -111,6 +116,7 @@ class DepositController(RestController):
             if e.http_status_code == 409:
                 raise HttpBadRequest('Address has not been used', 'address-not-used')
             else:
+                logger.info('Wallet access error: ' + e.message)
                 raise HttpInternalServerError("Wallet access error")
         except StawalletException as e:
             raise HttpInternalServerError("Wallet access error")
@@ -207,6 +213,7 @@ class WithdrawController(RestController):
                 amount=context.form.get('amount'),
             )
         except StawalletException as e:
+            logger.info('Wallet access error: ' + e.message)
             raise HttpInternalServerError("Wallet access error", 'wallet-access-error')
 
         if not withdraw_quote['amountValid']:
@@ -247,6 +254,7 @@ class WithdrawController(RestController):
             pass
 
         except StexchangeException as e:
+            logger.info('Wallet access error: ' + e.message)
             raise HttpInternalServerError("Wallet access error. Contact administrator.", 'wallet-access-error')
 
         # 3: No let's really submit a withdraw request to our wallets
@@ -281,6 +289,7 @@ class WithdrawController(RestController):
             #     raise stexchange_http_exception_handler(e)
             # TODO: Client should be retry in case of the below exception to prevent client's money loss
 
+            logger.info('Wallet access error: ' + e.message)
             raise HttpInternalServerError("Wallet access error. Contact administrator.", 'wallet-access-error')
 
         # FIXME: This scenario has some blind spots and risks. Review it and warn the support team about possible errors
