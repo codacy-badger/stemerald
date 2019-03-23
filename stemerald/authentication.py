@@ -73,7 +73,8 @@ class Authenticator(StatefulAuthenticator):
             remote_address = context.environ[remote_address_key]
         result['remoteAddress'] = remote_address or 'NA'
 
-        result['firebaseToken'] = context.environ[self.firebase_token_request_header] or ''
+        result['firebaseToken'] = (context.environ[self.firebase_token_request_header] or '') if (
+                    self.firebase_token_request_header in context.environ) else ''
 
         return result
 
