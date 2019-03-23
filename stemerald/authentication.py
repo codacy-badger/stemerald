@@ -16,7 +16,7 @@ class Authenticator(StatefulAuthenticator):
     BE CAREFUL WHILE EDITING THIS CLASS, IT IS NOT KID GAME !!!
     """
 
-    firebase_token_request_header = 'X-FIREBASE-TOKEN'
+    firebase_token_request_header = 'X_FIREBASE_TOKEN'
 
     @store_manager(DBSession)
     def create_principal(self, member_id=None, session_id=None):
