@@ -31,8 +31,7 @@ class Notification(SoftDeleteMixin, PaginationMixin, OrderingMixin, FilteringMix
 
         member = Member.query.filter(Member.id == self.member_id).one()
         sessions = stemerald.__authenticator__.get_member_sessions_info(member.id)
-        # firebase_tokens = [(s['firebaseToken'] if 'firebaseToken' in s else '') for s in sessions]
-        firebase_tokens = ['a', 'b', 'c']
+        firebase_tokens = [(s['firebaseToken'] if 'firebaseToken' in s else '') for s in sessions]
         firebase_tokens = list(set(filter(lambda x: (x is not None) and (len(x) > 0), firebase_tokens)))
 
         messages = [
