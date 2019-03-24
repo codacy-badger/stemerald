@@ -1,5 +1,4 @@
 import time
-from datetime import datetime
 from decimal import getcontext, Decimal
 
 from nanohttp import settings
@@ -57,7 +56,7 @@ def stawallet_sync_looper():
                             try:
 
                                 getcontext().prec = 8
-
+                                change_amount = str(Decimal(deposit['netAmount']) * Decimal('0.00000001'))
                                 if deposit['isConfirmed'] is True and deposit['error'] is None:
                                     # TODO: Check whether the user is admin (charge) or user (deposit)?
                                     wallet_update_respones = stexchange_client.balance_update(
@@ -65,18 +64,33 @@ def stawallet_sync_looper():
                                         asset=cryptocurrency.wallet_id,
                                         business='deposit',  # TODO: Are you sure?
                                         business_id=int(deposit['id']),  # TODO: Are you sure?
-                                        change=str(Decimal(deposit['netAmount']) * Decimal('0.00000001')),
+                                        change=v,
                                         # TODO: Make sure is greater than 0
                                         detail={}  # TODO
                                     )
 
                                 # TODO: Notify the user
                                 notification = Notification()
-                                notification.title = 'New deposit in the way'
-                                notification.description = f'Your new deposit has just got it\'s first ' \
-                                    f'confirmation. You will have full access to it as soon as it receives ' \
-                                    f'{deposit["confirmationsLeft"]} more confirmations '
                                 notification.member_id = int(deposit['user'])
+
+                                if deposit['isConfirmed'] is True:
+                                    notification.title = 'Your balance has been increased'
+                                    notification.description = f'Your new deposit has just completely confirmed. ' \
+                                        f'You balance has been increased ' \
+                                        f'{change_amount} {cryptocurrency.wallet_id} '
+
+                                elif deposit['status'] == 'orphan':
+                                    notification.title = 'New deposit discovered'
+                                    notification.description = f'Your new deposit has just been found. ' \
+                                        f'Please be patient for your transaction to be mined and get ' \
+                                        f'{deposit["confirmationsLeft"]} more confirmations '
+
+                                else:
+                                    notification.title = 'New deposit in the way'
+                                    notification.description = f'Your new deposit has just got it\'s first ' \
+                                        f'confirmation. You will have full access to it as soon as it receives ' \
+                                        f'{deposit["confirmationsLeft"]} more confirmations '
+
                                 isolated_session.add(notification)
 
                             except RepeatUpdateException as e:
