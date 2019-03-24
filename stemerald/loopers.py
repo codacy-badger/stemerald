@@ -64,7 +64,7 @@ def stawallet_sync_looper():
                                         asset=cryptocurrency.wallet_id,
                                         business='deposit',  # TODO: Are you sure?
                                         business_id=int(deposit['id']),  # TODO: Are you sure?
-                                        change=v,
+                                        change=change_amount,
                                         # TODO: Make sure is greater than 0
                                         detail={}  # TODO
                                     )
@@ -79,7 +79,7 @@ def stawallet_sync_looper():
                                         f'You balance has been increased ' \
                                         f'{change_amount} {cryptocurrency.wallet_id} '
 
-                                elif deposit['status'] == 'orphan':
+                                elif deposit['status'].lower() == 'orphan':
                                     notification.title = 'New deposit discovered'
                                     notification.description = f'Your new deposit has just been found. ' \
                                         f'Please be patient for your transaction to be mined and get ' \
