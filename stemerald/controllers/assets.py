@@ -83,6 +83,7 @@ class BalancesController(RestController):
                     context.identity.id,
                     asset=context.query_string.get('asset', None),
                     limit=context.query_string.get('take', self.PAGE_SIZE),
+                    business='deposit,withdraw,cashin,cashout,cashback',
                     offset=context.query_string.get('skip', self.PAGE_SIZE * context.query_string.get('page', 0))
                 )['records']
             ]
