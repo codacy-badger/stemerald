@@ -1,8 +1,10 @@
+from datetime import datetime
 from typing import Union
 
 from nanohttp import json, RestController, context, HttpNotFound, HttpBadRequest
 
 from restfulpy.authorization import authorize
+from restfulpy.utils import format_iso_datetime
 from restfulpy.validation import validate_form
 
 from stemerald.models import Market
@@ -15,34 +17,35 @@ TradeId = Union[int, str]
 def order_to_dict(o):
     return {
         'id': o['id'],
-        'ctime': o['ctime'],
-        'mtime': o['mtime'],
+        'createdAt': format_iso_datetime(datetime.fromtimestamp(int(o['ctime']))) if 'ctime' in o else None,
+        'modifiedAt': format_iso_datetime(datetime.fromtimestamp(int(o['mtime']))) if 'mtime' in o else None,
+        'finishedAt': format_iso_datetime(datetime.fromtimestamp(int(o['ftime']))) if 'ftime' in o else None,
         'market': o['market'],
         'user': o['user'],
         'type': 'limit' if o['type'] == 1 else 'market',
         'side': 'sell' if o['side'] == 1 else 'buy',
         'amount': o['amount'],
         'price': o['price'],
-        'takerFee': o['taker_fee'],
-        'makerFee': o['maker_fee'],
+        'takerFeeRate': o['taker_fee'],
+        'makerFeeRate': o['maker_fee'],
         'source': o['source'],
-        'dealMoney': o['deal_money'],
-        'dealStock': o['deal_stock'],
-        'dealFee': o['deal_fee'],
+        'filledMoney': o['deal_money'],
+        'filledStock': o['deal_stock'],
+        'filledFee': o['deal_fee'],
     }
 
 
 class OrderController(RestController):
 
     @json
-    @authorize('admin', 'semitrusted_client', 'trusted_client')
+    @authorize('admin', 'semitrusted_client', 'trusted_client', 'client')
     # TODO: This validate_form is toooooo important -> 'blacklist': ['clientId'] !!!
     @validate_form(
         requires=['marketName', 'status'],
         whitelist=['clientId', 'status', 'marketName', 'offset', 'limit'],
         client={'blacklist': ['clientId']},
         admin={'requires': ['clientId']},
-        pattern={'status': r'^(-)?(pending|finished)$'}
+        pattern={'status': r'^(pending|finished)$'}
     )
     def get(self, order_id: int = None):
         client_id = context.identity.id if context.identity.is_in_roles('client') \
@@ -94,7 +97,7 @@ class OrderController(RestController):
             raise stexchange_http_exception_handler(e)
 
     @json
-    @authorize('admin', 'semitrusted_client', 'trusted_client')
+    @authorize('admin', 'semitrusted_client', 'trusted_client', 'client')
     @validate_form(
         requires=['marketName'],
         whitelist=['clientId', 'marketName'],
@@ -118,14 +121,14 @@ class OrderController(RestController):
             raise stexchange_http_exception_handler(e)
 
     @json
-    @authorize('semitrusted_client', 'trusted_client')
+    @authorize('semitrusted_client', 'trusted_client', 'client')
     @validate_form(exact=['price'], types={'price': int})
     def edit(self, order_id: int):
         # TODO
         raise HttpBadRequest('Not implemented yet.')
 
     @json
-    @authorize('semitrusted_client', 'trusted_client')
+    @authorize('semitrusted_client', 'trusted_client', 'client')
     @validate_form(
         whitelist=['marketName', 'type', 'price', 'amount', 'side'],
         requires=['marketName', 'type', 'amount', 'side'],
