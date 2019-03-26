@@ -4,9 +4,12 @@ Digital currency trading wrapper
 # Data Types
 Wile dealing with this api, please consider the followings:
 1. All inputs and outputs which are related to amounts :
-* represent in string format.
-* the flouting point **SHOULD** be **exact** the value of each currency's (abs. of) `smallest_unit_scale` value
-* represented in the **real** (biggest). (For exp. `BTC`, not satoshi)
+    * represent in string format.
+    * the flouting point **SHOULD** be **exact** the same as specified number of each currency, the (abs. of) `smallest_unit_scale` value
+    * represented in the **real** (biggest). (For exp. `BTC`, not satoshi)
+
+2. All DateTimes are represented by *ISO 8601*
+
 
 #### Some examples:
 Assume we have BTC(`smallest_unit_scale`=`-8`) and ETH(`smallest_unit_scale`=`-18`):

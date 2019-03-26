@@ -23,6 +23,7 @@ def parse_lowest_unit(number: str, smallest_unit_scale: int, normalization_scale
     smallest_unit_scale = 0
     normalization_scale = -8
 
+    :param number:
     :param smallest_unit_scale:
     :param normalization_scale:
     :return:

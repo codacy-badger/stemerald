@@ -11,13 +11,13 @@ from stemerald.stexchange import StexchangeException, stexchange_client, Balance
 logger = get_logger('WALLET')
 
 
-def deposit_to_dict(deposit):
+def deposit_to_dict(currency:Cryptocurrency, deposit):
     return {
         'id': deposit['id'],
         'user': deposit['invoice']['user'],
         'isConfirmed': deposit['confirmed'],
-        'netAmount': deposit['netAmount'],
-        'grossAmount': deposit['grossAmount'],
+        'netAmount': currency.smallest_unit_to_output(deposit['netAmount']),
+        'grossAmount': currency.smallest_unit_to_output(deposit['grossAmount']),
         'toAddress': deposit['invoice']['address'],
         'status': deposit['status'],
         'txHash': deposit['proof']['txHash'],
@@ -65,7 +65,7 @@ class DepositController(RestController):
                 user_id=context.identity.id,
                 page=context.query_string.get("page")
             )
-            return [deposit_to_dict(deposit) for deposit in results]
+            return [deposit_to_dict(cryptocurrency, deposit) for deposit in results]
 
         except StawalletException as e:
             logger.info('Wallet access error: ' + e.message)
@@ -81,7 +81,7 @@ class DepositController(RestController):
             if int(deposit['invoice']['user']) != context.identity.id:
                 raise HttpNotFound()
 
-            return deposit_to_dict(deposit)
+            return deposit_to_dict(cryptocurrency, deposit)
 
         except StawalletException as e:
             logger.info('Wallet access error: ' + e.message)
@@ -123,15 +123,15 @@ class DepositController(RestController):
             raise HttpInternalServerError("Wallet access error")
 
 
-def withdraw_to_dict(withdraw):
+def withdraw_to_dict(currency: Cryptocurrency, withdraw):
     return {
         'id': withdraw['businessUid'],
         'user': withdraw['user'],
         'toAddress': withdraw['target'],
-        'netAmount': withdraw['netAmount'],
-        'grossAmount': withdraw['grossAmount'],
-        'estimatedNetworkFee': withdraw['estimatedNetworkFee'],
-        'finalNetworkFee': withdraw['finalNetworkFee'],
+        'netAmount': currency.smallest_unit_to_output(withdraw['netAmount']),
+        'grossAmount': currency.smallest_unit_to_output(withdraw['grossAmount']),
+        'estimatedNetworkFee': currency.smallest_unit_to_output(withdraw['estimatedNetworkFee']),
+        'finalNetworkFee': currency.smallest_unit_to_output(withdraw['finalNetworkFee']),
         'type': withdraw['type'],
         'isManual': withdraw['manual'],
         'status': withdraw['status'],
@@ -172,7 +172,7 @@ class WithdrawController(RestController):
                 user_id=context.identity.id,
                 page=context.query_string.get("page")
             )
-            return [withdraw_to_dict(withdraw) for withdraw in results]
+            return [withdraw_to_dict(cryptocurrency, withdraw) for withdraw in results]
 
         except StawalletException as e:
             raise HttpInternalServerError("Wallet access error")
@@ -187,7 +187,7 @@ class WithdrawController(RestController):
             if withdraw['user'] != str(context.identity.id):
                 raise HttpNotFound()
 
-            return withdraw_to_dict(withdraw)
+            return withdraw_to_dict(cryptocurrency, withdraw)
 
         except StawalletException as e:
             raise HttpInternalServerError("Wallet access error")
@@ -272,7 +272,7 @@ class WithdrawController(RestController):
                 estimated_network_fee=estimated_network_fee,
                 is_decharge=False,
             )
-            return withdraw_to_dict(withdraw)
+            return withdraw_to_dict(cryptocurrency, withdraw)
 
         except StexchangeException as e:
             # try:

@@ -1,4 +1,5 @@
 import ujson
+from decimal import Decimal
 
 from restfulpy.testing import FormParameter
 
@@ -60,11 +61,11 @@ class WalletTestCase(WebTestCase):
                 return ujson.loads('[{"name": "BTC", "prec": 8}]')
 
             def balance_update(self, user_id, asset, business, business_id, change, detail):
-                if int(change) < 0 and self.mock_balance[0] + int(change) < 0:
+                if Decimal(change) < 0 and self.mock_balance[0] + Decimal(change) < 0:
                     raise BalanceNotEnoughException(1)
 
                 if user_id == cls.mockup_client_1_id and business == 'withdraw' and asset == 'BTC':
-                    self.mock_balance[0] += int(change)
+                    self.mock_balance[0] += Decimal(change)
                 return ujson.loads(
                     '{"BTC": {"available": "' +
                     str(self.mock_balance[0]) +
@@ -544,8 +545,8 @@ class WalletTestCase(WebTestCase):
 
         self.assertIn('id', result)
 
-        self.assertEqual(result['netAmount'], 2000)
-        self.assertEqual(result['grossAmount'], 2000 + 175)
+        self.assertEqual(result['netAmount'], str(2000))
+        self.assertEqual(result['grossAmount'], str(2000 + 175))
         self.assertEqual(result['toAddress'], '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV')
 
         self.assertIsNone(result['txid'])
@@ -553,15 +554,15 @@ class WalletTestCase(WebTestCase):
 
         # Check balance
         balance = stexchange_client.balance_query(self.mockup_client_1_id, 'BTC').get('BTC')
-        self.assertEqual(int(balance['available']), 25)
-        self.assertEqual(int(balance['freeze']), 0)
+        self.assertEqual(Decimal(balance['available']), Decimal(25))
+        self.assertEqual(Decimal(balance['freeze']), Decimal(0))
 
         # 4. Schedule a withdraw (duplicated businessUid)
         self.request(
             As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
             params=[
                 FormParameter('cryptocurrencySymbol', 'BTC'),
-                FormParameter('amount', 2000),
+                FormParameter('amount', str(2000)),
                 FormParameter('address', '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV'),
                 FormParameter('businessUid', 'abc-def-gh'),
             ],
