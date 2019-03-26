@@ -365,8 +365,8 @@ class OrderTestCase(WebTestCase):
             query_string={'marketName': self.market1_name, 'status': 'pending'},
         )
         self.assertIsNotNone(response['id'])
-        self.assertEqual(response['createdAt'], '2019-01-14T01:40:13Z')
-        self.assertEqual(response['modifiedAt'], '2019-01-14T01:40:13Z')
+        self.assertEqual(response['createdAt'], '2019-01-13T22:40:13Z')
+        self.assertEqual(response['modifiedAt'], '2019-01-13T22:40:13Z')
         self.assertIsNone(response['finishedAt'])
         self.assertEqual(response['market'], self.market1_name)
         self.assertEqual(response['user'], 1)
@@ -388,9 +388,9 @@ class OrderTestCase(WebTestCase):
         )
 
         self.assertIsNotNone(response['id'])
-        self.assertEqual(response['createdAt'], '2019-01-14T01:38:13Z')
+        self.assertEqual(response['createdAt'], '2019-01-13T22:38:13Z')
         self.assertIsNone(response['modifiedAt'])
-        self.assertEqual(response['finishedAt'], '2019-01-14T01:38:13Z')
+        self.assertEqual(response['finishedAt'], '2019-01-13T22:38:13Z')
         self.assertEqual(response['market'], self.market1_name)
         self.assertEqual(response['user'], 1)
         self.assertEqual(response['type'], 'market')

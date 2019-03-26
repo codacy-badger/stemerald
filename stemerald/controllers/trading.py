@@ -18,9 +18,9 @@ TradeId = Union[int, str]
 def order_to_dict(o):
     return {
         'id': o['id'],
-        'createdAt': format_iso_datetime(datetime.fromtimestamp(int(o['ctime']))) if 'ctime' in o else None,
-        'modifiedAt': format_iso_datetime(datetime.fromtimestamp(int(o['mtime']))) if 'mtime' in o else None,
-        'finishedAt': format_iso_datetime(datetime.fromtimestamp(int(o['ftime']))) if 'ftime' in o else None,
+        'createdAt': format_iso_datetime(datetime.utcfromtimestamp(int(o['ctime']))) if 'ctime' in o else None,
+        'modifiedAt': format_iso_datetime(datetime.utcfromtimestamp(int(o['mtime']))) if 'mtime' in o else None,
+        'finishedAt': format_iso_datetime(datetime.utcfromtimestamp(int(o['ftime']))) if 'ftime' in o else None,
         'market': o['market'],
         'user': o['user'],
         'type': 'limit' if o['type'] == 1 else 'market',
