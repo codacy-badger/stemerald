@@ -33,7 +33,7 @@ def insert():  # pragma: no cover
         name='Ethereum',
         wallet_id="TETH",
         normalization_scale=-1,
-        smallest_unit_scale=0
+        smallest_unit_scale=-18
     )
 
     ttry = Fiat(
