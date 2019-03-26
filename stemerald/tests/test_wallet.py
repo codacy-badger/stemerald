@@ -8,8 +8,6 @@ from stemerald.stawallet import StawalletClient, stawallet_client, StawalletHttp
 from stemerald.stexchange import StexchangeClient, stexchange_client, BalanceNotEnoughException
 from stemerald.tests.helpers import WebTestCase, As
 
-current_balance = 3001
-
 withdraw_min = '1000'
 withdraw_max = '599000'
 withdraw_static_commission = '129'
@@ -562,7 +560,7 @@ class WalletTestCase(WebTestCase):
             As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
             params=[
                 FormParameter('cryptocurrencySymbol', 'BTC'),
-                FormParameter('amount', str(2000)),
+                FormParameter('amount', '2000'),
                 FormParameter('address', '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV'),
                 FormParameter('businessUid', 'abc-def-gh'),
             ],

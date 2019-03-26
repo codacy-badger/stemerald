@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from nanohttp import RestController, json, context, HttpNotFound, HttpBadRequest, HttpInternalServerError
 from restfulpy.authorization import authorize
 from restfulpy.logging_ import get_logger
@@ -194,14 +196,16 @@ class WithdrawController(RestController):
 
     @json
     @authorize('semitrusted_client', 'trusted_client')
-    @validate_form(exact=['cryptocurrencySymbol', 'amount', 'address', 'businessUid'], types={'amount': int})
+    @validate_form(exact=['cryptocurrencySymbol', 'amount', 'address', 'businessUid'], types={'amount': str})
     def schedule(self):
         amount = context.form.get("amount")
-        if amount < 0:
-            raise HttpBadRequest("Amount should be greater than zero")
 
         cryptocurrency = self.__fetch_cryptocurrency()
-        estimated_network_fee = 0  # FIXME: Estimate it # TODO: Compare it with the user input
+        amount = cryptocurrency.input_to_normalized(amount)
+        if amount < Decimal(0):
+            raise HttpBadRequest("Amount should be greater than zero")
+
+        estimated_network_fee = Decimal(0)  # FIXME: Estimate it # TODO: Compare it with the user input
         withdrawal_fee = cryptocurrency.calculate_withdraw_commission(amount)  # TODO: Compare it with the user input:
 
         # 1. First we inquire the possibility of doing transaction by our wallet provider (stawallet):
@@ -211,7 +215,7 @@ class WithdrawController(RestController):
                 user_id=context.identity.id,
                 business_uid=context.form.get('businessUid'),  # FIXME Do not get this from user directly
                 destination_address=context.form.get('address'),
-                amount=context.form.get('amount'),
+                amount=cryptocurrency.normalized_to_output(amount),
             )
         except StawalletException as e:
             logger.info('Wallet access error: ' + e.message)
@@ -267,9 +271,9 @@ class WithdrawController(RestController):
                 business_uid=context.form.get('businessUid'),  # FIXME Do not get this from user directly
                 is_manual=False,  # TODO Check the amount
                 destination_address=context.form.get('address'),
-                amount_to_be_withdrawed=context.form.get('amount'),
-                withdrawal_fee=withdrawal_fee,
-                estimated_network_fee=estimated_network_fee,
+                amount_to_be_withdrawed=cryptocurrency.normalized_to_output(amount),
+                withdrawal_fee=cryptocurrency.normalized_to_output(withdrawal_fee),
+                estimated_network_fee=cryptocurrency.normalized_to_output(estimated_network_fee),
                 is_decharge=False,
             )
             return withdraw_to_dict(cryptocurrency, withdraw)

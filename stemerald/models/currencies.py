@@ -56,6 +56,17 @@ class Currency(OrderingMixin, FilteringMixin, DeclarativeBase):
         return ('{:.' + str(max(0, -self.smallest_unit_scale)) + 'f}') \
             .format(number.scaleb(- self.normalization_scale))
 
+    def normalized_smallest_unit(self, number: Decimal):
+        """
+        :return:
+        """
+        if number is None:
+            return None
+        if not isinstance(number, Decimal):
+            number = Decimal(number)
+
+        return '{:.0f}'.format(number.scaleb(-self.smallest_unit_scale - self.normalization_scale))
+
     def input_to_normalized(self, number: str, strict=True):
         """
         :return:
@@ -80,6 +91,13 @@ class Currency(OrderingMixin, FilteringMixin, DeclarativeBase):
         if number is None:
             return None
         return self.normalized_to_output(self.smallest_unit_to_normalized(number))
+
+    # def normalized_to_smallest_unit(self, number):
+    #     if number is None:
+    #         return None
+    #     if not isinstance(number, Decimal):
+    #         number = Decimal(number)
+    #     return self.normalized_to_output(self.smallest_unit_to_normalized(number))
 
     def to_dict(self):
         result = super().to_dict()

@@ -41,7 +41,9 @@ def stawallet_sync_looper():
 
                     for deposit in new_deposits:
                         # Try to update the stexchange
-                        deposit = deposit_to_dict(deposit)
+                        change_amount_normalized = cryptocurrency.smallest_unit_to_normalized(deposit['netAmount'])
+                        change_amount_output = cryptocurrency.smallest_unit_to_output(deposit['netAmount'])
+                        deposit = deposit_to_dict(cryptocurrency, deposit)
 
                         # TODO: Check the range
                         # TODO: Calculate the commission
@@ -56,7 +58,6 @@ def stawallet_sync_looper():
                             try:
 
                                 getcontext().prec = 8
-                                change_amount = str(Decimal(deposit['netAmount']) * Decimal('0.00000001'))
                                 if deposit['isConfirmed'] is True and deposit['error'] is None:
                                     # TODO: Check whether the user is admin (charge) or user (deposit)?
                                     wallet_update_respones = stexchange_client.balance_update(
@@ -64,7 +65,7 @@ def stawallet_sync_looper():
                                         asset=cryptocurrency.wallet_id,
                                         business='deposit',  # TODO: Are you sure?
                                         business_id=int(deposit['id']),  # TODO: Are you sure?
-                                        change=change_amount,
+                                        change=change_amount_normalized,
                                         # TODO: Make sure is greater than 0
                                         detail={}  # TODO
                                     )
@@ -77,7 +78,7 @@ def stawallet_sync_looper():
                                     notification.title = 'Your balance has been increased'
                                     notification.description = f'Your new deposit has just completely confirmed. ' \
                                         f'You balance has been increased ' \
-                                        f'{change_amount} {cryptocurrency.wallet_id} '
+                                        f'{change_amount_output} {cryptocurrency.wallet_id} '
 
                                 elif deposit['status'].lower() == 'orphan':
                                     notification.title = 'New deposit discovered'
