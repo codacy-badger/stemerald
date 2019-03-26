@@ -109,19 +109,33 @@ class PaymentGateway(DeclarativeBase):
 
     # # TODO: Will be deprecated and replaced by tiers
     cashin_min = Field(DECIMAL(18, 8), default=Decimal('0.00001000'))
-    cashin_max = Field(DECIMAL(18, 8), default=Decimal('0.00001000'))
+    cashin_max = Field(DECIMAL(18, 8), default=Decimal('100.00000000'))
     cashin_static_commission = Field(DECIMAL(18, 8), default=Decimal('0.00000000'))
     cashin_commission_rate = Field(Unicode(10), default="0.000")
     cashin_max_commission = Field(DECIMAL(18, 8), default=Decimal('0.00000000'))
 
     # # TODO: Will be deprecated and replaced by tiers
-    cashout_min = Field(DECIMAL(18, 8), default=Decimal('0.00100000'))
+    cashout_min = Field(DECIMAL(18, 8), default=Decimal('0.00010000'))
     cashout_max = Field(DECIMAL(18, 8), default=Decimal('100.00000000'))
     cashout_static_commission = Field(DECIMAL(18, 8), default=Decimal('0.00000000'))
     cashout_commission_rate = Field(Unicode(10), default="0.005")
     cashout_max_commission = Field(DECIMAL(18, 8), default=Decimal('0.00000000'))
 
     fiat = relationship('Fiat')
+
+    def to_dict(self):
+        result = super().to_dict()
+        # TODO: Get the current user's fiat_tier_policy about this currency
+        # result['tirePolicy'] = {}
+        result['cashoutMin'] = self.fiat.normalized_to_output(self.cashout_min)
+        result['cashoutMax'] = self.fiat.normalized_to_output(self.cashout_max)
+        result['cashoutStaticCommission'] = self.fiat.normalized_to_output(self.cashout_static_commission)
+        result['cashoutMaxCommission'] = self.fiat.normalized_to_output(self.cashout_max_commission)
+        result['cashinMin'] = self.fiat.normalized_to_output(self.cashin_min)
+        result['cashinMax'] = self.fiat.normalized_to_output(self.cashin_max)
+        result['cashinStaticCommission'] = self.fiat.normalized_to_output(self.cashin_static_commission)
+        result['cashinMaxCommission'] = self.fiat.normalized_to_output(self.cashin_max_commission)
+        return result
 
     def calculate_cashout_commission(self, amount: Decimal) -> Decimal:
         commission = self.cashout_static_commission

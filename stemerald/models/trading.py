@@ -32,14 +32,14 @@ class Market(OrderingMixin, FilteringMixin, DeclarativeBase):
     base_currency = relationship('Currency', foreign_keys=[base_currency_symbol])
     quote_currency = relationship('Currency', foreign_keys=[quote_currency_symbol])
 
-    buy_amount_min = Field(DECIMAL(18, 8), default=0)
-    buy_amount_max = Field(DECIMAL(18, 8), default=0)
+    buy_amount_min = Field(DECIMAL(18, 8), default=Decimal('0.00000100'))
+    buy_amount_max = Field(DECIMAL(18, 8), default=Decimal('100.00000000'))
 
-    sell_amount_min = Field(DECIMAL(18, 8), default=0)
-    sell_amount_max = Field(DECIMAL(18, 8), default=0)
+    sell_amount_min = Field(DECIMAL(18, 8), default=Decimal('0.00000100'))
+    sell_amount_max = Field(DECIMAL(18, 8), default=Decimal('100.00000000'))
 
-    taker_commission_rate = Field(Unicode(10), default="0.4")
-    maker_commission_rate = Field(Unicode(10), default="0.1")
+    taker_commission_rate = Field(Unicode(10), default='0.4')
+    maker_commission_rate = Field(Unicode(10), default='0.1')
 
     # taker_static_commission = Field(BigInteger(), default=0)
     # taker_permille_commission = Field(Integer(), default=0)
@@ -53,6 +53,10 @@ class Market(OrderingMixin, FilteringMixin, DeclarativeBase):
         result = super().to_dict()
         # TODO: Get the current user's wallet_tier_policy about this currency
         # result['tirePolicy'] = {}
+        result['buyAmountMin'] = self.base_currency.normalized_to_output(self.buy_amount_min)
+        result['buyAmountMax'] = self.base_currency.normalized_to_output(self.buy_amount_max)
+        result['sellAmountMin'] = self.base_currency.normalized_to_output(self.sell_amount_min)
+        result['sellAmountMax'] = self.base_currency.normalized_to_output(self.sell_amount_max)
         return result
 
     def get_last_price(self):

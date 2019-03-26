@@ -157,6 +157,20 @@ class Cryptocurrency(Currency):
             commission, self.deposit_max_commission
         ) if self.deposit_max_commission != Decimal(0) else commission
 
+    def to_dict(self):
+        result = super().to_dict()
+        # TODO: Get the current user's wallet_tier_policy about this currency
+        # result['tirePolicy'] = {}
+        result['withdrawMin'] = self.normalized_to_output(self.withdraw_min)
+        result['withdrawMax'] = self.normalized_to_output(self.withdraw_max)
+        result['withdrawStaticCommission'] = self.normalized_to_output(self.withdraw_static_commission)
+        result['withdrawMaxCommission'] = self.normalized_to_output(self.withdraw_max_commission)
+        result['depositMin'] = self.normalized_to_output(self.deposit_min)
+        result['depositMax'] = self.normalized_to_output(self.deposit_max)
+        result['depositStaticCommission'] = self.normalized_to_output(self.deposit_static_commission)
+        result['depositMaxCommission'] = self.normalized_to_output(self.deposit_max_commission)
+        return result
+
 
 class Fiat(Currency):
     __tablename__ = 'fiat'
