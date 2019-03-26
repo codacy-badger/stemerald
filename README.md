@@ -12,6 +12,24 @@ Wile dealing with this api, please consider the followings:
 Assume we have BTC(`smallest_unit_scale`=`-8`) and ETH(`smallest_unit_scale`=`-18`):
 * I want to buy amount`23.27467123 BTC` in price of `10.394234000000000000 ETH` 
 
+## Terminology:
+* `Asset`: Any tradable entity
+* `Currency`: Currency in real world (Currently it has one-to-one relationship with `Asset`)
+* `Cryptocurrency`: It's a children of `Currency`, refers to cryptocurrencies (e.g. `BTC`, `ETH`)
+* `Fiat`: It's a children of `Currency`, refers to real-world money (e.g. `USD`, `TRY`)
+
+* `Market`: A pair of assets (currencies) which are tradable directly)
+* Market -> `Money`: The one which we pay or being paid by it (also known as `counter` or `local` currency)
+* Market -> `Stock`: The tradable assets (currencies) of each market (also known as `base` or `quote` currency)
+* `Order`: *buy* or *sell* offer
+* `Deal` or `Fill`: Part of a order which was done
+
+
+## About Quotation:
+
+* `Base Currency`_`Counter Currency` (or `Base Currency`/`Counter Currency`): I want to buy/sell *x* of `Base Currency` with price of *y* `Counter Currency` (per `Base Currency`)
+* more info: `doc/`
+
 
 Setting up development Environment on Linux
 ----------------------------------
