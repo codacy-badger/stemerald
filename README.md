@@ -22,8 +22,8 @@ Assume we have BTC(`smallest_unit_scale`=`-8`) and ETH(`smallest_unit_scale`=`-1
 * `Fiat`: It's a children of `Currency`, refers to real-world money (e.g. `USD`, `TRY`)
 
 * `Market`: A pair of assets (currencies) which are tradable directly)
-* Market -> `Money`: The one which we pay or being paid by it (also known as `counter` or `local` currency)
-* Market -> `Stock`: The tradable assets (currencies) of each market (also known as `base` or `quote` currency)
+* Market -> `Money`: The one which we pay or being paid by it (also known as `counter` or `quote` or `local` currency)
+* Market -> `Stock`: The tradable assets (currencies) of each market (also known as `base` currency)
 * `Order`: *buy* or *sell* offer
 * `Deal` or `Fill`: Part of a order which was done
 

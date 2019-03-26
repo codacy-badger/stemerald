@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from restfulpy.orm import DeclarativeBase, Field, FilteringMixin, OrderingMixin
 from sqlalchemy import Integer, ForeignKey
-from sqlalchemy.sql.sqltypes import Unicode, Enum, DECIMAL
+from sqlalchemy.sql.sqltypes import Unicode, Enum
 
 
 class Currency(OrderingMixin, FilteringMixin, DeclarativeBase):
@@ -60,6 +60,12 @@ class Currency(OrderingMixin, FilteringMixin, DeclarativeBase):
             return None
         return self.normalized_to_output(self.smallest_unit_to_normalized(number))
 
+    def to_dict(self):
+        result = super().to_dict()
+        # TODO: Get the current user's wallet_tier_policy about this currency
+        result['tirePolicy'] = {}
+        return result
+
 
 class Cryptocurrency(Currency):
     __tablename__ = 'cryptocurrency'
@@ -80,17 +86,17 @@ class Cryptocurrency(Currency):
     wallet_id = Field(Unicode(32))
     wallet_latest_sync = Field(Integer(), default=0)
 
-    withdraw_min = Field(DECIMAL(18, 8), default=0)
-    withdraw_max = Field(DECIMAL(18, 8), default=0)
-    withdraw_static_commission = Field(DECIMAL(18, 8), default=0)
-    withdraw_permille_commission = Field(DECIMAL(18, 8), default=0)
-    withdraw_max_commission = Field(DECIMAL(18, 8), default=0)
-
-    deposit_min = Field(DECIMAL(18, 8), default=0)
-    deposit_max = Field(DECIMAL(18, 8), default=0)
-    deposit_static_commission = Field(DECIMAL(18, 8), default=0)
-    deposit_permille_commission = Field(DECIMAL(18, 8), default=0)
-    deposit_max_commission = Field(DECIMAL(18, 8), default=0)
+    # withdraw_min = Field(DECIMAL(18, 8), default=0)
+    # withdraw_max = Field(DECIMAL(18, 8), default=0)
+    # withdraw_static_commission = Field(DECIMAL(18, 8), default=0)
+    # withdraw_permille_commission = Field(DECIMAL(18, 8), default=0)
+    # withdraw_max_commission = Field(DECIMAL(18, 8), default=0)
+    #
+    # deposit_min = Field(DECIMAL(18, 8), default=0)
+    # deposit_max = Field(DECIMAL(18, 8), default=0)
+    # deposit_static_commission = Field(DECIMAL(18, 8), default=0)
+    # deposit_permille_commission = Field(DECIMAL(18, 8), default=0)
+    # deposit_max_commission = Field(DECIMAL(18, 8), default=0)
 
     def calculate_withdraw_commission(self, amount):
         commission = self.withdraw_static_commission
@@ -103,20 +109,6 @@ class Cryptocurrency(Currency):
         if self.deposit_permille_commission != 0:
             commission += int((amount * self.deposit_permille_commission) / 1000)
         return min(commission, self.deposit_max_commission) if self.deposit_max_commission != 0 else commission
-
-    def to_dict(self):
-        result = super().to_dict()
-        result['withdrawMin'] = self.normalized_to_output(self.normalized_to_output(self.id_card))
-        result['withdrawMax'] = self.normalized_to_output(self.withdraw_max)
-        result['withdrawFee'] = self.normalized_to_output(self.withdraw_static_commission)
-        result['withdrawPermilleCommission'] = self.normalized_to_output(self.withdraw_permille_commission)
-        result['withdrawax_commission'] = self.normalized_to_output(self.withdraw_max_commission)
-        result['deposit_min'] = self.normalized_to_output(self.deposit_min)
-        result['deposit_max'] = self.normalized_to_output(self.deposit_max)
-        result['deposit_static_commission'] = self.normalized_to_output(self.deposit_static_commission)
-        result['deposit_permille_commission'] = self.normalized_to_output(self.deposit_permille_commission)
-        result['deposit_max_commission'] = self.vnormalized_to_output(self.deposit_max_commission)
-        return result
 
 
 class Fiat(Currency):
