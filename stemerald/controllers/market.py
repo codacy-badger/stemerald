@@ -2,6 +2,7 @@ from nanohttp import RestController, json, context, HttpBadRequest, HttpNotFound
 from restfulpy.authorization import authorize
 from restfulpy.validation import prevent_form, validate_form
 
+from stemerald.math import format_number_to_pretty
 from stemerald.models import Market
 from stemerald.stexchange import stexchange_client, StexchangeException, stexchange_http_exception_handler
 
@@ -23,10 +24,10 @@ class MarketController(RestController):
                     'time': deal['time'],
                     'side': deal['side'],
                     'user': deal['user'],
-                    'price': deal['price'],
-                    'amount': deal['amount'],
-                    'fee': deal['fee'],
-                    'deal': deal['deal'],
+                    'price': format_number_to_pretty(deal['price']),
+                    'amount': format_number_to_pretty(deal['amount']),
+                    'fee': format_number_to_pretty(deal['fee']),
+                    'deal': format_number_to_pretty(deal['deal']),
                     'dealOrderId': deal['deal_order_id'],
                     'role': deal['role'],
                 } for deal in response['records']
@@ -53,8 +54,8 @@ class MarketController(RestController):
                 {
                     'id': deal['id'],
                     'time': deal['time'],
-                    'price': deal['price'],
-                    'amount': deal['amount'],
+                    'price': format_number_to_pretty(deal['price']),
+                    'amount': format_number_to_pretty(deal['amount']),
                     'type': deal['type'],
                 } for deal in response
             ]
@@ -75,7 +76,7 @@ class MarketController(RestController):
                 'stockPrec': market['stock_prec'],
                 'money': market['money'],
                 'feePrec': market['fee_prec'],
-                'minAmount': market['min_amount'],
+                'minAmount': format_number_to_pretty(market['min_amount']),
                 'moneyPrec': market['money_prec'],
             } for market in response if any(market['name'] == sm.name for sm in supporting_markets)
         ]
@@ -91,7 +92,7 @@ class MarketController(RestController):
         try:
             return {
                 'name': market.name,
-                'price': stexchange_client.market_last(market.name),
+                'price': format_number_to_pretty(stexchange_client.market_last(market.name)),
             }
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
@@ -112,9 +113,9 @@ class MarketController(RestController):
         return [
             {
                 'name': market['name'],
-                'bidAmount': market['bid_amount'],
+                'bidAmount': format_number_to_pretty(market['bid_amount']),
                 'bidCount': market['bid_count'],
-                'askAmount': market['ask_amount'],
+                'askAmount': format_number_to_pretty(market['ask_amount']),
                 'askCount': market['ask_count'],
             } for market in response
         ]
@@ -137,13 +138,13 @@ class MarketController(RestController):
             raise stexchange_http_exception_handler(e)
 
         return {
-            'open': status['open'],
-            'high': status['high'],
-            'low': status['low'],
-            'close': status.get('close', None),
-            'volume': status['volume'],
-            'deal': status['deal'],
-            'last': status['last'],
+            'open': format_number_to_pretty(status['open']),
+            'high': format_number_to_pretty(status['high']),
+            'low': format_number_to_pretty(status['low']),
+            'close': format_number_to_pretty(status.get('close', None)),
+            'volume': format_number_to_pretty(status['volume']),
+            'deal': format_number_to_pretty(status['deal']),
+            'last': format_number_to_pretty(status['last']),
             'period': status.get('period', None),
         }
 
@@ -173,8 +174,8 @@ class MarketController(RestController):
             'market': order.get('market', None),
             'type': 'limit' if order.get('type', None) == 1 else 'market',
             'side': 'sell' if order.get('side', None) == 1 else 'buy',
-            'amount': order.get('amount', None),
-            'price': order.get('price', None),
+            'amount': format_number_to_pretty(order.get('amount', None)),
+            'price': format_number_to_pretty(order.get('price', None)),
         } for order in result['orders']]
 
     @json
@@ -195,8 +196,10 @@ class MarketController(RestController):
             raise stexchange_http_exception_handler(e)
 
         return {
-            'asks': [{'price': ask[0], 'amount': ask[1]} for ask in depth['asks']],
-            'bids': [{'price': bid[0], 'amount': bid[1]} for bid in depth['bids']],
+            'asks': [{'price': format_number_to_pretty(ask[0]), 'amount': format_number_to_pretty(ask[1])} for ask in
+                     depth['asks']],
+            'bids': [{'price': format_number_to_pretty(bid[0]), 'amount': format_number_to_pretty(bid[1])} for bid in
+                     depth['bids']],
         }
 
     @json
@@ -220,10 +223,10 @@ class MarketController(RestController):
         return [{
             'market': market.name,
             'time': k[0],
-            'o': k[1],
-            'h': k[3],
-            'l': k[4],
-            'c': k[2],
-            'volume': k[5],
-            'amount': k[6],
+            'o': format_number_to_pretty(k[1]),
+            'h': format_number_to_pretty(k[3]),
+            'l': format_number_to_pretty(k[4]),
+            'c': format_number_to_pretty(k[2]),
+            'volume': format_number_to_pretty(k[5]),
+            'amount': format_number_to_pretty(k[6]),
         } for k in kline]

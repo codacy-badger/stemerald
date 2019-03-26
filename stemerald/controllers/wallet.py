@@ -10,6 +10,7 @@ from stemerald.stexchange import StexchangeException, stexchange_client, Balance
 
 logger = get_logger('WALLET')
 
+
 def deposit_to_dict(deposit):
     return {
         'id': deposit['id'],

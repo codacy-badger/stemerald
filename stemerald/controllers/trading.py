@@ -7,6 +7,7 @@ from restfulpy.authorization import authorize
 from restfulpy.utils import format_iso_datetime
 from restfulpy.validation import validate_form
 
+from stemerald.math import format_number_to_pretty
 from stemerald.models import Market
 from stemerald.stexchange import stexchange_client, StexchangeException, stexchange_http_exception_handler
 
@@ -24,14 +25,14 @@ def order_to_dict(o):
         'user': o['user'],
         'type': 'limit' if o['type'] == 1 else 'market',
         'side': 'sell' if o['side'] == 1 else 'buy',
-        'amount': o['amount'],
-        'price': o['price'],
+        'amount': format_number_to_pretty(o['amount']),
+        'price': format_number_to_pretty(o['price']),
         'takerFeeRate': o['taker_fee'],
         'makerFeeRate': o['maker_fee'],
         'source': o['source'],
-        'filledMoney': o['deal_money'],
-        'filledStock': o['deal_stock'],
-        'filledFee': o['deal_fee'],
+        'filledMoney': format_number_to_pretty(o['deal_money']),
+        'filledStock': format_number_to_pretty(o['deal_stock']),
+        'filledFee': format_number_to_pretty(o['deal_fee']),
     }
 
 
@@ -211,10 +212,10 @@ class OrderController(RestController):
                 'time': deal['time'],
                 'user': deal['user'],
                 'role': 'maker' if deal['role'] == 1 else 'taker',
-                'amount': deal['amount'],
-                'price': deal['price'],
-                'deal': deal['deal'],
-                'fee': deal['fee'],
+                'amount': format_number_to_pretty(deal['amount']),
+                'price': format_number_to_pretty(deal['price']),
+                'deal': format_number_to_pretty(deal['deal']),
+                'fee': format_number_to_pretty(deal['fee']),
                 'orderId': deal['deal_order_id'],
             } for deal in deals['records'] if (context.identity.is_in_roles('admin') or (deal['user'] == client_id))]
 

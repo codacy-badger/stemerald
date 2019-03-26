@@ -2,6 +2,7 @@ from nanohttp import RestController, context, json, HttpBadRequest
 from restfulpy.authorization import authorize
 from restfulpy.validation import validate_form, prevent_form
 
+from stemerald.math import format_number_to_pretty
 from stemerald.models import Currency
 from stemerald.stexchange import stexchange_client, StexchangeException, stexchange_http_exception_handler
 
@@ -26,11 +27,11 @@ class AssetsController(RestController):
         try:
             return [{
                 'name': x['name'],
-                'totalBalance': x['total_balance'],
-                'availableCount': x['available_count'],
-                'availableBalance': x['available_balance'],
-                'freezeCount': x['available_count'],
-                'freezeBalance': x['available_count'],
+                'totalBalance': format_number_to_pretty(x['total_balance']),
+                'availableCount': format_number_to_pretty(x['available_count']),
+                'availableBalance': format_number_to_pretty(x['available_balance']),
+                'freezeCount': format_number_to_pretty(x['available_count']),
+                'freezeBalance': format_number_to_pretty(x['available_count']),
             } for x in stexchange_client.asset_summary()]
 
         except StexchangeException as e:
@@ -52,8 +53,8 @@ class BalancesController(RestController):
                 if any(key == sm.symbol for sm in supporting_assets):
                     result.append({
                         'name': key,
-                        'available': value['available'],
-                        'freeze': value['freeze'],
+                        'available': format_number_to_pretty(value['available']),
+                        'freeze': format_number_to_pretty(value['freeze']),
                     })
 
         except StexchangeException as e:
@@ -76,8 +77,8 @@ class BalancesController(RestController):
                     'time': x['timestamp'],
                     'asset': x['asset'],
                     'business': x['business'],
-                    'change': x['change'],
-                    'balance': x['balance'],
+                    'change': format_number_to_pretty(x['change']),
+                    'balance': format_number_to_pretty(x['balance']),
                     'detail': x['detail'],
                 } for x in stexchange_client.balance_history(
                     context.identity.id,
