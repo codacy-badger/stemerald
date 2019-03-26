@@ -1,7 +1,7 @@
 from _decimal import ROUND_HALF_EVEN
 from decimal import getcontext, Decimal
 
-SUPPORTING_PREC = 18
+SUPPORTING_PREC = 28
 SHOWING_PREC = 8
 
 getcontext().prec = SUPPORTING_PREC
