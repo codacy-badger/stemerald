@@ -2,7 +2,6 @@ from nanohttp import RestController, json, context, HttpBadRequest, HttpNotFound
 from restfulpy.authorization import authorize
 from restfulpy.validation import prevent_form, validate_form
 
-from stemerald.math import format_number_to_pretty
 from stemerald.models import Market
 from stemerald.stexchange import stexchange_client, StexchangeException, stexchange_http_exception_handler
 

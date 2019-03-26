@@ -4,10 +4,22 @@ from restfulpy.orm import DeclarativeBase, Field, FilteringMixin, OrderingMixin
 from sqlalchemy import Integer, ForeignKey
 from sqlalchemy.sql.sqltypes import Unicode, Enum, DECIMAL
 
-from stemerald.math import parse_lowest_unit
-
 
 class Currency(OrderingMixin, FilteringMixin, DeclarativeBase):
+    """
+    For exp. for 'BTC' we'll use:
+        * smallest_unit_scale = -8
+        * normalization_scale = 0
+
+    For exp. for 'ETH' we'll use:
+        * smallest_unit_scale = -18
+        * normalization_scale = -1
+
+    For exp. for 'IRR' we'll use:
+        * smallest_unit_scale = 0
+        * normalization_scale = -8
+
+    """
     __tablename__ = 'currency'
 
     symbol = Field(Unicode(10), min_length=1, max_length=10, pattern=r'^[A-Z0-9]{1,10}$', primary_key=True)

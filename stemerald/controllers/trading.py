@@ -7,7 +7,6 @@ from restfulpy.authorization import authorize
 from restfulpy.utils import format_iso_datetime
 from restfulpy.validation import validate_form
 
-from stemerald.math import format_number_to_pretty
 from stemerald.models import Market
 from stemerald.stexchange import stexchange_client, StexchangeException, stexchange_http_exception_handler
 
