@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from restfulpy.orm import DBSession
 from sqlalchemy_media import store_manager
 
@@ -71,11 +73,11 @@ def insert():  # pragma: no cover
     shaparak = PaymentGateway()
     shaparak.name = "tshaparak"
     shaparak.fiat_symbol = "TIRR"
-    shaparak.cashin_min = 10000,
-    shaparak.cashin_max = 0,
-    shaparak.cashin_static_commission = 0,
-    shaparak.cashin_commission_rate = '0.0',
-    shaparak.cashin_max_commission = 0,
+    # shaparak.cashin_min = Decimal('10000'),
+    # shaparak.cashin_max = Decimal('0'),
+    # shaparak.cashin_static_commission = Decimal('0'),
+    # shaparak.cashin_commission_rate = '0.0',
+    # shaparak.cashin_max_commission = Decimal('0'),
     DBSession.add(shaparak)
     DBSession.flush()
 
