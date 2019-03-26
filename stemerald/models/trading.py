@@ -47,12 +47,6 @@ class Market(OrderingMixin, FilteringMixin, DeclarativeBase):
     # maker_permille_commission = Field(Integer(), default=0)
     # maker_max_commission = Field(BigInteger(), default=0)
 
-    divide_by_ten = Field(Integer(), default=0)
-
-    @property
-    def divide_by(self):
-        return 10 ** self.divide_by_ten
-
     def get_last_price(self):
         try:
             return float(stexchange_client.market_last(self.name))

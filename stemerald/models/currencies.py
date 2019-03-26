@@ -2,6 +2,8 @@ from restfulpy.orm import DeclarativeBase, Field, FilteringMixin, OrderingMixin
 from sqlalchemy import Integer, ForeignKey
 from sqlalchemy.sql.sqltypes import Unicode, Enum
 
+from stemerald.math import parse_lowest_unit
+
 
 class Currency(OrderingMixin, FilteringMixin, DeclarativeBase):
     __tablename__ = 'currency'
@@ -9,18 +11,21 @@ class Currency(OrderingMixin, FilteringMixin, DeclarativeBase):
     symbol = Field(Unicode(10), min_length=1, max_length=10, pattern=r'^[A-Z0-9]{1,10}$', primary_key=True)
     name = Field(Unicode(25), min_length=1, max_length=25)
 
-    divide_by_ten = Field(Integer(), default=0)
+    normalization_scale = Field(Integer(), default=0)
+    smallest_unit_scale = Field(Integer(), default=0)
 
     type = Field(Enum('fiat', 'cryptocurrency', name='currency_type'))
-
-    @property
-    def divide_by(self):
-        return 10 ** self.divide_by_ten
 
     __mapper_args__ = {
         'polymorphic_identity': __tablename__,
         'polymorphic_on': type
     }
+
+    def normalize_from_smallest_unit_string(self, number):
+        """
+        :return:
+        """
+        return parse_lowest_unit(number, smallest_unit_scale, normalizing_ten_pow)
 
 
 class Cryptocurrency(Currency):

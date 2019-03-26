@@ -8,26 +8,26 @@ getcontext().prec = SUPPORTING_PREC
 getcontext().rounding = ROUND_HALF_EVEN
 
 
-def parse_lowest_unit(number: str, lowest_unit_ten_pow: int, normalizing_ten_pow: int):
+def parse_lowest_unit(number: str, smallest_unit_scale: int, normalization_scale: int):
     """
 
     For exp. for 'BTC' we'll use:
-    lowest_unit_ten_pow = -8
-    normalizing_ten_pow = 0
+    smallest_unit_scale = -8
+    normalization_scale = 0
 
     For exp. for 'ETH' we'll use:
-    lowest_unit_ten_pow = -18
-    normalizing_ten_pow = -1
+    smallest_unit_scale = -18
+    normalization_scale = -1
 
     For exp. for 'IRR' we'll use:
-    lowest_unit_ten_pow = 0
-    normalizing_ten_pow = -8
+    smallest_unit_scale = 0
+    normalization_scale = -8
 
-    :param lowest_unit_pre:
-    :param normalizing_divide_by_ten:
+    :param smallest_unit_scale:
+    :param normalization_scale:
     :return:
     """
-    return Decimal(number).scaleb(lowest_unit_ten_pow + normalizing_ten_pow)
+    return Decimal(number).scaleb(smallest_unit_scale + normalization_scale)
 
 
 def format_dec(decimal):

@@ -11,10 +11,35 @@ from stemerald.models import *
 def insert():  # pragma: no cover
 
     # Currencies
-    tirr = Fiat(symbol='TIRR', name='Iran Rial', divide_by_ten=-8)
-    tbtc = Cryptocurrency(symbol='TBTC', name='Bitcoin', wallet_id="TBTC")
-    teth = Cryptocurrency(symbol='TETH', name='Ethereum', wallet_id="TETH", divide_by_ten=-1)
-    ttry = Fiat(symbol='TTRY', name='Turkish Lita', divide_by_ten=-4)
+    tirr = Fiat(
+        symbol='TIRR',
+        name='Iran Rial',
+        normalization_scale=-8,
+        smallest_unit_scale=0
+    )
+
+    tbtc = Cryptocurrency(
+        symbol='TBTC',
+        name='Bitcoin',
+        wallet_id="TBTC",
+        normalization_scale=0,
+        smallest_unit_scale=-8
+    )
+
+    teth = Cryptocurrency(
+        symbol='TETH',
+        name='Ethereum',
+        wallet_id="TETH",
+        normalization_scale=-1,
+        smallest_unit_scale=0
+    )
+
+    ttry = Fiat(
+        symbol='TTRY',
+        name='Turkish Lita',
+        normalization_scale=-4,
+        smallest_unit_scale=-2
+    )
 
     # Markets
     tirr_tbtc = Market(name='TIRR_TBTC', base_currency=tbtc, quote_currency=tirr)
