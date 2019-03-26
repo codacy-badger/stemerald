@@ -25,19 +25,20 @@ class CurrencyEditTestCase(WebTestCase):
     def test_currency_edit(self):
         self.login('admin1@test.com', '123456')
 
+        # TODO: These input values should not be normalized
         response, ___ = self.request(
             As.admin, 'EDIT', f'{self.url}/BTC',
             params=[
-                FormParameter('withdrawMin', 100),
-                FormParameter('withdrawMax', 0),
-                FormParameter('withdrawStaticCommission', 23),
-                FormParameter('withdrawPermilleCommission', 565),
-                FormParameter('withdrawMaxCommission', 23123),
-                FormParameter('depositMin', 0),
-                FormParameter('depositMax', 231),
-                FormParameter('depositStaticCommission', 743),
-                FormParameter('depositPermilleCommission', 934),
-                FormParameter('depositMaxCommission', 9132),
+                FormParameter('withdrawMin', '100'),
+                FormParameter('withdrawMax', '0'),
+                FormParameter('withdrawStaticCommission', '23'),
+                FormParameter('withdrawCommissionRate', '0.565'),
+                FormParameter('withdrawMaxCommission', '23123'),
+                FormParameter('depositMin', '0'),
+                FormParameter('depositMax', '231'),
+                FormParameter('depositStaticCommission', '743'),
+                FormParameter('depositCommissionRate', '0.934'),
+                FormParameter('depositMaxCommission', '9132'),
             ]
         )
 

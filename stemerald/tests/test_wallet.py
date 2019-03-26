@@ -10,11 +10,11 @@ from stemerald.tests.helpers import WebTestCase, As
 
 current_balance = 3001
 
-withdraw_min = 1000
-withdraw_max = 599000
-withdraw_static_commission = 129
-withdraw_permille_commission = 23
-withdraw_max_commission = 746
+withdraw_min = '1000'
+withdraw_max = '599000'
+withdraw_static_commission = '129'
+withdraw_commission_rate = '0.023'
+withdraw_max_commission = '746'
 
 mock_address_usage = {'1D6CqUvHtQRXU4TZrrj5j1iofo8f4oXyLj': False}
 mock_business_uid_usage = {'abc-def-gh': False}
@@ -43,7 +43,7 @@ class WalletTestCase(WebTestCase):
             withdraw_min=withdraw_min,
             withdraw_max=withdraw_max,
             withdraw_static_commission=withdraw_static_commission,
-            withdraw_permille_commission=withdraw_permille_commission,
+            withdraw_commission_rate=withdraw_commission_rate,
             withdraw_max_commission=withdraw_max_commission,
         )
         cls.session.add(btc)
@@ -55,31 +55,31 @@ class WalletTestCase(WebTestCase):
         class MockStexchangeClient(StexchangeClient):
             def __init__(self, headers=None):
                 super().__init__("", headers)
-                self.mock_balance = [2200, 0]
+                self.mock_balance = ["2200", "0"]
 
             def asset_list(self):
                 return ujson.loads('[{"name": "BTC", "prec": 8}]')
 
             def balance_update(self, user_id, asset, business, business_id, change, detail):
-                if Decimal(change) < 0 and self.mock_balance[0] + Decimal(change) < 0:
+                if Decimal(change) < Decimal(0) and Decimal(self.mock_balance[0]) + Decimal(change) < Decimal(0):
                     raise BalanceNotEnoughException(1)
 
                 if user_id == cls.mockup_client_1_id and business == 'withdraw' and asset == 'BTC':
-                    self.mock_balance[0] += Decimal(change)
+                    self.mock_balance[0] = '{:.8f}'.format(Decimal(change) + Decimal(self.mock_balance[0]))
                 return ujson.loads(
                     '{"BTC": {"available": "' +
-                    str(self.mock_balance[0]) +
+                    self.mock_balance[0] +
                     '", "freeze": "' +
-                    str(self.mock_balance[1]) +
+                    self.mock_balance[1] +
                     '"}}'
                 )
 
             def balance_query(self, *args, **kwargs):
                 return ujson.loads(
                     '{"BTC": {"available": "' +
-                    str(self.mock_balance[0]) +
+                    self.mock_balance[0] +
                     '", "freeze": "' +
-                    str(self.mock_balance[1]) +
+                    self.mock_balance[1] +
                     '"}}'
                 )
 
@@ -88,7 +88,7 @@ class WalletTestCase(WebTestCase):
         class MockStawalletClient(StawalletClient):
             def __init__(self, headers=None):
                 super().__init__("", headers)
-                self.mock_balance = [0, 0]
+                self.mock_balance = ["0", "0"]
 
             # def get_wallets(self):
             #     return [{
@@ -537,7 +537,7 @@ class WalletTestCase(WebTestCase):
             As.semitrusted_client, 'SCHEDULE', self.withdraw_url,
             params=[
                 FormParameter('cryptocurrencySymbol', 'BTC'),
-                FormParameter('amount', 2000),
+                FormParameter('amount', '2000'),
                 FormParameter('address', '2N2sn7skY9ZcDph2ougMdKn9a7tFj9ADhNV'),
                 FormParameter('businessUid', 'abc-def-gh'),
             ],

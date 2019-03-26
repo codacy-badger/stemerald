@@ -1,4 +1,5 @@
 import ujson
+from decimal import Decimal
 
 from nanohttp import settings
 
@@ -9,14 +10,14 @@ from stemerald.stexchange import StexchangeClient
 from stemerald.tests.helpers import WebTestCase, As
 from restfulpy.testing import FormParameter
 
-cashin_min = 200
-cashin_max = 0
-cashin_static_commission = 43
-cashin_permille_commission = 123
-cashin_max_commission = 897
+cashin_min = Decimal('200').scaleb(5)
+cashin_max = Decimal('0').scaleb(5)
+cashin_static_commission = Decimal('43').scaleb(5)
+cashin_commission_rate = '0.123'
+cashin_max_commission = Decimal('897').scaleb(5)
 
 mockup_transaction_id = '4738'
-mockup_amount = 4576
+mockup_amount = '4576.000'
 mockup_card_address = '6473-7563-8264-1092'
 is_transaction_verified = [False, True, True]
 
@@ -65,6 +66,8 @@ class TransactionShaparakInTestCase(WebTestCase):
         irr = Fiat(
             symbol='IRR',
             name='Iran Rial',
+            normalization_scale=-5,
+            smallest_unit_scale=-3,
         )
         cls.session.add(irr)
 
@@ -72,11 +75,11 @@ class TransactionShaparakInTestCase(WebTestCase):
         shaparak = PaymentGateway()
         shaparak.name = "shaparak"
         shaparak.fiat_symbol = "IRR"
-        shaparak.cashin_min = cashin_min,
-        shaparak.cashin_max = cashin_max,
-        shaparak.cashin_static_commission = cashin_static_commission,
-        shaparak.cashin_permille_commission = cashin_permille_commission,
-        shaparak.cashin_max_commission = cashin_max_commission,
+        shaparak.cashin_min = cashin_min
+        shaparak.cashin_max = cashin_max
+        shaparak.cashin_static_commission = cashin_static_commission
+        shaparak.cashin_commission_rate = cashin_commission_rate
+        shaparak.cashin_max_commission = cashin_max_commission
         cls.session.add(shaparak)
 
         shetab_address_1 = BankCard()
@@ -97,28 +100,28 @@ class TransactionShaparakInTestCase(WebTestCase):
         class MockStexchangeClient(StexchangeClient):
             def __init__(self, headers=None):
                 super().__init__("", headers)
-                self.mock_balance = [0, 0]
+                self.mock_balance = ["0", "0"]
 
             def asset_list(self):
                 return ujson.loads('[{"name": "IRR", "prec": 2}]')
 
             def balance_update(self, user_id, asset, business, business_id, change, detail):
                 if user_id == cls.mockup_client_1_id and business == 'cashin' and asset == 'IRR':
-                    self.mock_balance[0] += int(change)
+                    self.mock_balance[0] = '{:.8f}'.format(Decimal(self.mock_balance[0]) + Decimal(change))
                 return ujson.loads(
                     '{"IRR": {"available": "' +
-                    str(self.mock_balance[0]) +
+                    self.mock_balance[0] +
                     '", "freeze": "' +
-                    str(self.mock_balance[1]) +
+                    self.mock_balance[1] +
                     '"}}'
                 )
 
             def balance_query(self, *args, **kwargs):
                 return ujson.loads(
                     '{"IRR": {"available": "' +
-                    str(self.mock_balance[0]) +
+                    self.mock_balance[0] +
                     '", "freeze": "' +
-                    str(self.mock_balance[1]) +
+                    self.mock_balance[1] +
                     '"}}'
                 )
 
@@ -129,7 +132,7 @@ class TransactionShaparakInTestCase(WebTestCase):
 
         # 1. Create an Shaparak-In transaction
         result, ___ = self.request(As.trusted_client, 'CREATE', self.url, params=[
-            FormParameter('amount', mockup_amount, type_=int),
+            FormParameter('amount', mockup_amount, type_=str),
             FormParameter('shetabAddressId', self.mockup_shetab_address_1_id),
             FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ])
@@ -144,8 +147,8 @@ class TransactionShaparakInTestCase(WebTestCase):
 
         # Check balance
         balance = stexchange_client.balance_query(self.mockup_client_1_id, 'IRR').get('IRR')
-        self.assertEqual(int(balance['available']), 0)
-        self.assertEqual(int(balance['freeze']), 0)
+        self.assertEqual(Decimal(balance['available']).scaleb(-5), Decimal(0))
+        self.assertEqual(Decimal(balance['freeze']).scaleb(-5), Decimal(0))
 
         self.logout()
 
@@ -211,8 +214,8 @@ class TransactionShaparakInTestCase(WebTestCase):
 
         # Check balance
         balance = stexchange_client.balance_query(self.mockup_client_1_id, 'IRR').get('IRR')
-        self.assertEqual(int(balance['available']), 3971)
-        self.assertEqual(int(balance['freeze']), 0)
+        self.assertEqual(Decimal(balance['available']).scaleb(-5), Decimal('3970.152'))
+        self.assertEqual(Decimal(balance['freeze']).scaleb(-5), Decimal(0))
 
         # 5. Verify the transaction (Double spent)
         self.request(
@@ -235,5 +238,7 @@ class TransactionShaparakInTestCase(WebTestCase):
 
         # Check balance
         balance = stexchange_client.balance_query(self.mockup_client_1_id, 'IRR').get('IRR')
-        self.assertEqual(int(balance['available']), 3971)
-        self.assertEqual(int(balance['freeze']), 0)
+        self.assertEqual(Decimal(balance['available']).scaleb(-5), Decimal('3970.152'))
+        self.assertEqual(Decimal(balance['freeze']).scaleb(-5), Decimal(0))
+
+        # TODO: Make test to create the situation: http://stacrypt.io/payment_redirect?result=internal-error

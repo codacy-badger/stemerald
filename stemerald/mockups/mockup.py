@@ -114,7 +114,7 @@ def insert():  # pragma: no cover
     shaparak.cashin_min = 10000,
     shaparak.cashin_max = 0,
     shaparak.cashin_static_commission = 0,
-    shaparak.cashin_permille_commission = 0,
+    shaparak.cashin_commission_rate = '0.0',
     shaparak.cashin_max_commission = 0,
 
     DBSession.add(shaparak)

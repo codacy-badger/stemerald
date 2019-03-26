@@ -1,4 +1,5 @@
 import ujson
+from decimal import Decimal
 
 from restfulpy.testing import FormParameter
 
@@ -6,16 +7,14 @@ from stemerald.models import Client, BankAccount, Admin, Fiat, PaymentGateway
 from stemerald.stexchange import StexchangeClient, stexchange_client
 from stemerald.tests.helpers import WebTestCase, As
 
-current_balance = 3001
-
-cashout_min = 1000
-cashout_max = 599000
-cashout_static_commission = 129
-cashout_permille_commission = 23
-cashout_max_commission = 746
+cashout_min = '1000'
+cashout_max = '599000'
+cashout_static_commission = '129'
+cashout_commission_rate = '0.023'
+cashout_max_commission = '746'
 
 mockup_transaction_id = '4738'
-mockup_amount = 4576
+mockup_amount = '4576'
 
 
 class TransactionShaparakInTestCase(WebTestCase):
@@ -56,11 +55,11 @@ class TransactionShaparakInTestCase(WebTestCase):
         shaparak = PaymentGateway()
         shaparak.name = "shaparak"
         shaparak.fiat_symbol = "IRR"
-        shaparak.cashout_min = cashout_min,
-        shaparak.cashout_max = cashout_max,
-        shaparak.cashout_static_commission = cashout_static_commission,
-        shaparak.cashout_permille_commission = cashout_permille_commission,
-        shaparak.cashout_max_commission = cashout_max_commission,
+        shaparak.cashout_min = cashout_min
+        shaparak.cashout_max = cashout_max
+        shaparak.cashout_static_commission = cashout_static_commission
+        shaparak.cashout_commission_rate = cashout_commission_rate
+        shaparak.cashout_max_commission = cashout_max_commission
         cls.session.add(shaparak)
 
         # Mine, verified:
@@ -102,28 +101,28 @@ class TransactionShaparakInTestCase(WebTestCase):
         class MockStexchangeClient(StexchangeClient):
             def __init__(self, headers=None):
                 super().__init__("", headers)
-                self.mock_balance = [3001, 0]
+                self.mock_balance = ["3001", "0"]
 
             def asset_list(self):
                 return ujson.loads('[{"name": "IRR", "prec": 2}]')
 
             def balance_update(self, user_id, asset, business, business_id, change, detail):
                 if user_id == cls.mockup_client_1_id and business in ['cashout', 'cashback'] and asset == 'IRR':
-                    self.mock_balance[0] += int(change)
+                    self.mock_balance[0] = '{:.8f}'.format(Decimal(change) + Decimal(self.mock_balance[0]))
                 return ujson.loads(
                     '{"IRR": {"available": "' +
-                    str(self.mock_balance[0]) +
+                    self.mock_balance[0] +
                     '", "freeze": "' +
-                    str(self.mock_balance[1]) +
+                    self.mock_balance[1] +
                     '"}}'
                 )
 
             def balance_query(self, *args, **kwargs):
                 return ujson.loads(
                     '{"IRR": {"available": "' +
-                    str(self.mock_balance[0]) +
+                    self.mock_balance[0] +
                     '", "freeze": "' +
-                    str(self.mock_balance[1]) +
+                    self.mock_balance[1] +
                     '"}}'
                 )
 
@@ -134,47 +133,47 @@ class TransactionShaparakInTestCase(WebTestCase):
 
         # 1. Schedule an Shaparak-Out transaction (another's sheba address)
         self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
-            FormParameter('amount', 2000, type_=int),
+            FormParameter('amount', '2000', type_=str),
             FormParameter('shebaAddressId', self.mockup_sheba_address_others_id),
             FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ], expected_status=400)
 
         # 2. Schedule an Shaparak-Out transaction (unverified sheba address)
         self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
-            FormParameter('amount', 2000, type_=int),
+            FormParameter('amount', '2000', type_=str),
             FormParameter('shebaAddressId', self.mockup_sheba_address_unverified_id),
             FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ], expected_status=409)
 
         # 3. Schedule an Shaparak-Out transaction (less than minimum or more than max)
         self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
-            FormParameter('amount', 1, type_=int),
+            FormParameter('amount', '1', type_=str),
             FormParameter('shebaAddressId', self.mockup_sheba_address_verified_id),
             FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ], expected_status=400)
         self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
-            FormParameter('amount', 99999999999, type_=int),
+            FormParameter('amount', '99999999999', type_=str),
             FormParameter('shebaAddressId', self.mockup_sheba_address_verified_id),
             FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ], expected_status=400)
 
         # 4. Schedule an Shaparak-Out transaction (more than balance)
         self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
-            FormParameter('amount', 599000, type_=int),
+            FormParameter('amount', '599000', type_=str),
             FormParameter('shebaAddressId', self.mockup_sheba_address_verified_id),
             FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ], expected_status=400)
 
         # 4. Schedule an Shaparak-Out transaction (amount < balance < amount + commission)
         self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
-            FormParameter('amount', 3000, type_=int),
+            FormParameter('amount', '3000', type_=str),
             FormParameter('shebaAddressId', self.mockup_sheba_address_verified_id),
             FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ], expected_status=400)
 
         # 5. Schedule an Shaparak-Out transaction (everything is good)
         result, ___ = self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
-            FormParameter('amount', 2000, type_=int),
+            FormParameter('amount', '2000', type_=str),
             FormParameter('shebaAddressId', self.mockup_sheba_address_verified_id),
             FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ])
@@ -183,8 +182,8 @@ class TransactionShaparakInTestCase(WebTestCase):
 
         # Check balance
         balance = stexchange_client.balance_query(self.mockup_client_1_id, 'IRR').get('IRR')
-        self.assertEqual(int(balance['available']), 826)
-        self.assertEqual(int(balance['freeze']), 0)
+        self.assertEqual(Decimal(balance['available']), Decimal(826))
+        self.assertEqual(Decimal(balance['freeze']), Decimal(0))
 
         # 6. Reject the Shaparak-Out request
         self.login('admin1@test.com', '123456')
@@ -205,13 +204,13 @@ class TransactionShaparakInTestCase(WebTestCase):
 
         # Check balance (cash back without commission)
         balance = stexchange_client.balance_query(self.mockup_client_1_id, 'IRR').get('IRR')
-        self.assertEqual(int(balance['available']), 2826)
-        self.assertEqual(int(balance['freeze']), 0)
+        self.assertEqual(Decimal(balance['available']), Decimal(2826))
+        self.assertEqual(Decimal(balance['freeze']), Decimal(0))
 
         # 7. Accept the Shaparak-Out request ()
         self.login('client1@test.com', '123456')
         result, ___ = self.request(As.trusted_client, 'SCHEDULE', self.url, params=[
-            FormParameter('amount', 2000, type_=int),
+            FormParameter('amount', '2000', type_=str),
             FormParameter('shebaAddressId', self.mockup_sheba_address_verified_id),
             FormParameter('paymentGatewayName', self.mockup_payment_gateway_name),
         ])
@@ -234,5 +233,5 @@ class TransactionShaparakInTestCase(WebTestCase):
 
         # Check balance
         balance = stexchange_client.balance_query(self.mockup_client_1_id, 'IRR').get('IRR')
-        self.assertEqual(int(balance['available']), 651)
-        self.assertEqual(int(balance['freeze']), 0)
+        self.assertEqual(Decimal(balance['available']), Decimal(651))
+        self.assertEqual(Decimal(balance['freeze']), Decimal(0))

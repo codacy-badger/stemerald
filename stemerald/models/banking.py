@@ -1,7 +1,9 @@
+from decimal import Decimal
+
 from restfulpy.orm import DeclarativeBase
 from restfulpy.orm.field import Field, relationship
 from restfulpy.orm.mixins import ModifiedMixin, OrderingMixin, FilteringMixin, PaginationMixin, TimestampMixin
-from sqlalchemy import ForeignKey, BigInteger
+from sqlalchemy import ForeignKey, DECIMAL
 from sqlalchemy.sql.sqltypes import Integer, Unicode, Boolean, Enum
 
 
@@ -12,8 +14,8 @@ class BankingTransaction(ModifiedMixin, OrderingMixin, FilteringMixin, Paginatio
     fiat_symbol = Field(Unicode(10), ForeignKey('fiat.symbol'))
     member_id = Field(Integer(), ForeignKey('member.id'))  # FIXME: Change the name to `member_id`
     payment_gateway_name = Field(Unicode(30), ForeignKey('payment_gateway.name'))
-    amount = Field(BigInteger())  # Value without commission
-    commission = Field(BigInteger(), default=0)
+    amount = Field(DECIMAL(18, 8))  # Value without commission
+    commission = Field(DECIMAL(18, 8), default=Decimal(0))
     error = Field(Unicode(), nullable=True)
     reference_id = Field(Unicode(260), nullable=True)
     banking_id_id = Field(Integer(), ForeignKey('banking_id.id'), protected=True)
@@ -106,45 +108,41 @@ class PaymentGateway(DeclarativeBase):
     fiat_symbol = Field(Unicode(10), ForeignKey('fiat.symbol'))
 
     # # TODO: Will be deprecated and replaced by tiers
-    # cashin_min = Field(Integer(), default=0)
-    # cashin_max = Field(Integer(), default=0)
-    # cashin_static_commission = Field(Integer(), default=0)
-    # cashin_permille_commission = Field(Integer(), default=0)
-    # cashin_max_commission = Field(Integer(), default=0)
-    #
+    cashin_min = Field(DECIMAL(18, 8), default=Decimal('0.00001000'))
+    cashin_max = Field(DECIMAL(18, 8), default=Decimal('0.00001000'))
+    cashin_static_commission = Field(DECIMAL(18, 8), default=Decimal('0.00000000'))
+    cashin_commission_rate = Field(Unicode(10), default="0.000")
+    cashin_max_commission = Field(DECIMAL(18, 8), default=Decimal('0.00000000'))
+
     # # TODO: Will be deprecated and replaced by tiers
-    # cashout_min = Field(Integer(), default=0)
-    # cashout_max = Field(Integer(), default=0)
-    # cashout_static_commission = Field(Integer(), default=0)
-    # cashout_permille_commission = Field(Integer(), default=0)
-    # cashout_max_commission = Field(Integer(), default=0)
+    cashout_min = Field(DECIMAL(18, 8), default=Decimal('0.00100000'))
+    cashout_max = Field(DECIMAL(18, 8), default=Decimal('100.00000000'))
+    cashout_static_commission = Field(DECIMAL(18, 8), default=Decimal('0.00000000'))
+    cashout_commission_rate = Field(Unicode(10), default="0.005")
+    cashout_max_commission = Field(DECIMAL(18, 8), default=Decimal('0.00000000'))
 
     fiat = relationship('Fiat')
 
+    def calculate_cashout_commission(self, amount: Decimal) -> Decimal:
+        commission = self.cashout_static_commission
+        if self.cashout_commission_rate != Decimal(0):
+            commission += amount * Decimal(self.cashout_commission_rate)
+        return min(
+            commission, self.cashout_max_commission
+        ) if self.cashout_max_commission != Decimal(0) else commission
+
+    def calculate_cashin_commission(self, amount: Decimal) -> Decimal:
+        commission = self.cashin_static_commission
+        if self.cashin_commission_rate != Decimal(0):
+            commission += amount * Decimal(self.cashin_commission_rate)
+        return min(
+            commission, self.cashin_max_commission
+        ) if self.cashin_max_commission != Decimal(0) else commission
+
     # def calculate_cashout_commission(self, amount):
-    #     commission = self.cashout_static_commission
-    #     if self.cashout_permille_commission != 0:
-    #         commission += int((amount * self.cashout_permille_commission) / 1000)
-    #     return min(commission, self.cashout_max_commission) if self.cashout_max_commission != 0 else commission
+    #     # TODO: Implement based on new tier-based limitations
+    #     return 0
     #
     # def calculate_cashin_commission(self, amount):
-    #     commission = self.cashin_static_commission
-    #     if self.cashin_permille_commission != 0:
-    #         commission += int((amount * self.cashin_permille_commission) / 1000)
-    #     return min(commission, self.cashin_max_commission) if self.cashin_max_commission != 0 else commission
-    #
-    def calculate_cashout_commission(self, amount):
-        # TODO: Implement based on new tier-based limitations
-        # commission = self.cashout_static_commission
-        # if self.cashout_permille_commission != 0:
-        #     commission += int((amount * self.cashout_permille_commission) / 1000)
-        # return min(commission, self.cashout_max_commission) if self.cashout_max_commission != 0 else commission
-        return 0
-
-    def calculate_cashin_commission(self, amount):
-        # TODO: Implement based on new tier-based limitations
-        # commission = self.cashin_static_commission
-        # if self.cashin_permille_commission != 0:
-        #     commission += int((amount * self.cashin_permille_commission) / 1000)
-        # return min(commission, self.cashin_max_commission) if self.cashin_max_commission != 0 else commission
-        return 0
+    #     # TODO: Implement based on new tier-based limitations
+    #     return 0

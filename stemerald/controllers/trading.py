@@ -7,14 +7,14 @@ from restfulpy.authorization import authorize
 from restfulpy.utils import format_iso_datetime
 from restfulpy.validation import validate_form
 
-from stemerald.models import Market
+from stemerald.models import Market, Currency
 from stemerald.stexchange import stexchange_client, StexchangeException, stexchange_http_exception_handler
 
 BidId = Union[int, str]
 TradeId = Union[int, str]
 
 
-def order_to_dict(o):
+def order_to_dict(market: Market, o):
     return {
         'id': o['id'],
         'createdAt': format_iso_datetime(datetime.utcfromtimestamp(int(o['ctime']))) if 'ctime' in o else None,
@@ -24,18 +24,28 @@ def order_to_dict(o):
         'user': o['user'],
         'type': 'limit' if o['type'] == 1 else 'market',
         'side': 'sell' if o['side'] == 1 else 'buy',
-        'amount': format_number_to_pretty(o['amount']),
-        'price': format_number_to_pretty(o['price']),
+        'amount': market.base_currency.normalized_to_output(o['amount']),
+        'price': market.quote_currency.normalized_to_output(o['price']),
         'takerFeeRate': o['taker_fee'],
         'makerFeeRate': o['maker_fee'],
         'source': o['source'],
-        'filledMoney': format_number_to_pretty(o['deal_money']),
-        'filledStock': format_number_to_pretty(o['deal_stock']),
-        'filledFee': format_number_to_pretty(o['deal_fee']),
+        'filledMoney': market.quote_currency.normalized_to_output(o['deal_money']),
+        'filledStock': market.base_currency.normalized_to_output(o['deal_stock']),
+        'filledFee': market.quote_currency.normalized_to_output(o['deal_fee']),  # FIXME: Is it (quote_currency) right?
     }
 
 
 class OrderController(RestController):
+
+    def __fetch_market(self):
+        market = Market.query \
+            .filter(Market.name == context.query_string.get("marketName")) \
+            .one_or_none()
+
+        if market is None:
+            raise HttpBadRequest('Bad marketName')
+
+        return market
 
     @json
     @authorize('admin', 'semitrusted_client', 'trusted_client', 'client')
@@ -76,7 +86,7 @@ class OrderController(RestController):
                 else:
                     raise HttpNotFound('Bad status.')
 
-                return [order_to_dict(order) for order in orders['records']]
+                return [order_to_dict(self.__fetch_market(), order) for order in orders['records']]
 
             else:
                 if context.query_string['status'] == 'pending':
@@ -91,7 +101,7 @@ class OrderController(RestController):
                 else:
                     raise HttpNotFound('Bad status.')
 
-                return order_to_dict(order)
+                return order_to_dict(self.__fetch_market(), order)
 
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
@@ -115,14 +125,14 @@ class OrderController(RestController):
                 order_id=int(order_id),
             )
 
-            return order_to_dict(order)
+            return order_to_dict(self.__fetch_market(), order)
 
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
 
     @json
     @authorize('semitrusted_client', 'trusted_client', 'client')
-    @validate_form(exact=['price'], types={'price': int})
+    @validate_form(exact=['price'], types={'price': str})
     def edit(self, order_id: int):
         # TODO
         raise HttpBadRequest('Not implemented yet.')
@@ -132,7 +142,7 @@ class OrderController(RestController):
     @validate_form(
         whitelist=['marketName', 'type', 'price', 'amount', 'side'],
         requires=['marketName', 'type', 'amount', 'side'],
-        types={'price': int, 'amount': int, 'marketName': str},
+        types={'price': str, 'amount': str, 'marketName': str},
         pattern={'type': r'^(-)?(market|limit)$', 'side': r'^(-)?(buy|sell)$', }
     )
     def create(self):
@@ -144,27 +154,33 @@ class OrderController(RestController):
 
         side = 1 if (context.form['side'] == 'sell') else 2
 
-        price = context.form.get('price', None)
-        amount = context.form['amount']
+        amount = market.base_currency.input_to_normalized(context.form['amount'])
+        price = market.quote_currency.input_to_normalized(context.form.get('price', None))
         market.validate_ranges(type_=context.form['side'], total_amount=amount, price=price)
 
         try:
             if context.form['type'] == 'market':
+                if price is not None:
+                    raise HttpBadRequest('Price should not be sent in market orders', 'bad-price')
+
                 order = stexchange_client.order_put_market(
                     user_id=client_id,
                     market=market.name,
                     side=side,
-                    amount=str(amount),
+                    amount=Currency.format_normalized_string(amount),
                     taker_fee_rate=market.taker_commission_rate,
                     source="nothing",  # FIXME
                 )
             elif context.form['type'] == 'limit':
+                if price is None:
+                    raise HttpBadRequest('Price should be sent in market orders', 'bad-price')
+
                 order = stexchange_client.order_put_limit(
                     user_id=client_id,
                     market=market.name,
                     side=side,
-                    amount=str(amount),
-                    price=str(price),
+                    amount=Currency.format_normalized_string(amount),
+                    price=Currency.format_normalized_string(price),
                     taker_fee_rate=market.taker_commission_rate,
                     maker_fee_rate=market.maker_commission_rate,
                     source="nothing",  # FIXME
@@ -172,7 +188,7 @@ class OrderController(RestController):
             else:
                 raise HttpNotFound('Bad status.')
 
-            return order_to_dict(order)
+            return order_to_dict(market, order)
 
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
@@ -206,15 +222,17 @@ class OrderController(RestController):
                 limit=limit
             )
 
+            market = self.__fetch_market()
             return [{
                 'id': deal['id'],
-                'time': deal['time'],
+                'time': format_iso_datetime(
+                    datetime.utcfromtimestamp(int(deal['time']))) if 'time' in deal else None,
                 'user': deal['user'],
                 'role': 'maker' if deal['role'] == 1 else 'taker',
-                'amount': format_number_to_pretty(deal['amount']),
-                'price': format_number_to_pretty(deal['price']),
-                'deal': format_number_to_pretty(deal['deal']),
-                'fee': format_number_to_pretty(deal['fee']),
+                'amount': market.base_currency.normalized_to_output(deal['amount']),
+                'price': market.quote_currency.normalized_to_output(deal['price']),
+                'deal': market.quote_currency.normalized_to_output(deal['deal']),  # FIXME: Is it (quote_currency)
+                'fee': market.quote_currency.normalized_to_output(deal['fee']),  # FIXME: Is it (quote_currency)
                 'orderId': deal['deal_order_id'],
             } for deal in deals['records'] if (context.identity.is_in_roles('admin') or (deal['user'] == client_id))]
 

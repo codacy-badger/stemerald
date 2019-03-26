@@ -1,4 +1,5 @@
 import ujson
+from decimal import Decimal
 
 from restfulpy.testing import FormParameter
 
@@ -22,8 +23,9 @@ class OrderTestCase(WebTestCase):
         client1.is_evidence_verified = True
         cls.session.add(client1)
 
-        usd = Fiat(symbol='USD', name='USA Dollar')
-        btc = Cryptocurrency(symbol='BTC', name='Bitcoin', wallet_id='BTC')
+        usd = Fiat(symbol='USD', name='USA Dollar', smallest_unit_scale=-1, normalization_scale=0)
+        btc = Cryptocurrency(symbol='BTC', name='Bitcoin', wallet_id='BTC', smallest_unit_scale=-4,
+                             normalization_scale=0)
         btc_usd = Market(
             name="BTC_USD",
             base_currency=btc,
@@ -45,8 +47,8 @@ class OrderTestCase(WebTestCase):
         class MockStexchangeClient(StexchangeClient):
             def __init__(self, headers=None):
                 super().__init__("", headers)
-                self.mock_balance_btc = [0, 0]
-                self.mock_balance_usd = [15500, 0]
+                self.mock_balance_btc = ['0', '0']
+                self.mock_balance_usd = ['15500', '0']
 
             def asset_list(self):
                 return ujson.loads('[{"name": "BTC", "prec": 8}, {"name": "USD", "prec": 2}]')
@@ -58,33 +60,35 @@ class OrderTestCase(WebTestCase):
             def balance_update(self, user_id, asset, business, business_id, change, detail):
                 if user_id == cls.mockup_client_1_id and business in ['deposit', 'withdraw']:
                     (self.mock_balance_btc if asset == 'BTC' else self.mock_balance_usd)[0] += int(change)
-                return ujson.loads(
-                    '{"btc": {"available": "' +
-                    str(self.mock_balance_btc[0]) +
-                    '", "freeze": "' +
-                    str(self.mock_balance_btc[1]) +
-                    '"}, {usd": {"available": "' +
-                    str(self.mock_balance_usd[0]) +
-                    '", "freeze": "' +
-                    str(self.mock_balance_usd[1]) +
-                    '"}}'
-                )
+                    return ujson.loads(
+                        '{"btc": {"available": "' +
+                        self.mock_balance_btc[0] +
+                        '", "freeze": "' +
+                        self.mock_balance_btc[1] +
+                        '"}, {usd": {"available": "' +
+                        self.mock_balance_usd[0] +
+                        '", "freeze": "' +
+                        self.mock_balance_usd[1] +
+                        '"}}'
+                    )
+                else:
+                    raise StexchangeUnknownException("Error updateing balance")
 
             def balance_query(self, *args, **kwargs):
                 return ujson.loads(
                     '{"btc": {"available": "' +
-                    str(self.mock_balance_btc[0]) +
+                    self.mock_balance_btc[0] +
                     '", "freeze": "' +
-                    str(self.mock_balance_btc[1]) +
+                    self.mock_balance_btc[1] +
                     '"}, {usd": {"available": "' +
-                    str(self.mock_balance_usd[0]) +
+                    self.mock_balance_usd[0] +
                     '", "freeze": "' +
-                    str(self.mock_balance_usd[1]) +
+                    self.mock_balance_usd[1] +
                     '"}}'
                 )
 
             def order_put_limit(self, user_id, market, side, amount, price, taker_fee_rate, maker_fee_rate, source):
-                if int(amount) == 120:
+                if Decimal(amount) == Decimal('120'):
                     raise BalanceNotEnoughException(0)
 
                 return ujson.loads("""{"price": "2", "id": 62, "side": 2, "market": "BTC_USD", "taker_fee": "0.1",
@@ -93,7 +97,7 @@ class OrderTestCase(WebTestCase):
                 "0"} """)
 
             def order_put_market(self, user_id, market, side, amount, taker_fee_rate, source):
-                if int(amount) == 120:
+                if Decimal(amount) == Decimal('120'):
                     raise BalanceNotEnoughException(0)
                 return ujson.loads("""{"price": "0", "id": 63, "side": 1, "market": "BTC_USD", "taker_fee":
                 "0.1", "type": 2, "deal_fee": "0.6", "deal_stock": "3", "maker_fee": "0", "source": "cbd", "user": 1,
@@ -204,7 +208,7 @@ class OrderTestCase(WebTestCase):
                 FormParameter('marketName', self.market1_name, type_=str),
                 FormParameter('type', 'market'),
                 FormParameter('side', 'buy'),
-                FormParameter('amount', 1, type_=int),
+                FormParameter('amount', '1.0000', type_=str),
             ],
             expected_status=400,
             expected_headers={'x-reason': 'amount-not-in-range'}
@@ -217,7 +221,7 @@ class OrderTestCase(WebTestCase):
                 FormParameter('marketName', self.market1_name, type_=str),
                 FormParameter('type', 'market'),
                 FormParameter('side', 'buy'),
-                FormParameter('amount', 120, type_=int),
+                FormParameter('amount', '120.0000', type_=str),
             ],
             expected_status=400,
             expected_headers={'x-reason': 'not-enough-balance'}
@@ -230,7 +234,7 @@ class OrderTestCase(WebTestCase):
                 FormParameter('marketName', self.market1_name, type_=str),
                 FormParameter('type', 'market'),
                 FormParameter('side', 'buy'),
-                FormParameter('amount', 11, type_=int),
+                FormParameter('amount', '11.0000', type_=str),
             ],
         )
 
@@ -244,8 +248,8 @@ class OrderTestCase(WebTestCase):
                 FormParameter('marketName', self.market1_name, type_=str),
                 FormParameter('type', 'limit'),
                 FormParameter('side', 'buy'),
-                FormParameter('price', 1200, type_=int),
-                FormParameter('amount', 12, type_=int),
+                FormParameter('price', '1200.0', type_=str),
+                FormParameter('amount', '12.0000', type_=str),
             ],
             expected_status=400,
             expected_headers={'x-reason': 'price-not-in-range'}
@@ -258,8 +262,8 @@ class OrderTestCase(WebTestCase):
                 FormParameter('marketName', self.market1_name, type_=str),
                 FormParameter('type', 'limit'),
                 FormParameter('side', 'buy'),
-                FormParameter('price', 1000, type_=int),
-                FormParameter('amount', 1, type_=int),
+                FormParameter('price', '1000.0', type_=str),
+                FormParameter('amount', '1.0000', type_=str),
             ],
             expected_status=400,
             expected_headers={'x-reason': 'amount-not-in-range'}
@@ -272,8 +276,8 @@ class OrderTestCase(WebTestCase):
                 FormParameter('marketName', self.market1_name, type_=str),
                 FormParameter('type', 'limit'),
                 FormParameter('side', 'buy'),
-                FormParameter('price', 1050, type_=int),
-                FormParameter('amount', 120, type_=int),
+                FormParameter('price', '1050.0', type_=str),
+                FormParameter('amount', '120.0000', type_=str),
             ],
             expected_status=400,
             expected_headers={'x-reason': 'not-enough-balance'}
@@ -286,8 +290,8 @@ class OrderTestCase(WebTestCase):
                 FormParameter('marketName', self.market1_name, type_=str),
                 FormParameter('type', 'limit'),
                 FormParameter('side', 'buy'),
-                FormParameter('price', 1050, type_=int),
-                FormParameter('amount', 11, type_=int),
+                FormParameter('price', '1050.0', type_=str),
+                FormParameter('amount', '11.0000', type_=str),
             ],
         )
 
@@ -372,14 +376,14 @@ class OrderTestCase(WebTestCase):
         self.assertEqual(response['user'], 1)
         self.assertEqual(response['type'], 'limit')
         self.assertEqual(response['side'], 'buy')
-        self.assertEqual(response['amount'], '100.00000000')
-        self.assertEqual(response['price'], '2.00000000')
+        self.assertEqual(response['amount'], '100.0000')
+        self.assertEqual(response['price'], '2.0')
         self.assertEqual(response['takerFeeRate'], '0.1')
         self.assertEqual(response['makerFeeRate'], '0.1')
         self.assertEqual(response['source'], 'abc')
-        self.assertEqual(response['filledMoney'], '6.00000000')
-        self.assertEqual(response['filledStock'], '3.00000000')
-        self.assertEqual(response['filledFee'], '0.30000000')
+        self.assertEqual(response['filledMoney'], '6.0')
+        self.assertEqual(response['filledStock'], '3.0000')
+        self.assertEqual(response['filledFee'], '0.3')
 
         # 4. Getting order detail (finished)
         response, ___ = self.request(
@@ -395,11 +399,11 @@ class OrderTestCase(WebTestCase):
         self.assertEqual(response['user'], 1)
         self.assertEqual(response['type'], 'market')
         self.assertEqual(response['side'], 'sell')
-        self.assertEqual(response['amount'], '3.00000000')
-        self.assertEqual(response['price'], '0.00000000')  # FIXME: Why 0???
+        self.assertEqual(response['amount'], '3.0000')
+        self.assertEqual(response['price'], '0.0')  # FIXME: Why 0???
         self.assertEqual(response['takerFeeRate'], '0.1')
-        self.assertEqual(response['makerFeeRate'], '0')
+        self.assertEqual(Decimal(response['makerFeeRate']), Decimal('0.0'))
         self.assertEqual(response['source'], 'cbd')
-        self.assertEqual(response['filledMoney'], '6.00000000')
-        self.assertEqual(response['filledStock'], '3.00000000')
-        self.assertEqual(response['filledFee'], '0.60000000')
+        self.assertEqual(response['filledMoney'], '6.0')
+        self.assertEqual(response['filledStock'], '3.0000')
+        self.assertEqual(response['filledFee'], '0.6')

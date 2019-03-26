@@ -11,7 +11,7 @@ current_balance = 3001
 cashout_min = 1000
 cashout_max = 599000
 cashout_static_commission = 129
-cashout_permille_commission = 23
+cashout_commission_rate = '0.023'
 cashout_max_commission = 746
 
 mockup_transaction_id = '4738'
@@ -36,9 +36,9 @@ class PaymentGatewayTestCase(WebTestCase):
         shaparak.fiat_symbol = "IRR"
         shaparak.cashout_min = cashout_min,
         shaparak.cashout_max = cashout_max,
-        shaparak.cashout_static_commission = cashout_static_commission,
-        shaparak.cashout_permille_commission = cashout_permille_commission,
-        shaparak.cashout_max_commission = cashout_max_commission,
+        shaparak.cashout_static_commission = cashout_static_commission
+        shaparak.cashout_commission_rate = cashout_commission_rate
+        shaparak.cashout_max_commission = cashout_max_commission
         cls.session.add(shaparak)
 
         cls.session.commit()
@@ -54,5 +54,5 @@ class PaymentGatewayTestCase(WebTestCase):
         self.assertIn('cashoutMin', result[0])
         self.assertIn('cashoutMax', result[0])
         self.assertIn('cashoutStaticCommission', result[0])
-        self.assertIn('cashoutPermilleCommission', result[0])
+        self.assertIn('cashoutCommissionRate', result[0])
         self.assertIn('cashoutMaxCommission', result[0])

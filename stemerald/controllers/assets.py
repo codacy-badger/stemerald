@@ -1,5 +1,8 @@
+from datetime import datetime
+
 from nanohttp import RestController, context, json, HttpBadRequest
 from restfulpy.authorization import authorize
+from restfulpy.utils import format_iso_datetime
 from restfulpy.validation import validate_form, prevent_form
 
 from stemerald.models import Currency
@@ -90,7 +93,8 @@ class BalancesController(RestController):
         try:
             return [
                 {
-                    'time': x['timestamp'],
+                    'time': format_iso_datetime(
+                        datetime.utcfromtimestamp(int(x['timestamp']))) if 'timestamp' in x else None,
                     'asset': x['asset'],
                     'currency': currency.to_dict(),
                     'business': x['business'],

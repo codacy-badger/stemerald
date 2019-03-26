@@ -32,15 +32,16 @@ class CurrencyController(ModelRestController):
     @json
     @authorize('admin')
     @validate_form(
-        whitelist=['withdrawMin', 'withdrawMax', 'withdrawStaticCommission', 'withdrawPermilleCommission',
+        whitelist=['withdrawMin', 'withdrawMax', 'withdrawStaticCommission', 'withdrawCommissionRate',
                    'withdrawMaxCommission', 'depositMin', 'depositMax', 'depositStaticCommission',
-                   'depositPermilleCommission', 'depositMaxCommission']
+                   'depositCommissionRate', 'depositMaxCommission']
     )
     @__model__.expose
     @commit
     def edit(self, currency_symbol: str):
         currency = Currency.query.filter(Currency.symbol == currency_symbol).one_or_none()
 
+        # TODO: These input values should not be normalized
         if currency is None:
             raise HttpNotFound()
 

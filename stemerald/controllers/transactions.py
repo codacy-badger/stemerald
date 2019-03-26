@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Union
 
 from restfulpy.authorization import authorize
@@ -23,7 +24,7 @@ class ShaparakInController(ModelRestController):
 
     @json
     @authorize('trusted_client')
-    @validate_form(exact=['amount', 'shetabAddressId', 'paymentGatewayName'], types={'amount': int})
+    @validate_form(exact=['amount', 'shetabAddressId', 'paymentGatewayName'], types={'amount': str})
     @commit
     def create(self):
         # TODO: Add some salt to prevent man in the middle (Extra field to send on creation and check on verification,
@@ -35,13 +36,16 @@ class ShaparakInController(ModelRestController):
         payment_gateway = PaymentGateway.query.filter(
             PaymentGateway.name == context.form.get('paymentGatewayName')
         ).one_or_none()
+
+        amount = payment_gateway.fiat.input_to_normalized(amount)
+
         # TODO: More strict check and review how we control payment gateways
         if (payment_gateway is None) or (payment_gateway.fiat_symbol not in ['IRR', 'TIRR']):
             raise HttpBadRequest('Bad payment gateway')
         Fiat.query.filter(Fiat.symbol == payment_gateway.fiat_symbol).one()
 
-        if (
-                payment_gateway.cashin_max != 0 and amount > payment_gateway.cashin_max) or amount < payment_gateway.cashin_min:
+        if (payment_gateway.cashin_max != Decimal(0) and amount > payment_gateway.cashin_max) \
+                or amount < payment_gateway.cashin_min:
             raise HttpBadRequest('Amount is not between valid cashin range.')
 
         # Check sheba
@@ -118,12 +122,14 @@ class ShaparakInController(ModelRestController):
                         card_number[-4:] != target_transaction.banking_id.pan[-4:]:
                     result = 'bad-card'
                 else:
+                    payment_gateway = target_transaction.payment_gateway
                     shaparak_provider = create_shaparak_provider()
                     try:
                         amount, _, _ = shaparak_provider.verify_transaction(target_transaction.transaction_id)
+                        amount = payment_gateway.fiat.input_to_normalized(str(amount), strict=False)
 
                         # TODO: After verification, add a record with error to be possible to follow the problem later
-                        if int(target_transaction.amount) != int(amount):
+                        if target_transaction.amount != amount:
                             result = 'bad-amount'
                         else:
                             try:
@@ -135,7 +141,9 @@ class ShaparakInController(ModelRestController):
                                     asset=target_transaction.payment_gateway.fiat_symbol,  # FIXME
                                     business="cashin",  # FIXME
                                     business_id=target_transaction.id,  # FIXME: Think about double payment
-                                    change=target_transaction.amount - target_transaction.commission,
+                                    change=payment_gateway.fiat.format_normalized_string(
+                                        target_transaction.amount - target_transaction.commission
+                                    ),
                                     detail=target_transaction.to_dict(),
                                 )
 
@@ -151,6 +159,8 @@ class ShaparakInController(ModelRestController):
                                     )
 
                             except:
+                                import traceback
+                                traceback.print_exc()
                                 if DBSession.is_active:
                                     DBSession.rollback()
                                     result = 'internal-error'
@@ -168,7 +178,7 @@ class ShaparakOutController(ModelRestController):
 
     @json
     @authorize('trusted_client')
-    @validate_form(exact=['amount', 'shebaAddressId', 'paymentGatewayName'], types={'amount': int})
+    @validate_form(exact=['amount', 'shebaAddressId', 'paymentGatewayName'], types={'amount': str})
     @commit
     def schedule(self):
         amount = context.form.get('amount')
@@ -179,12 +189,14 @@ class ShaparakOutController(ModelRestController):
             PaymentGateway.name == context.form.get('paymentGatewayName')
         ).one()
 
+        amount = payment_gateway.fiat.input_to_normalized(amount)
+
         # TODO: More strict check and review how we control payment gateways
         if (payment_gateway is None) or (payment_gateway.fiat_symbol not in ['IRR', 'TIRR']):
             raise HttpBadRequest('Bad payment gateway')
         Fiat.query.filter(Fiat.symbol == payment_gateway.fiat_symbol).one()
 
-        if (payment_gateway.cashout_max != 0 and amount > payment_gateway.cashout_max) or \
+        if (payment_gateway.cashout_max != Decimal(0) and amount > payment_gateway.cashout_max) or \
                 amount < payment_gateway.cashout_min:
             raise HttpBadRequest('Amount is not between valid cashout range.')
 
@@ -192,7 +204,7 @@ class ShaparakOutController(ModelRestController):
 
         # Check balance
         try:
-            available_balance = int(stexchange_client.balance_query(
+            available_balance = Decimal(stexchange_client.balance_query(
                 context.identity.id, payment_gateway.fiat_symbol
             )[payment_gateway.fiat_symbol]['available'])
         except StexchangeException as e:
@@ -230,7 +242,8 @@ class ShaparakOutController(ModelRestController):
                 asset=payment_gateway.fiat_symbol,  # FIXME
                 business='cashout',  # FIXME
                 business_id=shaparak_out.id,
-                change=f'-{amount + commission}',  # FIXME Prevent negative amounts
+                change=f'-{payment_gateway.fiat.format_normalized_string(amount + commission)}',
+                # FIXME Prevent negative amounts
                 detail=shaparak_out.to_dict(),
             )
             # FIXME: Important !!!! : rollback the updated balance if
@@ -280,6 +293,8 @@ class ShaparakOutController(ModelRestController):
         if shaparak_out.error is not None:
             raise HttpBadRequest('This transaction already has an error.')
 
+        payment_gateway = shaparak_out.payment_gateway
+
         shaparak_out.error = error
 
         try:
@@ -289,7 +304,7 @@ class ShaparakOutController(ModelRestController):
                 asset=shaparak_out.payment_gateway.fiat_symbol,  # FIXME
                 business='cashback',  # FIXME
                 business_id=shaparak_out.id,
-                change=shaparak_out.amount,
+                change=payment_gateway.fiat.format_normalized_string(shaparak_out.amount),
                 detail=shaparak_out.to_dict(),
             )
             # FIXME: Important !!!! : rollback the updated balance if

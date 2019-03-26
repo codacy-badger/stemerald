@@ -1,5 +1,8 @@
-from nanohttp import RestController, json, context, HttpBadRequest, HttpNotFound
+from datetime import datetime
+
+from nanohttp import RestController, json, context, HttpBadRequest
 from restfulpy.authorization import authorize
+from restfulpy.utils import format_iso_datetime
 from restfulpy.validation import prevent_form, validate_form
 
 from stemerald.models import Market
@@ -8,25 +11,38 @@ from stemerald.stexchange import stexchange_client, StexchangeException, stexcha
 
 class MarketController(RestController):
 
+    def __fetch_market(self, market_name=None) -> Market:
+        market_name = (market_name or context.query_string.get("marketName", None)) \
+                      or context.form.get("marketName", None)
+        market = Market.query \
+            .filter(Market.name == market_name) \
+            .one_or_none()
+
+        if market is None:
+            raise HttpBadRequest('Bad market', 'bad-market')
+
+        return market
+
     @authorize('client')
-    def _peek_me(self, market):
+    def _peek_me(self, market: Market):
         try:
             response = stexchange_client.market_user_deals(
                 user_id=context.identity.id,
-                market=market,
+                market=market.name,
                 offset=int(context.query_string['offset']),
                 limit=int(context.query_string['limit'])
             )
             return [
                 {
                     'id': deal['id'],
-                    'time': deal['time'],
+                    'time': format_iso_datetime(
+                        datetime.utcfromtimestamp(int(deal['time']))) if 'time' in deal else None,
                     'side': deal['side'],
                     'user': deal['user'],
-                    'price': format_number_to_pretty(deal['price']),
-                    'amount': format_number_to_pretty(deal['amount']),
-                    'fee': format_number_to_pretty(deal['fee']),
-                    'deal': format_number_to_pretty(deal['deal']),
+                    'price': market.quote_currency.normalized_to_output(deal['price']),
+                    'amount': market.base_currency.normalized_to_output(deal['amount']),
+                    'fee': market.quote_currency.normalized_to_output(deal['fee']),  # FIXME: Is it (quote_currency)
+                    'deal': market.quote_currency.normalized_to_output(deal['deal']),  # FIXME: Is it (quote_currency)
                     'dealOrderId': deal['deal_order_id'],
                     'role': deal['role'],
                 } for deal in response['records']
@@ -37,12 +53,15 @@ class MarketController(RestController):
     @json
     @validate_form(whitelist=['limit', 'lastId', 'offset'])
     def peek(self, market: str, inner_resource: str):
+
+        market = self.__fetch_market(market)
+
         if inner_resource == 'mydeals':
             return self._peek_me(market)
         elif inner_resource == 'marketdeals':
             try:
                 response = stexchange_client.market_deals(
-                    market=market,
+                    market=market.name,
                     limit=int(context.query_string['limit']),
                     last_id=int(context.query_string['lastId'])
                 )
@@ -52,9 +71,10 @@ class MarketController(RestController):
             return [
                 {
                     'id': deal['id'],
-                    'time': deal['time'],
-                    'price': format_number_to_pretty(deal['price']),
-                    'amount': format_number_to_pretty(deal['amount']),
+                    'time': format_iso_datetime(
+                        datetime.utcfromtimestamp(int(deal['time']))) if 'time' in deal else None,
+                    'price': market.quote_currency.normalized_to_output(deal['price']),
+                    'amount': market.base_currency.normalized_to_output(deal['amount']),
                     'type': deal['type'],
                 } for deal in response
             ]
@@ -75,7 +95,8 @@ class MarketController(RestController):
                 'stockPrec': market['stock_prec'],
                 'money': market['money'],
                 'feePrec': market['fee_prec'],
-                'minAmount': format_number_to_pretty(market['min_amount']),
+                'minAmount': list(filter(lambda y: y.name == market['name'], supporting_markets))[0]
+                    .base_currency.normalized_to_output(market['min_amount']),
                 'moneyPrec': market['money_prec'],
             } for market in response if any(market['name'] == sm.name for sm in supporting_markets)
         ]
@@ -84,14 +105,12 @@ class MarketController(RestController):
     @prevent_form
     def last(self, market_name: str):
 
-        market = Market.query.filter(Market.name == market_name).one_or_none()
-        if market is None:
-            raise HttpBadRequest('Market not found', 'market-not-found')
+        market = self.__fetch_market(market_name)
 
         try:
             return {
                 'name': market.name,
-                'price': format_number_to_pretty(stexchange_client.market_last(market.name)),
+                'price': market.quote_currency.normalized_to_output(stexchange_client.market_last(market.name)),
             }
         except StexchangeException as e:
             raise stexchange_http_exception_handler(e)
@@ -100,9 +119,7 @@ class MarketController(RestController):
     @prevent_form
     def summary(self, market_name: str):
 
-        market = Market.query.filter(Market.name == market_name).one_or_none()
-        if market is None:
-            raise HttpBadRequest('Market not found', 'market-not-found')
+        market = self.__fetch_market(market_name)
 
         try:
             response = stexchange_client.market_summary(market_name)
@@ -111,12 +128,12 @@ class MarketController(RestController):
 
         return [
             {
-                'name': market['name'],
-                'bidAmount': format_number_to_pretty(market['bid_amount']),
-                'bidCount': market['bid_count'],
-                'askAmount': format_number_to_pretty(market['ask_amount']),
-                'askCount': market['ask_count'],
-            } for market in response
+                'name': market_summary['name'],
+                'bidAmount': market.base_currency.normalized_to_output(market_summary['bid_amount']),
+                'bidCount': market_summary['bid_count'],
+                'askAmount': market.base_currency.normalized_to_output(market_summary['ask_amount']),
+                'askCount': market_summary['ask_count'],
+            } for market_summary in response
         ]
 
     @json
@@ -124,9 +141,7 @@ class MarketController(RestController):
     def status(self, market_name: str):
         period = context.query_string.get('period')
 
-        market = Market.query.filter(Market.name == market_name).one_or_none()
-        if market is None:
-            raise HttpBadRequest('Market not found', 'market-not-found')
+        market = self.__fetch_market(market_name)
 
         try:
             if period == 'today':
@@ -137,13 +152,14 @@ class MarketController(RestController):
             raise stexchange_http_exception_handler(e)
 
         return {
-            'open': format_number_to_pretty(status['open']),
-            'high': format_number_to_pretty(status['high']),
-            'low': format_number_to_pretty(status['low']),
-            'close': format_number_to_pretty(status.get('close', None)),
-            'volume': format_number_to_pretty(status['volume']),
-            'deal': format_number_to_pretty(status['deal']),
-            'last': format_number_to_pretty(status['last']),
+            'open': market.quote_currency.normalized_to_output(status['open']),
+            'high': market.quote_currency.normalized_to_output(status['high']),
+            'low': market.quote_currency.normalized_to_output(status['low']),
+            'close': market.quote_currency.normalized_to_output(status.get('close', None)),
+            'volume': market.base_currency.normalized_to_output(status['volume']),
+            # FIXME: Is it (base_currency) right?
+            'deal': market.quote_currency.normalized_to_output(status['deal']),  # FIXME: Is it (quote_currency) right?
+            'last': market.quote_currency.normalized_to_output(status['last']),
             'period': status.get('period', None),
         }
 
@@ -158,9 +174,7 @@ class MarketController(RestController):
         limit = min(context.query_string.get('limit', 10), 10)
         side = 1 if (context.query_string['side'] == 'sell') else 2
 
-        market = Market.query.filter(Market.name == market_name).one_or_none()
-        if market is None:
-            raise HttpBadRequest('Market not found', 'market-not-found')
+        market = self.__fetch_market(market_name)
 
         try:
             result = stexchange_client.order_book(market.name, side, offset, limit)
@@ -168,13 +182,15 @@ class MarketController(RestController):
             raise stexchange_http_exception_handler(e)
 
         return [{
-            'ctime': order.get('ctime', None),
-            'mtime': order.get('mtime', None),
+            'createdAt': format_iso_datetime(
+                datetime.utcfromtimestamp(int(order['ctime']))) if 'ctime' in order else None,
+            'modifiedAt': format_iso_datetime(
+                datetime.utcfromtimestamp(int(order['mtime']))) if 'mtime' in order else None,
             'market': order.get('market', None),
             'type': 'limit' if order.get('type', None) == 1 else 'market',
             'side': 'sell' if order.get('side', None) == 1 else 'buy',
-            'amount': format_number_to_pretty(order.get('amount', None)),
-            'price': format_number_to_pretty(order.get('price', None)),
+            'amount': market.base_currency.normalized_to_output(order.get('amount', None)),
+            'price': market.quote_currency.normalized_to_output(order.get('price', None)),
         } for order in result['orders']]
 
     @json
@@ -185,9 +201,7 @@ class MarketController(RestController):
         limit = min(context.query_string.get('limit', 10), 10)
         interval = context.query_string.get('interval', 0)
 
-        market = Market.query.filter(Market.name == market_name).one_or_none()
-        if market is None:
-            raise HttpBadRequest('Market not found', 'market-not-found')
+        market = self.__fetch_market(market_name)
 
         try:
             depth = stexchange_client.order_depth(market.name, limit, interval)
@@ -195,9 +209,11 @@ class MarketController(RestController):
             raise stexchange_http_exception_handler(e)
 
         return {
-            'asks': [{'price': format_number_to_pretty(ask[0]), 'amount': format_number_to_pretty(ask[1])} for ask in
+            'asks': [{'price': market.quote_currency.normalized_to_output(ask[0]),
+                      'amount': market.base_currency.normalized_to_output(ask[1])} for ask in
                      depth['asks']],
-            'bids': [{'price': format_number_to_pretty(bid[0]), 'amount': format_number_to_pretty(bid[1])} for bid in
+            'bids': [{'price': market.quote_currency.normalized_to_output(bid[0]),
+                      'amount': market.base_currency.normalized_to_output(bid[1])} for bid in
                      depth['bids']],
         }
 
@@ -210,9 +226,7 @@ class MarketController(RestController):
         start = context.query_string.get('start')
         end = context.query_string.get('end')
 
-        market = Market.query.filter(Market.name == market_name).one_or_none()
-        if market is None:
-            raise HttpBadRequest('Market not found', 'market-not-found')
+        market = self.__fetch_market(market_name)
 
         try:
             kline = stexchange_client.market_kline(market.name, start, end, interval)
@@ -222,10 +236,10 @@ class MarketController(RestController):
         return [{
             'market': market.name,
             'time': k[0],
-            'o': format_number_to_pretty(k[1]),
-            'h': format_number_to_pretty(k[3]),
-            'l': format_number_to_pretty(k[4]),
-            'c': format_number_to_pretty(k[2]),
-            'volume': format_number_to_pretty(k[5]),
-            'amount': format_number_to_pretty(k[6]),
+            'o': market.quote_currency.normalized_to_output(k[1]),
+            'h': market.quote_currency.normalized_to_output(k[3]),
+            'l': market.quote_currency.normalized_to_output(k[4]),
+            'c': market.quote_currency.normalized_to_output(k[2]),
+            'volume': market.base_currency.normalized_to_output(k[5]),  # FIXME: Is it (base_currency) right?
+            'amount': market.base_currency.normalized_to_output(k[6]),  # FIXME: Is it (base_currency) right?
         } for k in kline]
