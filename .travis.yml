@@ -33,7 +33,7 @@ services:
 - docker
 - redis-server
 install: ".travis/install.sh"
-script: coverage run --source emerald $(which nosetests)
+script: coverage run --source stemerald $(which nosetests)
 before_deploy:
 - openssl aes-256-cbc -K $encrypted_05c658a95df7_key -iv $encrypted_05c658a95df7_iv
   -in deploy_rsa.enc -out /tmp/deploy_rsa -d
