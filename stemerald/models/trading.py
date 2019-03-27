@@ -66,20 +66,22 @@ class Market(OrderingMixin, FilteringMixin, DeclarativeBase):
             raise stexchange_http_exception_handler(e)
 
     def validate_ranges(self, type_, total_amount, price=None):
-        threshold = Decimal(settings.trader.price_threshold_permille)
-        price_rate = Decimal(1000 * (price or self.get_last_price()) / self.get_last_price()) - Decimal(1000)
+
+        # TODO: Review and rewrite the price threshold validator
+        # threshold = Decimal(settings.trader.price_threshold_permille)
+        # price_rate = Decimal(1000 * (price or self.get_last_price()) / self.get_last_price()) - Decimal(1000)
 
         if type_ == 'buy':
-            if price_rate > threshold:
-                raise HttpBadRequest('Price not in valid range', 'price-not-in-range')
+            # if price_rate > threshold:
+            #     raise HttpBadRequest('Price not in valid range', 'price-not-in-range')
 
             if total_amount < self.buy_amount_min or \
                     (self.buy_amount_max != 0 and total_amount > self.buy_amount_max):
                 raise HttpBadRequest('Amount not in range', 'amount-not-in-range')
 
         elif type_ == 'sell':
-            if price_rate < -threshold:
-                raise HttpBadRequest('Price not in valid range', 'price-not-in-range')
+            # if price_rate < -threshold:
+            #     raise HttpBadRequest('Price not in valid range', 'price-not-in-range')
 
             if total_amount < self.sell_amount_min or \
                     (self.sell_amount_max != 0 and total_amount > self.sell_amount_max):
