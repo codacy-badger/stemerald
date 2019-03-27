@@ -1,6 +1,7 @@
 # Stemerald
 Digital currency trading wrapper
 
+[![Build Status](https://travis-ci.com/mahdi13/stemerald.svg?branch=master)](https://travis-ci.com/mahdi13/stemerald)
 [![Coverage Status](https://coveralls.io/repos/github/mahdi13/stemerald/badge.svg?branch=master)](https://coveralls.io/github/mahdi13/stemerald?branch=master)
 # Data Types
 Wile dealing with this api, please consider the followings:
