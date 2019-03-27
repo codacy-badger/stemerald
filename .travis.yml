@@ -3,6 +3,7 @@ env:
   - COMMIT_AUTHOR_EMAIL: dev@stacrypt.io
   - COMMIT=${TRAVIS_COMMIT::8}
   - CODECOV_TOKEN="228a86c6-bf32-45f9-a116-ae7339cda4ad"
+  - CC_TEST_REPORTER_ID=61aecfc73faccfb65e3547e32461e60802e396bf04f544f895a1b85e51e13112
   - secure: ZbVgVTgYg8sX+RZMBZ/c77gp8Gi/bxKow3XlhafT+2d9Do3ddj1mORk+OiG0voCb1B+WHkw7JSCBSgB3LQvUraoEQmioANCvUbl0IvgH25JSFBhhEgxooqwOI8qlR0gfmucNlR1TwnrdDDpwTDOnvL5U317yTDqSRcOXCJda2JBKiwdnXC1/F2Q4FDJrvZevgtlOGaTDi7AVAVA26HbTnrxzE4CD6oW3syKn9BSAsA4KC02CAEDV9Fz1tmTYclGS+NDnVQyEH2L5UAGGz9iU9OM5h5lUmWIJ8CjwPVNcc+ZUN7XOn6HbLC2axcRp8AEMBTSVkdEhCMxAVsMI5ooxCiWtQZnuwfRZGGt+f1UEJZKxR0nH0r0PuS4yZthmoH58FqvvYb3cNHBcgpZxwLtzSKa58UYCHwkGqiLecECHqgHRR3+pWkPU2jndn0saabpPv8Pew3BkUjbUQ1KiYKhO0ZsFmT25g5Fk1pLjEIC22AM+xy1dLl0cQtQOoK1suDK/HG58SDo2ulkbCSD1twEQZJak3nGHQBUNQ/+AmbzmYn3fwNDpDMe2cq7APi4F3mysl/qdTpVjlwgrf+M9yKgLSklEiXMsieyWZOlnH3JZc5SJ6DMhP6+J6vcCwlioqyhXqh7xqWgaLYZwDpF3zPUZ4ZXJdfrUrYtJgX4sRfDa82U=
   - secure: ZBdPJIysTFabkJGk18xoBivH5IvB/bYJb+MSthl+X9k05yZtWMJcsTf1Aorpbgr6WMemUw+QqYF8ZdmFELobnKhvk2wuoP9n/RjaYT72SJ7BedHtY/bDHMHdYhDvdH/5rl+DXw9v9LjKeAWK++W0iyuKzsKTN9cy47TJr4JYkqM6ZBJ2pT89u5AQEI9PcOuTt60NyNJe014TwazRQhAg6AXyGxQkDYn+No0J4e1PXU7TXt3RNAGuSGcZiBz8tnznUqzGLu5T2HUGUfACGuLuRNChy/dE2Y6rgzVpCBAXQyC+I+SppqKpkwMcWsid3Ncmpb0T7oSuD/o3EvXUqw70QB7VKbMDSktzTcaMOqpltaNnIhQxLuSvSJEJkHja//UsO5RUlyX0kGCktiuPzBVM4rABjC6XOk+2CTFv0iZLZW6tNgJ3GjE7xGwZPEACsWgx5xeKUNtiZo9anZUHDFcq6EYYWJiLXo940hBcxVAKboc31LRq2ZSb+mXxnQOHa/rhHcyQDdidUkVWAKGatE7/PI79BAIMMvh19pQ0D8rjJ8cc8kYO3YuygxKqDp1LSbGNlvsf6os/ZRPoWlqJGUbLw8hsxn+EYntxWd88SW4j6bZROmbPH+FWrrwG5OKg8EzcMD7Y3eVR+qdGNJmnRyANdei85pZd0+bCw8p9VsBAA40=
   - secure: BM15F/btGrn+7R1aa17OQ29PXOJbOXe/gJr08Fc9FujOTxmyWPsk+mGn0Tmdgs/Y3Wb66yjTJcG+dgZZNziWbK/Efh6Mo2ktzxqSaDlobECewjO64yml6eMEbb6+HtACcdoLuKjaINoOXmtsMf+g0AUERLYWMIQShmK8kl/tmdrrnC/GjC0bmhJDrDBLLkkuLEOWA0ARxxfTO0JI3FLyPy4rO1MpWWECo6I9VgHZw02PgD8ohpxjgrSBmy/9URHRSP/QxRDVauoyxw74/gRwm4JQjkJEp4IPXWcBo2EhrKVrf/i6hrJqH3SQm+g5jSxnlcAAwkEXeGjJRgU62txnORlhZimQCL7uL1rXZdR2gSdqfALc4tzcP0SNxY386T+peVoHqZ8YA8y3svTgshhSWTybtPfmyZCk33cKkvW6YfEkjr+Er6VwoLY/WIlS0gJd4mhl2HHGYicouz8qhmX37cETv3jsB/NR+GNos3DfB3TdG53L1lzHCmiTC4vObzGUw4MDGJ+gqz0tIegT7TXiqLqy7SHpMi2zo4Iqt0saGEaHyHcoWNdlgOliQQgmesPIrKdFDmMMtcrYCFW2iFkyaOKrgdiHRTji6BFcYa+3XTOgtRxWMkcJCNeeNNdtKKE9/nlYr0dfS5x/Fhzuzs5uB2k4JBHeHj3FszRpVPQxwU4=
@@ -34,7 +35,14 @@ services:
 - docker
 - redis-server
 install: ".travis/install.sh"
-script: coverage run --source stemerald $(which nosetests)
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+
+script: coverage run --source stemerald $(which nosetests) && bundle exec rspec
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 before_deploy:
 - openssl aes-256-cbc -K $encrypted_05c658a95df7_key -iv $encrypted_05c658a95df7_iv
   -in deploy_rsa.enc -out /tmp/deploy_rsa -d
